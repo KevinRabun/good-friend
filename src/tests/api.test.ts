@@ -243,4 +243,144 @@ describe('API Integration Tests', () => {
     expect(body.kindnessAct).toBeTruthy();
     expect(body.message).toBeTruthy();
   });
+
+  // Companion Journeys
+  it('GET /api/companion/journeys returns all journeys', async () => {
+    const { status, body } = await get('/api/companion/journeys');
+    expect(status).toBe(200);
+    expect(body.length).toBeGreaterThan(0);
+  });
+
+  it('GET /api/companion/journeys/gj-1 returns specific journey', async () => {
+    const { status, body } = await get('/api/companion/journeys/gj-1');
+    expect(status).toBe(200);
+    expect(body.title).toBe('The Self-Compassion Journey');
+    expect(body.steps.length).toBeGreaterThan(0);
+  });
+
+  it('GET /api/companion/journeys/nonexistent returns 404', async () => {
+    const { status } = await get('/api/companion/journeys/nonexistent');
+    expect(status).toBe(404);
+  });
+
+  it('GET /api/companion/journeys/gj-1/step/1 returns specific step', async () => {
+    const { status, body } = await get('/api/companion/journeys/gj-1/step/1');
+    expect(status).toBe(200);
+    expect(body.stepNumber).toBe(1);
+    expect(body.instruction).toBeTruthy();
+    expect(body.prompt).toBeTruthy();
+  });
+
+  it('GET /api/companion/journeys/gj-1/step/99 returns 404', async () => {
+    const { status } = await get('/api/companion/journeys/gj-1/step/99');
+    expect(status).toBe(404);
+  });
+
+  it('GET /api/companion/themes returns themes', async () => {
+    const { status, body } = await get('/api/companion/themes');
+    expect(status).toBe(200);
+    expect(body).toContain('self-compassion');
+    expect(body).toContain('inner-peace');
+  });
+
+  it('GET /api/companion/random returns a journey', async () => {
+    const { status, body } = await get('/api/companion/random');
+    expect(status).toBe(200);
+    expect(body.id).toBeTruthy();
+    expect(body.steps.length).toBeGreaterThan(0);
+  });
+
+  // Journal
+  it('POST /api/journal creates an entry', async () => {
+    const { status, body } = await post('/api/journal', {
+      type: 'gratitude',
+      prompt: 'What are you grateful for?',
+      content: 'The sunshine today.',
+      mood: 4,
+      tags: ['nature'],
+    });
+    expect(status).toBe(201);
+    expect(body.id).toBeTruthy();
+    expect(body.type).toBe('gratitude');
+    expect(body.content).toBe('The sunshine today.');
+  });
+
+  it('POST /api/journal validates required fields', async () => {
+    const { status } = await post('/api/journal', { type: 'gratitude' });
+    expect(status).toBe(400);
+  });
+
+  it('POST /api/journal validates mood range', async () => {
+    const { status } = await post('/api/journal', {
+      type: 'gratitude',
+      prompt: 'p',
+      content: 'c',
+      mood: 10,
+    });
+    expect(status).toBe(400);
+  });
+
+  it('GET /api/journal/types returns journal types', async () => {
+    const { status, body } = await get('/api/journal/types');
+    expect(status).toBe(200);
+    expect(body).toContain('gratitude');
+    expect(body).toContain('peace-intention');
+  });
+
+  it('GET /api/journal/prompts returns a prompt', async () => {
+    const { status, body } = await get('/api/journal/prompts');
+    expect(status).toBe(200);
+    expect(body.prompt).toBeTruthy();
+  });
+
+  // Pledges
+  it('POST /api/pledges creates a pledge', async () => {
+    const { status, body } = await post('/api/pledges', {
+      pledge: 'I pledge to be kind to a stranger today.',
+      category: 'kindness',
+      name: 'TestUser',
+    });
+    expect(status).toBe(201);
+    expect(body.id).toBeTruthy();
+    expect(body.pledge).toContain('kind');
+    expect(body.category).toBe('kindness');
+  });
+
+  it('POST /api/pledges validates required fields', async () => {
+    const { status } = await post('/api/pledges', { pledge: 'solo' });
+    expect(status).toBe(400);
+  });
+
+  it('GET /api/pledges/impact returns community impact', async () => {
+    await post('/api/pledges', { pledge: 'p1', category: 'peace' });
+    await post('/api/pledges', { pledge: 'p2', category: 'peace' });
+    const { status, body } = await get('/api/pledges/impact');
+    expect(status).toBe(200);
+    expect(body.totalPledges).toBeGreaterThanOrEqual(2);
+  });
+
+  it('GET /api/pledges/categories returns categories', async () => {
+    const { status, body } = await get('/api/pledges/categories');
+    expect(status).toBe(200);
+    expect(body).toContain('peace');
+    expect(body).toContain('kindness');
+  });
+
+  it('GET /api/pledges/templates returns templates', async () => {
+    const { status, body } = await get('/api/pledges/templates');
+    expect(status).toBe(200);
+    expect(body.length).toBeGreaterThan(0);
+  });
+
+  it('GET /api/pledges/:id returns specific pledge', async () => {
+    const created = await post('/api/pledges', { pledge: 'test', category: 'tolerance' });
+    const { status, body } = await get(`/api/pledges/${created.body.id}`);
+    expect(status).toBe(200);
+    expect(body.pledge).toBe('test');
+  });
+
+  it('GET /api/pledges/nonexistent-id returns 404', async () => {
+    const { status } = await get('/api/pledges/nonexistent-id');
+    expect(status).toBe(404);
+  });
 });

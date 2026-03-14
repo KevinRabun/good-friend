@@ -5,6 +5,9 @@ import * as tolerance from './modules/tolerance';
 import * as kindness from './modules/kindness';
 import * as wellness from './modules/wellness';
 import * as resources from './modules/resources';
+import * as companion from './modules/companion';
+import * as journal from './modules/journal';
+import * as pledges from './modules/pledges';
 
 export function createApp() {
   const app = express();
@@ -209,6 +212,147 @@ export function createApp() {
       kindnessAct: kindness.getDailyKindnessAct(),
       message: 'Here\'s your daily dose of positivity. You matter, and the world is better with you in it.',
     });
+  });
+
+  // --- Companion Guided Journeys ---
+  app.get('/api/companion/journeys', (_req: Request, res: Response) => {
+    res.json(companion.getAllJourneys());
+  });
+
+  app.get('/api/companion/journeys/:id', (req: Request, res: Response) => {
+    const journey = companion.getJourneyById(req.params.id as string);
+    if (!journey) {
+      res.status(404).json({ error: 'Journey not found' });
+      return;
+    }
+    res.json(journey);
+  });
+
+  app.get('/api/companion/journeys/:id/step/:step', (req: Request, res: Response) => {
+    const stepNumber = parseInt(req.params.step as string);
+    if (isNaN(stepNumber)) {
+      res.status(400).json({ error: 'Step must be a number.' });
+      return;
+    }
+    const step = companion.getJourneyStep(req.params.id as string, stepNumber);
+    if (!step) {
+      res.status(404).json({ error: 'Journey or step not found' });
+      return;
+    }
+    res.json(step);
+  });
+
+  app.get('/api/companion/themes', (_req: Request, res: Response) => {
+    res.json(companion.getJourneyThemes());
+  });
+
+  app.get('/api/companion/theme/:theme', (req: Request, res: Response) => {
+    const results = companion.getJourneysByTheme(
+      req.params.theme as companion.JourneyTheme
+    );
+    res.json(results);
+  });
+
+  app.get('/api/companion/random', (req: Request, res: Response) => {
+    const theme = req.query.theme as string | undefined;
+    try {
+      const result = companion.getRandomJourney(
+        theme as companion.JourneyTheme | undefined
+      );
+      res.json(result);
+    } catch {
+      res.status(400).json({ error: `Invalid or empty theme: ${theme}` });
+    }
+  });
+
+  // --- Journal ---
+  app.post('/api/journal', (req: Request, res: Response) => {
+    const { type, prompt, content, mood, tags } = req.body;
+    if (!type || !prompt || !content) {
+      res.status(400).json({ error: 'type, prompt, and content are required.' });
+      return;
+    }
+    if (mood !== undefined && (typeof mood !== 'number' || mood < 1 || mood > 5)) {
+      res.status(400).json({ error: 'mood must be a number between 1 and 5.' });
+      return;
+    }
+    const entry = journal.createEntry(type, prompt, content, mood, tags);
+    res.status(201).json(entry);
+  });
+
+  app.get('/api/journal', (_req: Request, res: Response) => {
+    res.json(journal.getAllEntries());
+  });
+
+  app.get('/api/journal/types', (_req: Request, res: Response) => {
+    res.json(journal.getJournalTypes());
+  });
+
+  app.get('/api/journal/prompts', (req: Request, res: Response) => {
+    const type = req.query.type as string | undefined;
+    if (type) {
+      res.json(journal.getPromptsByType(type as journal.JournalType));
+    } else {
+      res.json(journal.getRandomPrompt());
+    }
+  });
+
+  app.get('/api/journal/entry/:id', (req: Request, res: Response) => {
+    const entry = journal.getEntry(req.params.id as string);
+    if (!entry) {
+      res.status(404).json({ error: 'Journal entry not found' });
+      return;
+    }
+    res.json(entry);
+  });
+
+  app.get('/api/journal/type/:type', (req: Request, res: Response) => {
+    const results = journal.getEntriesByType(req.params.type as journal.JournalType);
+    res.json(results);
+  });
+
+  // --- Peace Pledges ---
+  app.post('/api/pledges', (req: Request, res: Response) => {
+    const { pledge, category, name } = req.body;
+    if (!pledge || !category) {
+      res.status(400).json({ error: 'pledge and category are required.' });
+      return;
+    }
+    const entry = pledges.createPledge(pledge, category, name);
+    res.status(201).json(entry);
+  });
+
+  app.get('/api/pledges', (_req: Request, res: Response) => {
+    res.json(pledges.getAllPledges());
+  });
+
+  app.get('/api/pledges/impact', (_req: Request, res: Response) => {
+    res.json(pledges.getCommunityImpact());
+  });
+
+  app.get('/api/pledges/categories', (_req: Request, res: Response) => {
+    res.json(pledges.getPledgeCategories());
+  });
+
+  app.get('/api/pledges/templates', (req: Request, res: Response) => {
+    const category = req.query.category as string | undefined;
+    res.json(pledges.getPledgeTemplates(category as pledges.PledgeCategory | undefined));
+  });
+
+  app.get('/api/pledges/category/:category', (req: Request, res: Response) => {
+    const results = pledges.getPledgesByCategory(
+      req.params.category as pledges.PledgeCategory
+    );
+    res.json(results);
+  });
+
+  app.get('/api/pledges/:id', (req: Request, res: Response) => {
+    const p = pledges.getPledge(req.params.id as string);
+    if (!p) {
+      res.status(404).json({ error: 'Pledge not found' });
+      return;
+    }
+    res.json(p);
   });
 
   return app;

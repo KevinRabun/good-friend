@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Good Friend — Wellness Companion</title>
+  <style>
+    :root {
+      --primary: #5b8c6e;
+      --primary-light: #e8f5e9;
+      --accent: #ff9800;
+      --text: #333;
+      --text-light: #666;
+      --bg: #fafafa;
+      --card: #fff;
+      --shadow: 0 2px 8px rgba(0,0,0,0.08);
+      --radius: 12px;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    header {
+      background: linear-gradient(135deg, var(--primary), #3e6b4e);
+      color: white;
+      text-align: center;
+      padding: 2rem 1rem;
+    }
+    header h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+    header p { opacity: 0.9; font-size: 1.1rem; max-width: 600px; margin: 0 auto; }
+    .container { max-width: 800px; margin: 0 auto; padding: 1rem; }
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    .card h2 {
+      color: var(--primary);
+      margin-bottom: 0.75rem;
+      font-size: 1.3rem;
+    }
+    .card p { margin-bottom: 0.5rem; }
+    .card .label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-light);
+      margin-bottom: 0.25rem;
+    }
+    .quote {
+      font-style: italic;
+      font-size: 1.2rem;
+      line-height: 1.5;
+      color: var(--primary);
+      padding: 1rem;
+      border-left: 4px solid var(--primary);
+      margin: 0.5rem 0;
+      background: var(--primary-light);
+      border-radius: 0 var(--radius) var(--radius) 0;
+    }
+    .steps { list-style: none; counter-reset: step; }
+    .steps li {
+      counter-increment: step;
+      padding: 0.5rem 0 0.5rem 2.5rem;
+      position: relative;
+    }
+    .steps li::before {
+      content: counter(step);
+      position: absolute;
+      left: 0;
+      top: 0.5rem;
+      width: 1.8rem;
+      height: 1.8rem;
+      background: var(--primary);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      font-weight: bold;
+    }
+    .reflection {
+      background: #fff8e1;
+      padding: 1rem;
+      border-radius: var(--radius);
+      margin: 0.5rem 0;
+    }
+    .reflection h3 { color: #e65100; font-size: 1rem; margin-bottom: 0.5rem; }
+    .reflection ul { margin-left: 1.2rem; }
+    .btn {
+      display: inline-block;
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 0.6rem 1.2rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      margin: 0.25rem;
+      transition: background 0.2s;
+    }
+    .btn:hover { background: #4a7a5c; }
+    .btn-outline {
+      background: transparent;
+      color: var(--primary);
+      border: 2px solid var(--primary);
+    }
+    .btn-outline:hover { background: var(--primary-light); }
+    .btn-warm {
+      background: var(--accent);
+    }
+    .btn-warm:hover { background: #e68a00; }
+    .nav-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin: 1rem 0;
+      justify-content: center;
+    }
+    .nav-tabs .btn { font-size: 0.85rem; padding: 0.4rem 0.8rem; }
+    .nav-tabs .btn.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+    .checkin-scale {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+      margin: 1rem 0;
+      flex-wrap: wrap;
+    }
+    .checkin-scale button {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      border: 2px solid var(--primary);
+      background: white;
+      cursor: pointer;
+      font-size: 1.5rem;
+      transition: all 0.2s;
+    }
+    .checkin-scale button:hover,
+    .checkin-scale button.selected {
+      background: var(--primary);
+      color: white;
+      transform: scale(1.1);
+    }
+    .story-card {
+      border-left: 4px solid var(--accent);
+      padding-left: 1rem;
+      margin: 1rem 0;
+    }
+    .story-card .meta {
+      font-size: 0.85rem;
+      color: var(--text-light);
+      margin-top: 0.5rem;
+    }
+    .encouragements { color: var(--accent); font-weight: bold; }
+    #content { min-height: 300px; }
+    .loading {
+      text-align: center;
+      padding: 2rem;
+      color: var(--text-light);
+    }
+    .hidden { display: none; }
+    footer {
+      text-align: center;
+      padding: 2rem 1rem;
+      color: var(--text-light);
+      font-size: 0.9rem;
+    }
+    footer a { color: var(--primary); }
+    .crisis-banner {
+      background: #ffebee;
+      border: 1px solid #ef9a9a;
+      border-radius: var(--radius);
+      padding: 1rem;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+    .crisis-banner strong { color: #c62828; }
+    textarea {
+      width: 100%;
+      min-height: 100px;
+      padding: 0.75rem;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      resize: vertical;
+      margin: 0.5rem 0;
+    }
+    input[type="text"] {
+      padding: 0.5rem;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      width: 100%;
+      margin: 0.25rem 0;
+    }
+    @media (max-width: 600px) {
+      header h1 { font-size: 1.5rem; }
+      .nav-tabs .btn { font-size: 0.75rem; padding: 0.3rem 0.6rem; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Good Friend</h1>
+    <p>Your daily companion for wellness, empathy, and peace. You matter, and the world is better with you in it.</p>
+  </header>
+
+  <div class="container">
+    <nav class="nav-tabs" id="mainNav">
+      <button class="btn active" data-section="daily">Today</button>
+      <button class="btn btn-outline" data-section="affirmations">Affirmations</button>
+      <button class="btn btn-outline" data-section="mindfulness">Mindfulness</button>
+      <button class="btn btn-outline" data-section="tolerance">Understanding</button>
+      <button class="btn btn-outline" data-section="kindness">Kindness</button>
+      <button class="btn btn-outline" data-section="checkin">Check-In</button>
+      <button class="btn btn-outline" data-section="journeys">Journeys</button>
+      <button class="btn btn-outline" data-section="deescalation">De-escalation</button>
+      <button class="btn btn-outline" data-section="stories">Stories</button>
+      <button class="btn btn-outline" data-section="pledges">Pledges</button>
+      <button class="btn btn-outline" data-section="resources">Resources</button>
+    </nav>
+
+    <div id="content">
+      <div class="loading">Loading your daily companion...</div>
+    </div>
+  </div>
+
+  <footer>
+    <p>Good Friend &mdash; Promoting positive mental health, tolerance, and a peaceful global society.</p>
+    <p>If you're in crisis, please reach out: <strong>988</strong> (US) | <strong>116 123</strong> (UK) | <a href="/api/resources/crisis">View all crisis resources</a></p>
+  </footer>
+
+  <script>
+    const API = '';
+    let currentSection = 'daily';
+
+    // Navigation
+    document.getElementById('mainNav').addEventListener('click', (e) => {
+      if (e.target.dataset.section) {
+        document.querySelectorAll('#mainNav .btn').forEach(b => {
+          b.classList.remove('active');
+          b.classList.add('btn-outline');
+        });
+        e.target.classList.add('active');
+        e.target.classList.remove('btn-outline');
+        currentSection = e.target.dataset.section;
+        loadSection(currentSection);
+      }
+    });
+
+    async function fetchJSON(path, opts) {
+      const res = await fetch(API + path, opts);
+      return res.json();
+    }
+
+    async function loadSection(section) {
+      const content = document.getElementById('content');
+      content.innerHTML = '<div class="loading">Loading...</div>';
+      try {
+        switch (section) {
+          case 'daily': return renderDaily(content);
+          case 'affirmations': return renderAffirmations(content);
+          case 'mindfulness': return renderMindfulness(content);
+          case 'tolerance': return renderTolerance(content);
+          case 'kindness': return renderKindness(content);
+          case 'checkin': return renderCheckIn(content);
+          case 'journeys': return renderJourneys(content);
+          case 'deescalation': return renderDeescalation(content);
+          case 'stories': return renderStories(content);
+          case 'pledges': return renderPledges(content);
+          case 'resources': return renderResources(content);
+        }
+      } catch (err) {
+        content.innerHTML = '<div class="card"><p>Something went wrong. Please try again.</p></div>';
+      }
+    }
+
+    async function renderDaily(el) {
+      const data = await fetchJSON('/api/daily');
+      el.innerHTML = `
+        <div class="card">
+          <h2>Today's Affirmation</h2>
+          <div class="quote">${esc(data.affirmation.text)}</div>
+          <p class="label">${esc(data.affirmation.theme)}</p>
+        </div>
+        <div class="card">
+          <h2>Today's Reflection</h2>
+          <p>${esc(data.perspectivePrompt.prompt)}</p>
+          <div class="reflection">
+            <h3>Reflect on:</h3>
+            <ul>${data.perspectivePrompt.reflectionQuestions.map(q => `<li>${esc(q)}</li>`).join('')}</ul>
+          </div>
+        </div>
+        <div class="card">
+          <h2>Today's Kindness Challenge</h2>
+          <p><strong>${esc(data.kindnessAct.suggestion)}</strong></p>
+          <p class="label">${esc(data.kindnessAct.scope)} · ${esc(data.kindnessAct.effortLevel)} effort</p>
+          <p>${esc(data.kindnessAct.impact)}</p>
+        </div>
+        <div class="card" style="text-align:center">
+          <p style="font-style:italic; color: var(--primary)">${esc(data.message)}</p>
+        </div>
+      `;
+    }
+
+    async function renderAffirmations(el) {
+      const themes = await fetchJSON('/api/affirmations/themes');
+      const random = await fetchJSON('/api/affirmations/random');
+      el.innerHTML = `
+        <div class="card">
+          <h2>Affirmation</h2>
+          <div class="quote">${esc(random.text)}</div>
+          <p class="label">${esc(random.theme)}</p>
+          <button class="btn" onclick="loadSection('affirmations')">Another one</button>
+        </div>
+        <div class="card">
+          <h2>Browse by Theme</h2>
+          <div class="nav-tabs">${themes.map(t => `<button class="btn btn-outline" onclick="showTheme('${esc(t)}')">${esc(t)}</button>`).join('')}</div>
+          <div id="themeResults"></div>
+        </div>
+      `;
+    }
+
+    window.showTheme = async function(theme) {
+      const results = await fetchJSON('/api/affirmations/theme/' + encodeURIComponent(theme));
+      document.getElementById('themeResults').innerHTML = results.map(a =>
+        `<div class="quote" style="margin:0.5rem 0">${esc(a.text)}</div>`
+      ).join('');
+    };
+
+    async function renderMindfulness(el) {
+      const random = await fetchJSON('/api/mindfulness/random');
+      el.innerHTML = `
+        <div class="card">
+          <h2>${esc(random.title)}</h2>
+          <p class="label">${esc(random.category)} · ${random.durationMinutes} minutes</p>
+          <ol class="steps">${random.steps.map(s => `<li>${esc(s)}</li>`).join('')}</ol>
+          <p style="margin-top:1rem"><strong>Benefit:</strong> ${esc(random.benefit)}</p>
+          <button class="btn" style="margin-top:0.5rem" onclick="loadSection('mindfulness')">Try another exercise</button>
+        </div>
+      `;
+    }
+
+    async function renderTolerance(el) {
+      const random = await fetchJSON('/api/tolerance/random');
+      el.innerHTML = `
+        <div class="card">
+          <h2>Perspective Prompt</h2>
+          <p class="label">${esc(random.category)}</p>
+          <p style="font-size:1.1rem">${esc(random.prompt)}</p>
+          <div class="reflection">
+            <h3>Reflect on:</h3>
+            <ul>${random.reflectionQuestions.map(q => `<li>${esc(q)}</li>`).join('')}</ul>
+          </div>
+          <button class="btn" onclick="loadSection('tolerance')">Next prompt</button>
+        </div>
+      `;
+    }
+
+    async function renderKindness(el) {
+      const random = await fetchJSON('/api/kindness/random');
+      el.innerHTML = `
+        <div class="card">
+          <h2>Kindness Suggestion</h2>
+          <p style="font-size:1.1rem"><strong>${esc(random.suggestion)}</strong></p>
+          <p class="label">${esc(random.scope)} · ${esc(random.effortLevel)} effort</p>
+          <p>${esc(random.impact)}</p>
+          <button class="btn" onclick="loadSection('kindness')">Another idea</button>
+        </div>
+      `;
+    }
+
+    async function renderCheckIn(el) {
+      const moods = await fetchJSON('/api/wellness/moods');
+      const feelings = await fetchJSON('/api/wellness/feelings');
+      el.innerHTML = `
+        <div class="card">
+          <h2>How are you feeling?</h2>
+          <p>Select your current mood:</p>
+          <div class="checkin-scale">
+            ${moods.map(m => `<button onclick="selectMood(${m.level})" id="mood-${m.level}" title="${esc(m.label)}: ${esc(m.description)}">${['😢','😔','😐','😊','🌟'][m.level-1]}</button>`).join('')}
+          </div>
+          <p id="moodLabel" style="text-align:center; color: var(--text-light)">Tap a face that matches how you feel</p>
+          <p style="margin-top:1rem">What feelings resonate? (click to select)</p>
+          <div class="nav-tabs" id="feelingsList">
+            ${feelings.map(f => `<button class="btn btn-outline feeling-btn" onclick="toggleFeeling(this, '${esc(f)}')">${esc(f)}</button>`).join('')}
+          </div>
+          <button class="btn btn-warm" style="width:100%;margin-top:1rem" onclick="submitCheckIn()">Check In</button>
+          <div id="checkinResult"></div>
+        </div>
+      `;
+    }
+
+    let selectedMood = null;
+    let selectedFeelings = new Set();
+
+    window.selectMood = function(level) {
+      selectedMood = level;
+      const labels = ['Struggling','Low','Okay','Good','Thriving'];
+      document.getElementById('moodLabel').textContent = labels[level - 1];
+      document.querySelectorAll('.checkin-scale button').forEach(b => b.classList.remove('selected'));
+      document.getElementById('mood-' + level).classList.add('selected');
+    };
+
+    window.toggleFeeling = function(btn, feeling) {
+      if (selectedFeelings.has(feeling)) {
+        selectedFeelings.delete(feeling);
+        btn.classList.remove('active');
+        btn.classList.add('btn-outline');
+      } else {
+        selectedFeelings.add(feeling);
+        btn.classList.add('active');
+        btn.classList.remove('btn-outline');
+      }
+    };
+
+    window.submitCheckIn = async function() {
+      if (!selectedMood) { alert('Please select your mood first.'); return; }
+      const result = await fetchJSON('/api/wellness/checkin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mood: selectedMood, feelings: [...selectedFeelings] }),
+      });
+      let html = `<div class="card" style="margin-top:1rem">
+        <h2>Your Check-In Response</h2>
+        <p style="font-size:1.05rem">${esc(result.response.message)}</p>
+        <h3 style="margin-top:1rem">Suggestions:</h3>
+        <ul>${result.response.suggestions.map(s => `<li>${esc(s)}</li>`).join('')}</ul>`;
+      if (result.response.resourcesRecommended) {
+        html += `<div class="crisis-banner">
+          <strong>Support is available.</strong>
+          <p>If you need someone to talk to, help is just a call or text away.</p>
+          <button class="btn btn-warm" onclick="document.querySelector('[data-section=resources]').click()">View Resources</button>
+        </div>`;
+      }
+      html += '</div>';
+      document.getElementById('checkinResult').innerHTML = html;
+    };
+
+    async function renderJourneys(el) {
+      const journeys = await fetchJSON('/api/companion/journeys');
+      el.innerHTML = `
+        <div class="card">
+          <h2>Guided Journeys</h2>
+          <p>Choose a reflective journey to guide your growth:</p>
+        </div>
+        ${journeys.map(j => `
+          <div class="card">
+            <h2>${esc(j.title)}</h2>
+            <p class="label">${esc(j.theme)}</p>
+            <p>${esc(j.purpose)}</p>
+            <button class="btn" onclick="showJourney('${esc(j.id)}')">Begin Journey</button>
+          </div>
+        `).join('')}
+      `;
+    }
+
+    window.showJourney = async function(id) {
+      const j = await fetchJSON('/api/companion/journeys/' + encodeURIComponent(id));
+      const content = document.getElementById('content');
+      content.innerHTML = `
+        <div class="card">
+          <h2>${esc(j.title)}</h2>
+          <p class="label">${esc(j.theme)}</p>
+          <p>${esc(j.purpose)}</p>
+        </div>
+        ${j.steps.map(s => `
+          <div class="card">
+            <h2>Step ${s.stepNumber}</h2>
+            <p><strong>${esc(s.instruction)}</strong></p>
+            <div class="reflection">
+              <h3>Prompt:</h3>
+              <p>${esc(s.prompt)}</p>
+            </div>
+            <p style="margin-top:0.5rem; font-style:italic; color:var(--primary)">${esc(s.followUp)}</p>
+          </div>
+        `).join('')}
+        <div class="card" style="text-align:center">
+          <button class="btn" onclick="loadSection('journeys')">Back to Journeys</button>
+        </div>
+      `;
+    };
+
+    async function renderDeescalation(el) {
+      const strategies = await fetchJSON('/api/deescalation');
+      el.innerHTML = `
+        <div class="card">
+          <h2>Conflict De-escalation Guide</h2>
+          <p>Tools for navigating tense moments with calm and empathy.</p>
+        </div>
+        ${strategies.map(s => `
+          <div class="card">
+            <h2>${esc(s.title)}</h2>
+            <p class="label">${esc(s.situation)}</p>
+            <ol class="steps">${s.steps.map(step => `<li>${esc(step)}</li>`).join('')}</ol>
+            <div class="reflection" style="margin-top:1rem">
+              <h3>Helpful phrases:</h3>
+              <ul>${s.phrases.map(p => `<li style="color:var(--primary)">${esc(p)}</li>`).join('')}</ul>
+            </div>
+            <div style="background:#ffebee; padding:0.75rem; border-radius:8px; margin-top:0.5rem">
+              <h3 style="color:#c62828; font-size:0.9rem">Avoid saying:</h3>
+              <ul>${s.avoidPhrases.map(p => `<li>${esc(p)}</li>`).join('')}</ul>
+            </div>
+            <p style="margin-top:1rem; font-style:italic; color:var(--primary)">${esc(s.principle)}</p>
+          </div>
+        `).join('')}
+      `;
+    }
+
+    async function renderStories(el) {
+      const stories = await fetchJSON('/api/stories');
+      el.innerHTML = `
+        <div class="card">
+          <h2>Community Stories</h2>
+          <p>Anonymous stories of kindness, growth, and peace shared by our community.</p>
+          <button class="btn btn-warm" onclick="showShareStoryForm()">Share Your Story</button>
+        </div>
+        <div id="shareForm" class="hidden"></div>
+        ${stories.map(s => `
+          <div class="card">
+            <div class="story-card">
+              <p>${esc(s.story)}</p>
+              <div class="meta">
+                <span class="label">${esc(s.category)}</span>
+                ${s.location ? `· ${esc(s.location)}` : ''}
+                · <span class="encouragements">${s.encouragements} encouragements</span>
+                <button class="btn btn-outline" style="margin-left:0.5rem; padding:0.2rem 0.5rem; font-size:0.8rem" onclick="encourageStory('${esc(s.id)}', this)">Encourage</button>
+              </div>
+            </div>
+          </div>
+        `).join('')}
+      `;
+    }
+
+    window.showShareStoryForm = function() {
+      const form = document.getElementById('shareForm');
+      form.classList.remove('hidden');
+      form.innerHTML = `
+        <div class="card">
+          <h2>Share Your Story</h2>
+          <p>Your story is shared anonymously and can inspire others.</p>
+          <label>Category:</label>
+          <select id="storyCategory" style="width:100%;padding:0.5rem;margin:0.25rem 0;border-radius:8px;border:1px solid #ddd">
+            <option value="kindness-received">Kindness Received</option>
+            <option value="kindness-given">Kindness Given</option>
+            <option value="reconciliation">Reconciliation</option>
+            <option value="growth">Growth</option>
+            <option value="cross-cultural">Cross-Cultural</option>
+            <option value="peace-moment">Peace Moment</option>
+          </select>
+          <textarea id="storyText" placeholder="Share your story..."></textarea>
+          <input type="text" id="storyLocation" placeholder="Location (optional)">
+          <button class="btn btn-warm" style="margin-top:0.5rem" onclick="submitStory()">Submit Story</button>
+        </div>
+      `;
+    };
+
+    window.submitStory = async function() {
+      const story = document.getElementById('storyText').value.trim();
+      const category = document.getElementById('storyCategory').value;
+      const location = document.getElementById('storyLocation').value.trim() || undefined;
+      if (!story) { alert('Please write your story.'); return; }
+      await fetchJSON('/api/stories', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ story, category, location }),
+      });
+      loadSection('stories');
+    };
+
+    window.encourageStory = async function(id, btn) {
+      const result = await fetchJSON('/api/stories/' + encodeURIComponent(id) + '/encourage', { method: 'POST' });
+      if (result.encouragements !== undefined) {
+        btn.parentElement.querySelector('.encouragements').textContent = result.encouragements + ' encouragements';
+      }
+    };
+
+    async function renderPledges(el) {
+      const [pledgesList, impact, templates] = await Promise.all([
+        fetchJSON('/api/pledges'),
+        fetchJSON('/api/pledges/impact'),
+        fetchJSON('/api/pledges/templates'),
+      ]);
+      el.innerHTML = `
+        <div class="card" style="text-align:center">
+          <h2>Community Peace Pledges</h2>
+          <p style="font-size:2rem; color:var(--primary); font-weight:bold">${impact.totalPledges}</p>
+          <p>pledges made for a better world</p>
+        </div>
+        <div class="card">
+          <h2>Make Your Pledge</h2>
+          <p>Choose a template or write your own commitment:</p>
+          <div class="nav-tabs">${templates.slice(0, 6).map(t => `<button class="btn btn-outline" onclick="document.getElementById('pledgeText').value='${esc(t.template)}'">${esc(t.category)}</button>`).join('')}</div>
+          <textarea id="pledgeText" placeholder="I pledge to..."></textarea>
+          <select id="pledgeCategory" style="width:100%;padding:0.5rem;margin:0.25rem 0;border-radius:8px;border:1px solid #ddd">
+            <option value="kindness">Kindness</option>
+            <option value="tolerance">Tolerance</option>
+            <option value="listening">Listening</option>
+            <option value="service">Service</option>
+            <option value="peace">Peace</option>
+            <option value="inclusion">Inclusion</option>
+          </select>
+          <input type="text" id="pledgeName" placeholder="Your name (optional — pledges can be anonymous)">
+          <button class="btn btn-warm" style="width:100%;margin-top:0.5rem" onclick="submitPledge()">Make My Pledge</button>
+        </div>
+        ${pledgesList.length > 0 ? `
+          <div class="card">
+            <h2>Recent Pledges</h2>
+            ${pledgesList.slice(-10).reverse().map(p => `
+              <div class="story-card">
+                <p>"${esc(p.pledge)}"</p>
+                <div class="meta">${p.name ? esc(p.name) : 'Anonymous'} · ${esc(p.category)}</div>
+              </div>
+            `).join('')}
+          </div>
+        ` : ''}
+      `;
+    }
+
+    window.submitPledge = async function() {
+      const pledge = document.getElementById('pledgeText').value.trim();
+      const category = document.getElementById('pledgeCategory').value;
+      const name = document.getElementById('pledgeName').value.trim() || undefined;
+      if (!pledge) { alert('Please write your pledge.'); return; }
+      await fetchJSON('/api/pledges', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pledge, category, name }),
+      });
+      loadSection('pledges');
+    };
+
+    async function renderResources(el) {
+      const [all, crisis, regions] = await Promise.all([
+        fetchJSON('/api/resources'),
+        fetchJSON('/api/resources/crisis'),
+        fetchJSON('/api/resources/regions'),
+      ]);
+      el.innerHTML = `
+        <div class="crisis-banner">
+          <strong>If you are in immediate danger, please call your local emergency services.</strong>
+        </div>
+        <div class="card">
+          <h2>24/7 Crisis Resources</h2>
+          ${crisis.map(r => `
+            <div style="padding:0.75rem 0; border-bottom:1px solid #eee">
+              <strong>${esc(r.name)}</strong> <span class="label">${esc(r.region)}</span>
+              <p>${esc(r.description)}</p>
+              <p><strong>${esc(r.contact)}</strong> (${esc(r.contactType)})</p>
+            </div>
+          `).join('')}
+        </div>
+        <div class="card">
+          <h2>All Resources by Region</h2>
+          <div class="nav-tabs">${regions.map(r => `<button class="btn btn-outline" onclick="showRegion('${esc(r)}')">${esc(r)}</button>`).join('')}</div>
+          <div id="regionResults"></div>
+        </div>
+      `;
+    }
+
+    window.showRegion = async function(region) {
+      const results = await fetchJSON('/api/resources/region/' + encodeURIComponent(region));
+      document.getElementById('regionResults').innerHTML = results.map(r => `
+        <div style="padding:0.75rem 0; border-bottom:1px solid #eee">
+          <strong>${esc(r.name)}</strong>
+          <p>${esc(r.description)}</p>
+          <p><strong>${esc(r.contact)}</strong> (${esc(r.contactType)}) · ${esc(r.available)}</p>
+        </div>
+      `).join('');
+    };
+
+    function esc(str) {
+      if (typeof str !== 'string') return str;
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    // Initial load
+    loadSection('daily');
+  </script>
+</body>
+</html>

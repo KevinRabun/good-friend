@@ -1,4 +1,5 @@
 import express, { Request, Response } from 'express';
+import path from 'path';
 import * as affirmations from './modules/affirmations';
 import * as mindfulness from './modules/mindfulness';
 import * as tolerance from './modules/tolerance';
@@ -8,10 +9,13 @@ import * as resources from './modules/resources';
 import * as companion from './modules/companion';
 import * as journal from './modules/journal';
 import * as pledges from './modules/pledges';
+import * as deescalation from './modules/deescalation';
+import * as stories from './modules/stories';
 
 export function createApp() {
   const app = express();
   app.use(express.json());
+  app.use(express.static(path.join(__dirname, '..', 'public')));
 
   // --- Health Check ---
   app.get('/health', (_req: Request, res: Response) => {
@@ -353,6 +357,89 @@ export function createApp() {
       return;
     }
     res.json(p);
+  });
+
+  // --- De-escalation ---
+  app.get('/api/deescalation', (_req: Request, res: Response) => {
+    res.json(deescalation.getAllStrategies());
+  });
+
+  app.get('/api/deescalation/random', (_req: Request, res: Response) => {
+    res.json(deescalation.getRandomStrategy());
+  });
+
+  app.get('/api/deescalation/phrase', (_req: Request, res: Response) => {
+    res.json({ phrase: deescalation.getQuickPhrase() });
+  });
+
+  app.get('/api/deescalation/:id', (req: Request, res: Response) => {
+    const strategy = deescalation.getStrategyById(req.params.id as string);
+    if (!strategy) {
+      res.status(404).json({ error: 'Strategy not found' });
+      return;
+    }
+    res.json(strategy);
+  });
+
+  // --- Community Stories ---
+  app.get('/api/stories', (_req: Request, res: Response) => {
+    res.json(stories.getAllStories());
+  });
+
+  app.get('/api/stories/categories', (_req: Request, res: Response) => {
+    res.json(stories.getStoryCategories());
+  });
+
+  app.get('/api/stories/top', (req: Request, res: Response) => {
+    const limit = parseInt(req.query.limit as string) || 5;
+    res.json(stories.getMostEncouraged(limit));
+  });
+
+  app.get('/api/stories/random', (req: Request, res: Response) => {
+    const category = req.query.category as string | undefined;
+    try {
+      const result = stories.getRandomStory(
+        category as stories.StoryCategory | undefined
+      );
+      res.json(result);
+    } catch {
+      res.status(400).json({ error: `No stories found for category: ${category}` });
+    }
+  });
+
+  app.get('/api/stories/category/:category', (req: Request, res: Response) => {
+    const results = stories.getStoriesByCategory(
+      req.params.category as stories.StoryCategory
+    );
+    res.json(results);
+  });
+
+  app.get('/api/stories/:id', (req: Request, res: Response) => {
+    const story = stories.getStory(req.params.id as string);
+    if (!story) {
+      res.status(404).json({ error: 'Story not found' });
+      return;
+    }
+    res.json(story);
+  });
+
+  app.post('/api/stories', (req: Request, res: Response) => {
+    const { story, category, location } = req.body;
+    if (!story || !category) {
+      res.status(400).json({ error: 'story and category are required.' });
+      return;
+    }
+    const entry = stories.createStory(story, category, location);
+    res.status(201).json(entry);
+  });
+
+  app.post('/api/stories/:id/encourage', (req: Request, res: Response) => {
+    const result = stories.encourageStory(req.params.id as string);
+    if (!result) {
+      res.status(404).json({ error: 'Story not found' });
+      return;
+    }
+    res.json(result);
   });
 
   return app;

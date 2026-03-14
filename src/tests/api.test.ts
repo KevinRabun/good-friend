@@ -383,4 +383,116 @@ describe('API Integration Tests', () => {
     const { status } = await get('/api/pledges/nonexistent-id');
     expect(status).toBe(404);
   });
+
+  // De-escalation
+  it('GET /api/deescalation returns all strategies', async () => {
+    const { status, body } = await get('/api/deescalation');
+    expect(status).toBe(200);
+    expect(body).toHaveLength(5);
+    expect(body[0].steps.length).toBeGreaterThan(0);
+  });
+
+  it('GET /api/deescalation/random returns a strategy', async () => {
+    const { status, body } = await get('/api/deescalation/random');
+    expect(status).toBe(200);
+    expect(body.id).toBeTruthy();
+    expect(body.phrases.length).toBeGreaterThan(0);
+  });
+
+  it('GET /api/deescalation/phrase returns a phrase', async () => {
+    const { status, body } = await get('/api/deescalation/phrase');
+    expect(status).toBe(200);
+    expect(body.phrase).toBeTruthy();
+  });
+
+  it('GET /api/deescalation/de-1 returns specific strategy', async () => {
+    const { status, body } = await get('/api/deescalation/de-1');
+    expect(status).toBe(200);
+    expect(body.title).toBe('The PAUSE Method');
+  });
+
+  it('GET /api/deescalation/nonexistent returns 404', async () => {
+    const { status } = await get('/api/deescalation/nonexistent');
+    expect(status).toBe(404);
+  });
+
+  // Community Stories
+  it('GET /api/stories returns stories', async () => {
+    const { status, body } = await get('/api/stories');
+    expect(status).toBe(200);
+    expect(Array.isArray(body)).toBe(true);
+  });
+
+  it('POST /api/stories creates a story', async () => {
+    const { status, body } = await post('/api/stories', {
+      story: 'Integration test story about kindness.',
+      category: 'kindness-given',
+      location: 'Test City',
+    });
+    expect(status).toBe(201);
+    expect(body.id).toBeTruthy();
+    expect(body.story).toContain('kindness');
+    expect(body.encouragements).toBe(0);
+  });
+
+  it('POST /api/stories validates required fields', async () => {
+    const { status } = await post('/api/stories', { story: 'no category' });
+    expect(status).toBe(400);
+  });
+
+  it('GET /api/stories/:id returns a specific story', async () => {
+    const created = await post('/api/stories', {
+      story: 'Find me',
+      category: 'growth',
+    });
+    const { status, body } = await get(`/api/stories/${created.body.id}`);
+    expect(status).toBe(200);
+    expect(body.story).toBe('Find me');
+  });
+
+  it('GET /api/stories/nonexistent returns 404', async () => {
+    const { status } = await get('/api/stories/nonexistent-id');
+    expect(status).toBe(404);
+  });
+
+  it('POST /api/stories/:id/encourage increments encouragements', async () => {
+    const created = await post('/api/stories', {
+      story: 'Encourage this',
+      category: 'peace-moment',
+    });
+    const { status, body } = await post(`/api/stories/${created.body.id}/encourage`, {});
+    expect(status).toBe(200);
+    expect(body.encouragements).toBe(1);
+  });
+
+  it('POST /api/stories/nonexistent/encourage returns 404', async () => {
+    const { status } = await post('/api/stories/nonexistent-id/encourage', {});
+    expect(status).toBe(404);
+  });
+
+  it('GET /api/stories/categories returns categories', async () => {
+    const { status, body } = await get('/api/stories/categories');
+    expect(status).toBe(200);
+    expect(Array.isArray(body)).toBe(true);
+  });
+
+  it('GET /api/stories/top returns most encouraged', async () => {
+    const { status, body } = await get('/api/stories/top');
+    expect(status).toBe(200);
+    expect(Array.isArray(body)).toBe(true);
+  });
+
+  it('GET /api/stories/random returns a random story', async () => {
+    await post('/api/stories', { story: 'random test', category: 'growth' });
+    const { status, body } = await get('/api/stories/random');
+    expect(status).toBe(200);
+    expect(body.story).toBeTruthy();
+  });
+
+  it('GET /api/stories/category/growth filters by category', async () => {
+    await post('/api/stories', { story: 'growth cat', category: 'growth' });
+    const { status, body } = await get('/api/stories/category/growth');
+    expect(status).toBe(200);
+    expect(body.every((s: any) => s.category === 'growth')).toBe(true);
+  });
 });

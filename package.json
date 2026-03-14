@@ -1,0 +1,35 @@
+{
+  "name": "good-friend",
+  "version": "1.0.0",
+  "description": "A wellness companion API promoting positive mental health, tolerance, and a peaceful global society",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node src/index.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint src/ --ext .ts"
+  },
+  "keywords": [
+    "mental-health",
+    "wellness",
+    "tolerance",
+    "peace",
+    "mindfulness",
+    "affirmations"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.21.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.0.0",
+    "typescript": "^5.6.0",
+    "vitest": "^2.1.0",
+    "ts-node": "^10.9.0",
+    "@vitest/coverage-v8": "^2.1.0"
+  }
+}

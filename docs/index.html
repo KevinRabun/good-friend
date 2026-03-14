@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Good Friend — A free, offline-capable wellness companion promoting positive mental health, empathy, and a peaceful global society.">
+  <meta name="theme-color" content="#5b8c6e">
+  <title>Good Friend — Wellness Companion</title>
+  <style>
+    :root{--p:#5b8c6e;--pl:#e8f5e9;--a:#ff9800;--t:#333;--tl:#666;--bg:#fafafa;--c:#fff;--sh:0 2px 8px rgba(0,0,0,.08);--r:12px}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--t);line-height:1.6}
+    a{color:var(--p)}
+    header{background:linear-gradient(135deg,var(--p),#3e6b4e);color:#fff;text-align:center;padding:1.5rem 1rem}
+    header h1{font-size:1.8rem;margin-bottom:.3rem}
+    header p{opacity:.9;font-size:1rem;max-width:600px;margin:0 auto}
+    .container{max-width:820px;margin:0 auto;padding:.75rem}
+    .card{background:var(--c);border-radius:var(--r);box-shadow:var(--sh);padding:1.25rem;margin-bottom:.75rem}
+    .card h2{color:var(--p);margin-bottom:.5rem;font-size:1.2rem}
+    .label{font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;color:var(--tl);margin-bottom:.2rem}
+    .quote{font-style:italic;font-size:1.15rem;line-height:1.5;color:var(--p);padding:.75rem 1rem;border-left:4px solid var(--p);margin:.5rem 0;background:var(--pl);border-radius:0 var(--r) var(--r) 0}
+    .steps{list-style:none;counter-reset:step}
+    .steps li{counter-increment:step;padding:.4rem 0 .4rem 2.5rem;position:relative}
+    .steps li::before{content:counter(step);position:absolute;left:0;top:.4rem;width:1.7rem;height:1.7rem;background:var(--p);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700}
+    .refl{background:#fff8e1;padding:.75rem;border-radius:var(--r);margin:.5rem 0}
+    .refl h3{color:#e65100;font-size:.95rem;margin-bottom:.3rem}
+    .refl ul{margin-left:1.2rem}
+    .btn{display:inline-block;background:var(--p);color:#fff;border:none;padding:.5rem 1rem;border-radius:8px;cursor:pointer;font-size:.9rem;margin:.2rem;transition:background .2s}
+    .btn:hover{background:#4a7a5c}
+    .btn-o{background:transparent;color:var(--p);border:2px solid var(--p)}
+    .btn-o:hover{background:var(--pl)}
+    .btn-w{background:var(--a)}
+    .btn-w:hover{background:#e68a00}
+    .nav{display:flex;flex-wrap:wrap;gap:.4rem;margin:.75rem 0;justify-content:center}
+    .nav .btn{font-size:.8rem;padding:.35rem .7rem}
+    .nav .btn.act{background:var(--p);color:#fff;border-color:var(--p)}
+    .mood-scale{display:flex;gap:.5rem;justify-content:center;margin:.75rem 0;flex-wrap:wrap}
+    .mood-scale button{width:54px;height:54px;border-radius:50%;border:2px solid var(--p);background:#fff;cursor:pointer;font-size:1.4rem;transition:all .2s}
+    .mood-scale button:hover,.mood-scale button.sel{background:var(--p);color:#fff;transform:scale(1.1)}
+    .story-card{border-left:4px solid var(--a);padding-left:1rem;margin:.75rem 0}
+    .story-card .meta{font-size:.82rem;color:var(--tl);margin-top:.4rem}
+    .enc{color:var(--a);font-weight:700}
+    #content{min-height:300px}
+    .loading{text-align:center;padding:2rem;color:var(--tl)}
+    .hidden{display:none}
+    footer{text-align:center;padding:1.5rem 1rem;color:var(--tl);font-size:.85rem}
+    .crisis{background:#ffebee;border:1px solid #ef9a9a;border-radius:var(--r);padding:.75rem;margin-bottom:.75rem;text-align:center}
+    .crisis strong{color:#c62828}
+    textarea{width:100%;min-height:80px;padding:.6rem;border:1px solid #ddd;border-radius:8px;font-family:inherit;font-size:.9rem;resize:vertical;margin:.4rem 0}
+    input[type="text"],select{padding:.45rem;border:1px solid #ddd;border-radius:8px;font-size:.9rem;width:100%;margin:.2rem 0}
+    .streak-bar{display:flex;align-items:center;gap:.5rem;padding:.5rem;background:var(--pl);border-radius:8px;margin:.5rem 0}
+    .streak-bar .fire{font-size:1.5rem}
+    .streak-bar .count{font-size:1.3rem;font-weight:700;color:var(--p)}
+    .chart-wrap{padding:.5rem 0}
+    .chart-wrap svg{width:100%;height:120px}
+    .avoid{background:#ffebee;padding:.6rem;border-radius:8px;margin-top:.5rem}
+    .avoid h3{color:#c62828;font-size:.85rem}
+    @media(max-width:600px){header h1{font-size:1.4rem}.nav .btn{font-size:.7rem;padding:.25rem .5rem}}
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Good Friend</h1>
+    <p>Your free, offline companion for wellness, empathy, and peace. You matter.</p>
+  </header>
+  <div class="container">
+    <nav class="nav" id="mainNav" role="navigation" aria-label="Main sections">
+      <button class="btn act" data-s="daily">Today</button>
+      <button class="btn btn-o" data-s="affirmations">Affirmations</button>
+      <button class="btn btn-o" data-s="mindfulness">Mindfulness</button>
+      <button class="btn btn-o" data-s="tolerance">Understanding</button>
+      <button class="btn btn-o" data-s="kindness">Kindness</button>
+      <button class="btn btn-o" data-s="checkin">Check-In</button>
+      <button class="btn btn-o" data-s="journeys">Journeys</button>
+      <button class="btn btn-o" data-s="deescalation">De-escalation</button>
+      <button class="btn btn-o" data-s="stories">Stories</button>
+      <button class="btn btn-o" data-s="pledges">Pledges</button>
+      <button class="btn btn-o" data-s="journal">Journal</button>
+      <button class="btn btn-o" data-s="history">My History</button>
+      <button class="btn btn-o" data-s="resources">Resources</button>
+    </nav>
+    <div id="content"><div class="loading">Loading...</div></div>
+  </div>
+  <footer>
+    <p>Good Friend — Promoting positive mental health, tolerance, and peace.</p>
+    <p>If you're in crisis: <strong>988</strong> (US) · <strong>116 123</strong> (UK) · <strong>1300 22 4636</strong> (AU)</p>
+    <p style="margin-top:.5rem;font-size:.8rem">100% free. No server. Works offline. Your data stays on your device.</p>
+  </footer>
+<script>
+// ============================================================
+// DATA — All content embedded for zero-server distributed use
+// ============================================================
+const AFFIRMATIONS=[
+{id:'sw-1',text:'I am worthy of love and belonging, exactly as I am.',theme:'self-worth'},
+{id:'sw-2',text:'My feelings are valid, and I give myself permission to feel them.',theme:'self-worth'},
+{id:'sw-3',text:'I bring unique gifts to the world that only I can offer.',theme:'self-worth'},
+{id:'sw-4',text:'I deserve kindness \u2014 from others and from myself.',theme:'self-worth'},
+{id:'rs-1',text:'I have overcome challenges before, and I can do it again.',theme:'resilience'},
+{id:'rs-2',text:'Difficult moments are temporary; my strength is enduring.',theme:'resilience'},
+{id:'rs-3',text:'Each setback teaches me something valuable about myself.',theme:'resilience'},
+{id:'rs-4',text:'I choose to grow through what I go through.',theme:'resilience'},
+{id:'cm-1',text:'I extend the same kindness to myself that I offer to others.',theme:'compassion'},
+{id:'cm-2',text:'Every person I meet is fighting a battle I know nothing about; I choose gentleness.',theme:'compassion'},
+{id:'cm-3',text:'My compassion creates ripples of healing in the world around me.',theme:'compassion'},
+{id:'cm-4',text:'I listen with an open heart and respond with understanding.',theme:'compassion'},
+{id:'tl-1',text:'Our differences make us stronger as a community.',theme:'tolerance'},
+{id:'tl-2',text:'I celebrate the rich tapestry of cultures, beliefs, and perspectives that surround me.',theme:'tolerance'},
+{id:'tl-3',text:'Understanding begins when I choose curiosity over judgment.',theme:'tolerance'},
+{id:'tl-4',text:'I honor the dignity inherent in every human being.',theme:'tolerance'},
+{id:'tl-5',text:'I can disagree respectfully while still valuing another person\'s humanity.',theme:'tolerance'},
+{id:'pc-1',text:'Peace in the world begins with peace within myself.',theme:'peace'},
+{id:'pc-2',text:'I choose dialogue over division, understanding over anger.',theme:'peace'},
+{id:'pc-3',text:'My calm presence can be a sanctuary for those around me.',theme:'peace'},
+{id:'pc-4',text:'I am a bridge-builder, connecting hearts across divides.',theme:'peace'},
+{id:'gr-1',text:'I am grateful for the beauty in ordinary moments.',theme:'gratitude'},
+{id:'gr-2',text:'Gratitude transforms what I have into enough.',theme:'gratitude'},
+{id:'gr-3',text:'I appreciate the people who enrich my life with love and support.',theme:'gratitude'},
+{id:'gr-4',text:'Today I choose to focus on what is going right.',theme:'gratitude'},
+{id:'cn-1',text:'I am part of a global family; we are more alike than different.',theme:'connection'},
+{id:'cn-2',text:'Meaningful connections nourish my soul and strengthen my spirit.',theme:'connection'},
+{id:'cn-3',text:'When I reach out to others, I also lift myself up.',theme:'connection'},
+{id:'cn-4',text:'Shared joy is doubled; shared sorrow is halved.',theme:'connection'},
+];
+
+const EXERCISES=[
+{id:'br-1',title:'4-7-8 Breathing',category:'breathing',durationMinutes:3,steps:['Find a comfortable seated position and close your eyes.','Breathe in quietly through your nose for 4 seconds.','Hold your breath gently for 7 seconds.','Exhale completely through your mouth for 8 seconds, making a gentle whoosh sound.','Repeat this cycle 4 times.','Notice how your body feels calmer with each cycle.'],benefit:'Activates the parasympathetic nervous system, reducing anxiety and promoting calm.'},
+{id:'br-2',title:'Box Breathing',category:'breathing',durationMinutes:4,steps:['Sit upright in a comfortable position.','Slowly exhale all your air out.','Breathe in through your nose for 4 seconds.','Hold your breath for 4 seconds.','Exhale through your mouth for 4 seconds.','Hold the exhale for 4 seconds.','Repeat for 4 minutes.'],benefit:'Helps regulate the stress response and improve focus and concentration.'},
+{id:'gr-1',title:'5-4-3-2-1 Grounding',category:'grounding',durationMinutes:5,steps:['Pause and take a deep breath.','Name 5 things you can SEE around you.','Name 4 things you can TOUCH or feel.','Name 3 things you can HEAR.','Name 2 things you can SMELL.','Name 1 thing you can TASTE.','Take another deep breath and notice how present you feel.'],benefit:'Brings awareness back to the present moment, especially helpful during anxiety or overwhelm.'},
+{id:'md-1',title:'Peaceful Place Visualization',category:'meditation',durationMinutes:10,steps:['Close your eyes and take three slow, deep breaths.','Imagine a place where you feel completely safe and at peace.','Notice the colors, textures, and light in this place.','Listen to the sounds \u2014 perhaps waves, birdsong, or gentle wind.','Feel the warmth and comfort surrounding you.','Stay here for several minutes, breathing naturally.','When ready, slowly bring your awareness back to the room.'],benefit:'Creates a mental refuge that can be accessed anytime for stress relief and emotional regulation.'},
+{id:'bs-1',title:'Progressive Body Scan',category:'body-scan',durationMinutes:15,steps:['Lie down or sit comfortably. Close your eyes.','Bring attention to your toes. Notice any sensations without judgment.','Slowly move your awareness up through your feet and ankles.','Continue through your legs, hips, and lower back.','Notice your abdomen rising and falling with each breath.','Move through your chest, shoulders, and down each arm.','Bring awareness to your neck, face, and the top of your head.','Take a full breath and appreciate your body for carrying you through life.'],benefit:'Releases physical tension stored in the body and deepens body-mind awareness.'},
+{id:'lk-1',title:'Loving-Kindness Meditation',category:'loving-kindness',durationMinutes:10,steps:['Sit comfortably and close your eyes.','Begin by directing kindness toward yourself: "May I be happy. May I be healthy. May I be safe. May I live with ease."','Think of someone you love. Direct the same wishes to them.','Think of a neutral person. Extend these wishes to them.','Think of someone you find difficult. With courage, extend these wishes to them too.','Finally, extend loving-kindness to all beings everywhere: "May all beings be happy. May all beings be at peace."','Sit with this expansive feeling of care for a few moments.'],benefit:'Builds empathy, reduces bias, and strengthens feelings of connection across all people.'},
+{id:'gp-1',title:'Gratitude Reflection',category:'gratitude-practice',durationMinutes:5,steps:['Find a quiet moment and take three calming breaths.','Think of three things that went well today, no matter how small.','For each one, reflect on why it happened and how it made you feel.','Think of one person who positively impacted your day.','Consider how you might express your gratitude to them.','Close by silently thanking yourself for taking this time.'],benefit:'Shifts focus from scarcity to abundance, improving overall wellbeing and life satisfaction.'},
+];
+
+const PROMPTS=[
+{id:'ca-1',prompt:'Think about a cultural tradition different from your own that you find beautiful or meaningful.',category:'cultural-awareness',reflectionQuestions:['What draws you to this tradition?','What values does it reflect that resonate with you?','How might learning about it deepen your appreciation for diversity?']},
+{id:'ca-2',prompt:'Consider how people in another part of the world greet each other. What can greetings tell us about a culture\'s values?',category:'cultural-awareness',reflectionQuestions:['What does your own greeting style communicate to others?','How might you adapt your greeting to make someone from a different background feel welcome?','What shared human need do all greetings fulfill?']},
+{id:'ca-3',prompt:'Food connects us across cultures. Think about a dish from a culture other than your own that you enjoy.',category:'cultural-awareness',reflectionQuestions:['What is the story or history behind this dish?','How does sharing food create bridges between people?','What might you learn by cooking a meal from a different tradition?']},
+{id:'eb-1',prompt:'Imagine you are meeting someone whose life experience is very different from yours. How would you approach the conversation?',category:'empathy-building',reflectionQuestions:['What assumptions might you need to set aside?','What open-ended questions could help you understand their perspective?','How can you show genuine interest without being intrusive?']},
+{id:'eb-2',prompt:'Think of a time when someone truly listened to you during a difficult moment. What made their listening feel supportive?',category:'empathy-building',reflectionQuestions:['What specific behaviors showed they were present with you?','How did it feel to be truly heard?','How can you offer that same quality of listening to others?']},
+{id:'eb-3',prompt:'Consider a group of people often misunderstood or marginalized. What might daily life look like from their perspective?',category:'empathy-building',reflectionQuestions:['What barriers might they face that you don\'t?','How could you be an ally in small but meaningful ways?','What would the world look like if everyone practiced this kind of empathy?']},
+{id:'cr-1',prompt:'Think about a recent disagreement. What might the other person have been feeling beneath their words?',category:'conflict-resolution',reflectionQuestions:['What unmet needs might have been driving their behavior?','How might acknowledging those needs change the dynamic?','What would a resolution look like that honors both perspectives?']},
+{id:'cr-2',prompt:'Consider the phrase "seek first to understand, then to be understood." How might applying this change your next difficult conversation?',category:'conflict-resolution',reflectionQuestions:['What does it look like to prioritize understanding over being right?','How can you signal that you genuinely want to understand?','What might you discover about yourself in the process?']},
+{id:'il-1',prompt:'Words shape reality. Consider how the language you use might make someone feel included or excluded.',category:'inclusive-language',reflectionQuestions:['Are there phrases you use habitually that might unintentionally exclude someone?','How can you express the same ideas in more inclusive ways?','What difference could more thoughtful language make in your community?']},
+{id:'il-2',prompt:'Think about how names carry deep cultural significance. How do you respond when you encounter a name unfamiliar to you?',category:'inclusive-language',reflectionQuestions:['Do you take time to learn how to pronounce unfamiliar names correctly?','What message does it send when someone makes an effort with your name?','How might a small act like learning a name build trust and respect?']},
+{id:'al-1',prompt:'In your next conversation, try listening without planning your response. Simply be fully present.',category:'active-listening',reflectionQuestions:['What did you notice when you weren\'t focused on responding?','Did you pick up on emotions or meanings you might have otherwise missed?','How did the other person respond to your full attention?']},
+{id:'al-2',prompt:'Practice reflecting back what someone tells you before adding your own perspective.',category:'active-listening',reflectionQuestions:['How did restating their words help clarify their message?','Did the conversation feel different when the other person felt truly heard?','How might this practice reduce misunderstandings in your life?']},
+];
+
+const KINDNESS_ACTS=[
+{id:'ks-1',suggestion:'Write yourself a letter of encouragement to read on a difficult day.',scope:'self',effortLevel:'small',impact:'Builds self-compassion and emotional resilience.'},
+{id:'ks-2',suggestion:'Take a walk in nature without your phone and simply notice the beauty around you.',scope:'self',effortLevel:'small',impact:'Reconnects you with the present moment and reduces stress.'},
+{id:'ks-3',suggestion:'Prepare a nourishing meal for yourself as an act of self-care.',scope:'self',effortLevel:'medium',impact:'Reinforces that you are worth caring for.'},
+{id:'kf-1',suggestion:'Tell a family member something specific you appreciate about them.',scope:'family',effortLevel:'small',impact:'Strengthens bonds and makes loved ones feel valued.'},
+{id:'kf-2',suggestion:'Listen to an older relative share a story from their past without interrupting.',scope:'family',effortLevel:'small',impact:'Preserves family history and shows respect across generations.'},
+{id:'kf-3',suggestion:'Plan a device-free evening with your family focused on conversation and togetherness.',scope:'family',effortLevel:'medium',impact:'Deepens connection and creates lasting memories.'},
+{id:'kc-1',suggestion:'Leave a kind, specific compliment for a local business online.',scope:'community',effortLevel:'small',impact:'Supports local livelihoods and spreads positivity.'},
+{id:'kc-2',suggestion:'Introduce yourself to a neighbor you haven\'t met yet.',scope:'community',effortLevel:'small',impact:'Builds community cohesion and reduces isolation.'},
+{id:'kc-3',suggestion:'Volunteer an hour of your time to a local organization that helps those in need.',scope:'community',effortLevel:'medium',impact:'Directly improves lives and strengthens the social fabric.'},
+{id:'kc-4',suggestion:'Organize a neighborhood cleanup or beautification project.',scope:'community',effortLevel:'large',impact:'Creates shared pride in community spaces and brings people together.'},
+{id:'kg-1',suggestion:'Learn three phrases in a language you don\'t speak and use them to greet someone.',scope:'global',effortLevel:'small',impact:'Shows respect for other cultures and builds bridges of understanding.'},
+{id:'kg-2',suggestion:'Share a story or article that highlights the positive contributions of a culture different from your own.',scope:'global',effortLevel:'small',impact:'Counters negative stereotypes and broadens perspectives.'},
+{id:'kg-3',suggestion:'Support a fair-trade product or artisan from another country.',scope:'global',effortLevel:'medium',impact:'Promotes economic justice and global solidarity.'},
+{id:'kg-4',suggestion:'Write a letter of support to someone working for peace or human rights in another country.',scope:'global',effortLevel:'medium',impact:'Encourages those on the front lines of building a better world.'},
+];
+
+const RESOURCES=[
+{id:'r-1',name:'988 Suicide & Crisis Lifeline',description:'Free, confidential support for people in distress and crisis resources.',region:'United States',contactType:'phone',contact:'988',available:'24/7'},
+{id:'r-2',name:'988 Suicide & Crisis Lifeline (Text)',description:'Text-based crisis support for those who prefer messaging.',region:'United States',contactType:'text',contact:'Text HOME to 741741',available:'24/7'},
+{id:'r-3',name:'Samaritans',description:'Emotional support for anyone in emotional distress or at risk of suicide.',region:'United Kingdom',contactType:'phone',contact:'116 123',available:'24/7'},
+{id:'r-4',name:'Beyond Blue',description:'Mental health support and information for anxiety, depression, and suicide prevention.',region:'Australia',contactType:'phone',contact:'1300 22 4636',available:'24/7'},
+{id:'r-5',name:'Crisis Text Line',description:'Free crisis counseling via text message.',region:'United States',contactType:'text',contact:'Text HELLO to 741741',available:'24/7'},
+{id:'r-6',name:'Kids Help Phone',description:'Canada\'s only 24/7 national support service for young people.',region:'Canada',contactType:'phone',contact:'1-800-668-6868',available:'24/7'},
+{id:'r-7',name:'BEFRIENDERS Worldwide',description:'Volunteer network providing emotional support to prevent suicide worldwide.',region:'International',contactType:'website',contact:'https://befrienders.org/find-support',available:'Varies by center'},
+{id:'r-8',name:'International Association for Suicide Prevention',description:'Global directory of crisis centers and prevention resources.',region:'International',contactType:'website',contact:'https://www.iasp.info/resources/Crisis_Centres/',available:'Varies by center'},
+];
+
+const JOURNEYS=[
+{id:'gj-1',title:'The Self-Compassion Journey',purpose:'Learn to treat yourself with the same kindness you offer others.',theme:'self-compassion',steps:[{stepNumber:1,instruction:'Find a quiet, comfortable place. Take three slow breaths.',prompt:'Think of something you\'ve been critical of yourself about recently. What words do you use when talking to yourself about it?',followUp:'Now imagine a close friend told you the same thing about themselves. What would you say to them? Notice the difference in tone.'},{stepNumber:2,instruction:'Place your hand over your heart and feel its warmth.',prompt:'Can you extend that same warmth and understanding to yourself right now?',followUp:'Repeat gently: "I am doing my best, and that is enough." Let this settle in your body.'},{stepNumber:3,instruction:'Write down or mentally note one kind thing you can do for yourself today.',prompt:'What is one small act of care you deserve today?',followUp:'Commit to this act. You are worthy of your own kindness.'}]},
+{id:'gj-2',title:'Walking in Another\'s Shoes',purpose:'Build empathy by deeply considering another person\'s experience.',theme:'empathy-exploration',steps:[{stepNumber:1,instruction:'Think of someone whose life is significantly different from yours.',prompt:'What might their morning routine look like? What challenges might they face before the day even begins?',followUp:'Consider: what assumptions did you make? Were any of them based on stereotypes rather than understanding?'},{stepNumber:2,instruction:'Now imagine a moment of joy in their life.',prompt:'What might bring them happiness? What might they celebrate?',followUp:'Notice how focusing on shared human experiences \u2014 joy, love, hope \u2014 creates connection across difference.'},{stepNumber:3,instruction:'Think about what you could learn from this person.',prompt:'What perspective or wisdom might they offer that you haven\'t considered?',followUp:'Every person we meet knows something we don\'t. Approaching others with this humility opens doors to understanding.'}]},
+{id:'gj-3',title:'The Gratitude Spiral',purpose:'Deepen your gratitude practice from surface to soul.',theme:'gratitude-deepening',steps:[{stepNumber:1,instruction:'Start with something simple you\'re grateful for today.',prompt:'Name one ordinary thing that made your day a little better.',followUp:'Now go deeper \u2014 why does this matter to you? What would your day be like without it?'},{stepNumber:2,instruction:'Think about a person who has positively influenced your life.',prompt:'What specific quality or action of theirs are you most grateful for?',followUp:'Consider reaching out to them to express this gratitude. It could transform both your days.'},{stepNumber:3,instruction:'Expand your gratitude outward to the broader world.',prompt:'What is something in your community or the world that you\'re grateful for?',followUp:'Gratitude for our shared world fosters stewardship, connection, and peace.'}]},
+{id:'gj-4',title:'Healing a Conflict',purpose:'Work through a disagreement with understanding and compassion.',theme:'conflict-healing',steps:[{stepNumber:1,instruction:'Think of a recent conflict or tension with someone.',prompt:'Without judging, what were you feeling during the conflict? Name the emotions.',followUp:'Naming emotions takes away some of their power. You\'re already showing courage by examining this.'},{stepNumber:2,instruction:'Now shift perspective. Try to see the situation from the other person\'s point of view.',prompt:'What might they have been feeling? What need of theirs wasn\'t being met?',followUp:'You don\'t have to agree with them to understand them. Understanding is not surrender \u2014 it\'s wisdom.'},{stepNumber:3,instruction:'Imagine a conversation where both people feel heard.',prompt:'What would you want to say? What would you want to hear from them?',followUp:'Peace often starts with the willingness to listen. Consider whether this is a conversation you might gently open.'}]},
+{id:'gj-5',title:'Our Shared Humanity',purpose:'Connect with the global human family through reflection.',theme:'global-connection',steps:[{stepNumber:1,instruction:'Close your eyes and imagine people around the world at this very moment.',prompt:'Someone is watching a sunrise. Someone is tucking a child into bed. Someone is laughing with friends. What connects all these moments?',followUp:'Across every culture and continent, we share the same fundamental needs: love, safety, belonging, and purpose.'},{stepNumber:2,instruction:'Think about a global challenge that concerns you.',prompt:'How does this challenge affect people in different parts of the world? How does it connect you to them?',followUp:'Shared challenges can be catalysts for shared compassion. Your concern itself is a form of connection.'},{stepNumber:3,instruction:'Envision one small action you could take that ripples outward.',prompt:'What could you do this week that contributes, even in a tiny way, to a more peaceful and connected world?',followUp:'Every great change began with a single person deciding to care. You are part of something larger than yourself.'}]},
+{id:'gj-6',title:'Finding Inner Peace',purpose:'Cultivate a sense of deep calm and acceptance within yourself.',theme:'inner-peace',steps:[{stepNumber:1,instruction:'Sit comfortably. Let your shoulders drop. Soften your jaw.',prompt:'What is weighing on your mind right now? Name it without trying to solve it.',followUp:'Simply acknowledging your burden, without the pressure to fix it, is itself an act of peace.'},{stepNumber:2,instruction:'Breathe slowly. With each exhale, imagine releasing one piece of tension.',prompt:'What would it feel like to fully accept this moment exactly as it is \u2014 without wanting it to be different?',followUp:'Acceptance doesn\'t mean giving up. It means making peace with now, so you can move forward with clarity.'},{stepNumber:3,instruction:'Visualize yourself as a calm lake. Thoughts are ripples, but the depths remain still.',prompt:'What one thing can you let go of today to create more space for peace in your life?',followUp:'You carry peace within you. It\'s always accessible, even in storms. Thank yourself for taking this time.'}]},
+];
+
+const JOURNAL_PROMPTS=[
+{type:'gratitude',prompt:'What are three things you\'re grateful for today, and why do they matter to you?'},
+{type:'gratitude',prompt:'Who made your day better recently? What would you want them to know?'},
+{type:'gratitude',prompt:'What is a simple pleasure you often overlook?'},
+{type:'reflection',prompt:'What did you learn about yourself today?'},
+{type:'reflection',prompt:'When did you feel most like yourself this week?'},
+{type:'reflection',prompt:'What belief or assumption did you recently reconsider?'},
+{type:'kindness-log',prompt:'Describe an act of kindness you witnessed or performed today.'},
+{type:'kindness-log',prompt:'How did someone show you kindness recently? How did it make you feel?'},
+{type:'kindness-log',prompt:'What kindness would you like to offer the world tomorrow?'},
+{type:'growth',prompt:'What challenge are you currently facing, and what is it teaching you?'},
+{type:'growth',prompt:'How have you changed in the past year? What are you proud of?'},
+{type:'growth',prompt:'What skill or quality would you like to develop, and why?'},
+{type:'peace-intention',prompt:'What does peace mean to you personally?'},
+{type:'peace-intention',prompt:'How can you bring more peace into your relationships this week?'},
+{type:'peace-intention',prompt:'Describe a moment of deep calm you experienced. What made it possible?'},
+{type:'free-write',prompt:'Write freely about whatever is on your mind. No rules, no judgment.'},
+];
+
+const PLEDGE_TEMPLATES=[
+{category:'kindness',template:'I pledge to perform one act of unexpected kindness every day this week.'},
+{category:'kindness',template:'I pledge to speak kind words to myself and others, especially in difficult moments.'},
+{category:'tolerance',template:'I pledge to learn about a culture, faith, or community different from my own.'},
+{category:'tolerance',template:'I pledge to challenge my own assumptions before forming opinions about others.'},
+{category:'listening',template:'I pledge to truly listen in my next difficult conversation, seeking to understand before being understood.'},
+{category:'listening',template:'I pledge to ask more questions and make fewer assumptions about the people around me.'},
+{category:'service',template:'I pledge to volunteer my time or skills to help someone in my community.'},
+{category:'service',template:'I pledge to mentor or support someone who could benefit from encouragement.'},
+{category:'peace',template:'I pledge to respond to conflict with calm and compassion instead of anger.'},
+{category:'peace',template:'I pledge to be a peacemaker in my family, workplace, or community this week.'},
+{category:'inclusion',template:'I pledge to make sure no one around me feels left out or unheard.'},
+{category:'inclusion',template:'I pledge to use inclusive, respectful language in all my interactions.'},
+];
+
+const DEESCALATION=[
+{id:'de-1',title:'The PAUSE Method',situation:'You feel anger rising during a disagreement.',steps:['P \u2014 Pause. Stop before reacting. Take a breath.','A \u2014 Acknowledge. Name what you\'re feeling ("I notice I\'m feeling frustrated.").','U \u2014 Understand. Ask yourself: what is the other person feeling or needing?','S \u2014 Speak. Choose words that express your needs without blaming.','E \u2014 Evaluate. After the conversation, reflect on what went well and what you\'d do differently.'],phrases:['"I need a moment to collect my thoughts."','"I want to understand your perspective."','"Let me make sure I understand what you\'re saying."','"I feel [emotion] when [situation]. What I need is [need]."'],avoidPhrases:['"You always..." or "You never..."','"That\'s ridiculous."','"You\'re wrong."','"Calm down." (this often escalates)'],principle:'Responding beats reacting. A few seconds of pause can change the entire outcome.'},
+{id:'de-2',title:'Bridge Building',situation:'Two people hold opposing views and tension is rising.',steps:['Acknowledge that both perspectives have value: "I can see this matters to both of us."','Find common ground: identify a shared value, goal, or concern.','Reframe from "me vs. you" to "us vs. the problem."','Ask if you can explore the issue together rather than debate it.','Summarize areas of agreement before addressing differences.'],phrases:['"We both care about [shared value]. Let\'s start there."','"What would a solution look like that works for both of us?"','"I respect that you see it differently. Help me understand why."','"We don\'t have to agree on everything to move forward together."'],avoidPhrases:['"You just don\'t get it."','"That\'s not how it works."','"You\'re being unreasonable."','"If you actually listened..."'],principle:'The goal isn\'t to win \u2014 it\'s to understand and find a path forward together.'},
+{id:'de-3',title:'The Empathy Reset',situation:'Someone is upset with you and you feel defensive.',steps:['Resist the urge to defend yourself immediately.','Listen fully \u2014 let them express their feelings without interruption.','Reflect back what you heard: "It sounds like you\'re feeling..."','Validate their feelings even if you see things differently: "I can understand why that would be upsetting."','Express your own perspective gently after they feel heard.'],phrases:['"Thank you for telling me how you feel."','"I didn\'t realize this affected you that way."','"Your feelings make sense given your experience."','"I\'m sorry for my part in this."'],avoidPhrases:['"But I didn\'t mean it that way."','"You\'re overreacting."','"That\'s not what happened."','"You shouldn\'t feel that way."'],principle:'When people feel heard, they become more willing to hear you.'},
+{id:'de-4',title:'Cooling Down Together',situation:'A conversation has become too heated to be productive.',steps:['Recognize when the conversation is no longer constructive.','Propose a break with care, not dismissal: name a specific time to return.','During the break, do something calming \u2014 walk, breathe, drink water.','Reflect on what you actually need from this conversation.','Return with a fresh start and lead with curiosity, not frustration.'],phrases:['"This conversation matters to me. Can we take 15 minutes and come back to it?"','"I want to give this the attention it deserves, and I\'m not in the right headspace right now."','"Let\'s come back to this when we can both listen at our best."'],avoidPhrases:['"I\'m done talking about this."','"Whatever."','"Fine."','"Talk to me when you\'ve calmed down."'],principle:'Taking a break is not giving up \u2014 it\'s giving the conversation room to breathe.'},
+{id:'de-5',title:'Cross-Cultural Misunderstanding',situation:'A cultural difference has caused confusion or offense.',steps:['Approach with genuine curiosity, not assumptions.','Ask open questions: "Can you help me understand...?"','Share your own cultural context: "In my experience, this means..."','Apologize sincerely if you\'ve unintentionally caused offense.','Express appreciation for the learning opportunity.'],phrases:['"I realize I may have misunderstood something cultural. Can you help me learn?"','"I didn\'t intend any disrespect. I\'d like to understand better."','"Thank you for your patience in explaining this to me."','"I appreciate you sharing your perspective."'],avoidPhrases:['"That\'s weird."','"Where I\'m from, we don\'t do that."','"You\'re too sensitive about cultural stuff."','"It\'s not a big deal."'],principle:'Cultural humility means always being willing to learn, and never assuming your way is the only way.'},
+];
+
+const SEED_STORIES=[
+{story:'A stranger on the bus noticed I was crying and quietly handed me a tissue and a piece of chocolate. They didn\'t say a word \u2014 just smiled warmly. That small act of kindness got me through one of the hardest days of my life.',category:'kindness-received',location:'Public transit'},
+{story:'I started leaving encouraging notes in library books. Someone found one of my notes and posted about it online saying it made their day. I realized that even tiny gestures can travel further than we imagine.',category:'kindness-given'},
+{story:'After years of not speaking to my brother over a family disagreement, I sent him a simple message: "I miss you." He called me within an hour. We didn\'t solve everything that day, but we started.',category:'reconciliation'},
+{story:'I used to be afraid of people who were different from me. When I started working with refugees at a local center, I discovered that our shared humanity was so much bigger than our differences. It changed my entire worldview.',category:'cross-cultural'},
+{story:'I was stuck in traffic and feeling road rage building. Instead of honking, I took three deep breaths and let the other car merge. The driver waved thank you. Such a small moment, but I felt proud of choosing peace.',category:'peace-moment'},
+{story:'After my divorce, I felt like a failure. A therapist helped me see that asking for help was actually the bravest thing I could do. Two years later, I\'m stronger, kinder, and more compassionate than I\'ve ever been.',category:'growth'},
+];
+
+const MOOD_LABELS=['Struggling','Low','Okay','Good','Thriving'];
+const MOOD_EMOJI=['\u{1F622}','\u{1F614}','\u{1F610}','\u{1F60A}','\u{1F31F}'];
+const FEELINGS=['anxious','calm','grateful','lonely','hopeful','overwhelmed','content','sad','energized','frustrated','peaceful','worried','joyful','tired','connected','isolated','inspired','stressed','loved','confused'];
+
+// ============================================================
+// STORAGE — localStorage wrapper for all user data
+// ============================================================
+const S={
+  _k(k){return 'gf_'+k},
+  get(k,d){try{const v=localStorage.getItem(this._k(k));return v?JSON.parse(v):d}catch{return d}},
+  set(k,v){try{localStorage.setItem(this._k(k),JSON.stringify(v))}catch{}},
+  push(k,item,max){const arr=this.get(k,[]);arr.push(item);if(max&&arr.length>max)arr.splice(0,arr.length-max);this.set(k,arr)},
+};
+
+// ============================================================
+// HELPERS
+// ============================================================
+function esc(s){if(typeof s!=='string')return s;const d=document.createElement('div');d.textContent=s;return d.innerHTML}
+function dayOfYear(){const t=new Date(),s=new Date(t.getFullYear(),0,0);return Math.floor((t-s)/(864e5))}
+function todayStr(){return new Date().toISOString().slice(0,10)}
+function pick(arr){return arr[Math.floor(Math.random()*arr.length)]}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
+
+// Streak logic
+function getStreak(){
+  const hist=S.get('checkin_history',[]);
+  if(!hist.length)return 0;
+  let streak=0,d=new Date();d.setHours(0,0,0,0);
+  // Check if today is included
+  const todayDone=hist.some(h=>h.date===todayStr());
+  if(!todayDone){d.setDate(d.getDate()-1)}
+  while(true){
+    const ds=d.toISOString().slice(0,10);
+    if(hist.some(h=>h.date===ds)){streak++;d.setDate(d.getDate()-1)}
+    else break;
+  }
+  return streak;
+}
+
+function processCheckIn(mood,feelings){
+  let msg,sugs,res=false;
+  if(mood<=1){msg='Thank you for sharing how you\'re feeling. It takes courage to be honest about difficult moments. You are not alone, and support is available.';sugs=['Consider reaching out to a trusted friend, family member, or counselor.','Try a grounding exercise to help you feel more present.','Remember: this feeling is temporary, even though it may not feel that way right now.','Be gentle with yourself \u2014 you deserve compassion, especially right now.'];res=true;}
+  else if(mood===2){msg='It sounds like things are tough right now, and that\'s okay. Acknowledging how you feel is an important step. Small acts of self-care can make a meaningful difference.';sugs=['Try a short breathing exercise to center yourself.','Do something small that usually brings you comfort.','Write down one thing you\'re grateful for, no matter how small.',feelings.includes('lonely')?'Consider reaching out to someone \u2014 even a brief connection can help.':'Give yourself permission to rest without guilt.'];res=true;}
+  else if(mood===3){msg='You\'re in a steady place \u2014 and that\'s something to appreciate. This is a great moment to build positive momentum.';sugs=['Try a mindfulness exercise to deepen your sense of calm.','Consider doing a small act of kindness for someone today.','Reflect on something that went well recently.',feelings.includes('stressed')?'Take a few minutes to step away and breathe.':'Set a small, achievable goal for today to build confidence.'];res=false;}
+  else if(mood===4){msg='Wonderful! It\'s great that you\'re feeling positive. This energy is a gift \u2014 consider sharing it with others.';sugs=['Share your positive energy with someone who might be having a harder day.','Try a loving-kindness meditation to extend your good feelings outward.','Write down what contributed to your good mood \u2014 these are your wellbeing anchors.','Consider an act of kindness to amplify the positivity.'];res=false;}
+  else{msg='You\'re thriving! What a beautiful state to be in. Your positive energy can be a powerful force for good in the world.';sugs=['Channel your energy into an act of kindness or service.','Mentor or encourage someone who could use support.','Capture this feeling in a journal \u2014 it\'s a resource for harder days.','Consider how you can help build peace and understanding in your community.'];res=false;}
+  return{message:msg,suggestions:sugs,resourcesRecommended:res};
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+let curSection='daily';
+document.getElementById('mainNav').addEventListener('click',e=>{
+  if(!e.target.dataset.s)return;
+  document.querySelectorAll('#mainNav .btn').forEach(b=>{b.classList.remove('act');b.classList.add('btn-o')});
+  e.target.classList.add('act');e.target.classList.remove('btn-o');
+  curSection=e.target.dataset.s;
+  loadSection(curSection);
+});
+
+function loadSection(s){
+  const el=document.getElementById('content');
+  el.innerHTML='<div class="loading">Loading...</div>';
+  try{
+    switch(s){
+      case'daily':return renderDaily(el);
+      case'affirmations':return renderAffirmations(el);
+      case'mindfulness':return renderMindfulness(el);
+      case'tolerance':return renderTolerance(el);
+      case'kindness':return renderKindness(el);
+      case'checkin':return renderCheckIn(el);
+      case'journeys':return renderJourneys(el);
+      case'deescalation':return renderDeescalation(el);
+      case'stories':return renderStories(el);
+      case'pledges':return renderPledges(el);
+      case'journal':return renderJournal(el);
+      case'history':return renderHistory(el);
+      case'resources':return renderResources(el);
+    }
+  }catch(err){el.innerHTML='<div class="card"><p>Something went wrong. Please try again.</p></div>';}
+}
+
+// ============================================================
+// RENDERERS
+// ============================================================
+function renderDaily(el){
+  const doy=dayOfYear();
+  const aff=AFFIRMATIONS[doy%AFFIRMATIONS.length];
+  const prm=PROMPTS[doy%PROMPTS.length];
+  const knd=KINDNESS_ACTS[doy%KINDNESS_ACTS.length];
+  const streak=getStreak();
+  el.innerHTML=`
+    ${streak>0?`<div class="streak-bar"><span class="fire">\u{1F525}</span><span class="count">${streak}-day streak!</span><span>Keep showing up for yourself.</span></div>`:''}
+    <div class="card"><h2>Today's Affirmation</h2><div class="quote">${esc(aff.text)}</div><p class="label">${esc(aff.theme)}</p></div>
+    <div class="card"><h2>Today's Reflection</h2><p>${esc(prm.prompt)}</p><div class="refl"><h3>Reflect on:</h3><ul>${prm.reflectionQuestions.map(q=>`<li>${esc(q)}</li>`).join('')}</ul></div></div>
+    <div class="card"><h2>Today's Kindness Challenge</h2><p><strong>${esc(knd.suggestion)}</strong></p><p class="label">${esc(knd.scope)} \u00b7 ${esc(knd.effortLevel)} effort</p><p>${esc(knd.impact)}</p></div>
+    <div class="card" style="text-align:center"><p style="font-style:italic;color:var(--p)">Here's your daily dose of positivity. You matter, and the world is better with you in it.</p></div>`;
+}
+
+function renderAffirmations(el){
+  const r=pick(AFFIRMATIONS);
+  const themes=[...new Set(AFFIRMATIONS.map(a=>a.theme))];
+  el.innerHTML=`
+    <div class="card"><h2>Affirmation</h2><div class="quote">${esc(r.text)}</div><p class="label">${esc(r.theme)}</p><button class="btn" onclick="loadSection('affirmations')">Another one</button></div>
+    <div class="card"><h2>Browse by Theme</h2><div class="nav">${themes.map(t=>`<button class="btn btn-o" onclick="showTheme('${esc(t)}')">${esc(t)}</button>`).join('')}</div><div id="themeR"></div></div>`;
+}
+window.showTheme=function(t){
+  document.getElementById('themeR').innerHTML=AFFIRMATIONS.filter(a=>a.theme===t).map(a=>`<div class="quote" style="margin:.4rem 0">${esc(a.text)}</div>`).join('');
+};
+
+function renderMindfulness(el){
+  const r=pick(EXERCISES);
+  el.innerHTML=`<div class="card"><h2>${esc(r.title)}</h2><p class="label">${esc(r.category)} \u00b7 ${r.durationMinutes} minutes</p><ol class="steps">${r.steps.map(s=>`<li>${esc(s)}</li>`).join('')}</ol><p style="margin-top:.75rem"><strong>Benefit:</strong> ${esc(r.benefit)}</p><button class="btn" style="margin-top:.5rem" onclick="loadSection('mindfulness')">Try another exercise</button></div>`;
+}
+
+function renderTolerance(el){
+  const r=pick(PROMPTS);
+  el.innerHTML=`<div class="card"><h2>Perspective Prompt</h2><p class="label">${esc(r.category)}</p><p style="font-size:1.05rem">${esc(r.prompt)}</p><div class="refl"><h3>Reflect on:</h3><ul>${r.reflectionQuestions.map(q=>`<li>${esc(q)}</li>`).join('')}</ul></div><button class="btn" onclick="loadSection('tolerance')">Next prompt</button></div>`;
+}
+
+function renderKindness(el){
+  const r=pick(KINDNESS_ACTS);
+  el.innerHTML=`<div class="card"><h2>Kindness Suggestion</h2><p style="font-size:1.05rem"><strong>${esc(r.suggestion)}</strong></p><p class="label">${esc(r.scope)} \u00b7 ${esc(r.effortLevel)} effort</p><p>${esc(r.impact)}</p><button class="btn" onclick="loadSection('kindness')">Another idea</button></div>`;
+}
+
+function renderCheckIn(el){
+  el.innerHTML=`
+    <div class="card"><h2>How are you feeling?</h2><p>Select your current mood:</p>
+    <div class="mood-scale">${MOOD_EMOJI.map((e,i)=>`<button onclick="selMood(${i+1})" id="m${i+1}" title="${MOOD_LABELS[i]}">${e}</button>`).join('')}</div>
+    <p id="moodL" style="text-align:center;color:var(--tl)">Tap a face that matches how you feel</p>
+    <p style="margin-top:.75rem">What feelings resonate?</p>
+    <div class="nav" id="feelList">${FEELINGS.map(f=>`<button class="btn btn-o fb" onclick="togFeel(this,'${esc(f)}')">${esc(f)}</button>`).join('')}</div>
+    <button class="btn btn-w" style="width:100%;margin-top:.75rem" onclick="doCheckIn()">Check In</button>
+    <div id="ciResult"></div></div>`;
+}
+let selMoodVal=null,selFeelings=new Set();
+window.selMood=function(l){selMoodVal=l;document.getElementById('moodL').textContent=MOOD_LABELS[l-1];document.querySelectorAll('.mood-scale button').forEach(b=>b.classList.remove('sel'));document.getElementById('m'+l).classList.add('sel')};
+window.togFeel=function(btn,f){if(selFeelings.has(f)){selFeelings.delete(f);btn.classList.remove('act');btn.classList.add('btn-o')}else{selFeelings.add(f);btn.classList.add('act');btn.classList.remove('btn-o')}};
+window.doCheckIn=function(){
+  if(!selMoodVal){alert('Please select your mood first.');return}
+  const feelings=[...selFeelings];
+  const resp=processCheckIn(selMoodVal,feelings);
+  // Save to history
+  S.push('checkin_history',{date:todayStr(),mood:selMoodVal,feelings,ts:Date.now()},365);
+  let h=`<div class="card" style="margin-top:.75rem"><h2>Your Check-In Response</h2><p style="font-size:1rem">${esc(resp.message)}</p><h3 style="margin-top:.75rem">Suggestions:</h3><ul>${resp.suggestions.map(s=>`<li>${esc(s)}</li>`).join('')}</ul>`;
+  if(resp.resourcesRecommended)h+=`<div class="crisis" style="margin-top:.75rem"><strong>Support is available.</strong><p>If you need someone to talk to, help is just a call or text away.</p><button class="btn btn-w" onclick="document.querySelector('[data-s=resources]').click()">View Resources</button></div>`;
+  h+=`<p style="margin-top:.5rem;color:var(--p);font-style:italic">\u{1F525} ${getStreak()}-day streak! Keep showing up.</p></div>`;
+  document.getElementById('ciResult').innerHTML=h;
+  selMoodVal=null;selFeelings.clear();
+};
+
+function renderJourneys(el){
+  el.innerHTML=`<div class="card"><h2>Guided Journeys</h2><p>Choose a reflective journey:</p></div>${JOURNEYS.map(j=>`<div class="card"><h2>${esc(j.title)}</h2><p class="label">${esc(j.theme)}</p><p>${esc(j.purpose)}</p><button class="btn" onclick="showJourney('${esc(j.id)}')">Begin Journey</button></div>`).join('')}`;
+}
+window.showJourney=function(id){
+  const j=JOURNEYS.find(x=>x.id===id);if(!j)return;
+  document.getElementById('content').innerHTML=`<div class="card"><h2>${esc(j.title)}</h2><p class="label">${esc(j.theme)}</p><p>${esc(j.purpose)}</p></div>${j.steps.map(s=>`<div class="card"><h2>Step ${s.stepNumber}</h2><p><strong>${esc(s.instruction)}</strong></p><div class="refl"><h3>Prompt:</h3><p>${esc(s.prompt)}</p></div><p style="margin-top:.4rem;font-style:italic;color:var(--p)">${esc(s.followUp)}</p></div>`).join('')}<div class="card" style="text-align:center"><button class="btn" onclick="loadSection('journeys')">Back to Journeys</button></div>`;
+};
+
+function renderDeescalation(el){
+  el.innerHTML=`<div class="card"><h2>Conflict De-escalation Guide</h2><p>Tools for navigating tense moments with calm and empathy.</p></div>${DEESCALATION.map(s=>`<div class="card"><h2>${esc(s.title)}</h2><p class="label">${esc(s.situation)}</p><ol class="steps">${s.steps.map(st=>`<li>${esc(st)}</li>`).join('')}</ol><div class="refl" style="margin-top:.75rem"><h3>Helpful phrases:</h3><ul>${s.phrases.map(p=>`<li style="color:var(--p)">${esc(p)}</li>`).join('')}</ul></div><div class="avoid"><h3>Avoid saying:</h3><ul>${s.avoidPhrases.map(p=>`<li>${esc(p)}</li>`).join('')}</ul></div><p style="margin-top:.75rem;font-style:italic;color:var(--p)">${esc(s.principle)}</p></div>`).join('')}`;
+}
+
+function renderStories(el){
+  const stories=S.get('stories',SEED_STORIES.map((s,i)=>({...s,id:'seed-'+i,encouragements:Math.floor(Math.random()*40)+5,ts:Date.now()})));
+  if(!S.get('stories_init')){S.set('stories',stories);S.set('stories_init',true)}
+  el.innerHTML=`<div class="card"><h2>Community Stories</h2><p>Anonymous stories of kindness, growth, and peace.</p><button class="btn btn-w" onclick="showShareForm()">Share Your Story</button></div><div id="shareF" class="hidden"></div>${stories.map(s=>`<div class="card"><div class="story-card"><p>${esc(s.story)}</p><div class="meta"><span class="label">${esc(s.category)}</span>${s.location?' \u00b7 '+esc(s.location):''} \u00b7 <span class="enc">${s.encouragements} encouragements</span> <button class="btn btn-o" style="padding:.15rem .4rem;font-size:.75rem" onclick="encStory('${esc(s.id)}')">Encourage</button></div></div></div>`).join('')}`;
+}
+window.showShareForm=function(){
+  const f=document.getElementById('shareF');f.classList.remove('hidden');
+  f.innerHTML=`<div class="card"><h2>Share Your Story</h2><p>Your story is shared anonymously and stays on your device.</p><select id="sCat"><option value="kindness-received">Kindness Received</option><option value="kindness-given">Kindness Given</option><option value="reconciliation">Reconciliation</option><option value="growth">Growth</option><option value="cross-cultural">Cross-Cultural</option><option value="peace-moment">Peace Moment</option></select><textarea id="sTxt" placeholder="Share your story..."></textarea><input type="text" id="sLoc" placeholder="Location (optional)"><button class="btn btn-w" style="margin-top:.4rem" onclick="submitStory()">Submit Story</button></div>`;
+};
+window.submitStory=function(){
+  const story=document.getElementById('sTxt').value.trim();
+  const category=document.getElementById('sCat').value;
+  const location=document.getElementById('sLoc').value.trim()||undefined;
+  if(!story){alert('Please write your story.');return}
+  const stories=S.get('stories',[]);
+  stories.unshift({id:uid(),story,category,location,encouragements:0,ts:Date.now()});
+  S.set('stories',stories);loadSection('stories');
+};
+window.encStory=function(id){
+  const stories=S.get('stories',[]);
+  const s=stories.find(x=>x.id===id);
+  if(s){s.encouragements++;S.set('stories',stories);loadSection('stories')}
+};
+
+function renderPledges(el){
+  const pledges=S.get('pledges',[]);
+  el.innerHTML=`
+    <div class="card" style="text-align:center"><h2>Peace Pledges</h2><p style="font-size:1.8rem;color:var(--p);font-weight:700">${pledges.length}</p><p>pledges made for a better world</p></div>
+    <div class="card"><h2>Make Your Pledge</h2><p>Choose a template or write your own:</p>
+    <div class="nav">${PLEDGE_TEMPLATES.slice(0,6).map(t=>`<button class="btn btn-o" onclick="document.getElementById('pTxt').value='${esc(t.template)}'">${esc(t.category)}</button>`).join('')}</div>
+    <textarea id="pTxt" placeholder="I pledge to..."></textarea>
+    <select id="pCat"><option value="kindness">Kindness</option><option value="tolerance">Tolerance</option><option value="listening">Listening</option><option value="service">Service</option><option value="peace">Peace</option><option value="inclusion">Inclusion</option></select>
+    <input type="text" id="pName" placeholder="Your name (optional)">
+    <button class="btn btn-w" style="width:100%;margin-top:.4rem" onclick="submitPledge()">Make My Pledge</button></div>
+    ${pledges.length?`<div class="card"><h2>Your Pledges</h2>${pledges.slice(-10).reverse().map(p=>`<div class="story-card"><p>"${esc(p.pledge)}"</p><div class="meta">${p.name?esc(p.name):'Anonymous'} \u00b7 ${esc(p.category)} \u00b7 ${new Date(p.ts).toLocaleDateString()}</div></div>`).join('')}</div>`:''}`;
+}
+window.submitPledge=function(){
+  const pledge=document.getElementById('pTxt').value.trim();
+  const category=document.getElementById('pCat').value;
+  const name=document.getElementById('pName').value.trim()||undefined;
+  if(!pledge){alert('Please write your pledge.');return}
+  S.push('pledges',{id:uid(),pledge,category,name,ts:Date.now()},500);
+  loadSection('pledges');
+};
+
+function renderJournal(el){
+  const entries=S.get('journal',[]);
+  const rp=pick(JOURNAL_PROMPTS);
+  const types=[...new Set(JOURNAL_PROMPTS.map(p=>p.type))];
+  el.innerHTML=`
+    <div class="card"><h2>Reflective Journal</h2><p>Your entries are private and stored only on this device.</p>
+    <div class="refl"><h3>Prompt:</h3><p>${esc(rp.prompt)}</p></div>
+    <button class="btn btn-o" style="margin:.3rem 0" onclick="loadSection('journal')">New prompt</button>
+    <select id="jType">${types.map(t=>`<option value="${esc(t)}"${t===rp.type?' selected':''}>${esc(t)}</option>`).join('')}</select>
+    <textarea id="jTxt" placeholder="Write your thoughts..."></textarea>
+    <button class="btn btn-w" style="width:100%;margin-top:.4rem" onclick="submitJournal()">Save Entry</button></div>
+    ${entries.length?`<div class="card"><h2>Previous Entries (${entries.length})</h2>${entries.slice(-10).reverse().map(e=>`<div class="story-card"><p>${esc(e.content.slice(0,200))}${e.content.length>200?'...':''}</p><div class="meta">${esc(e.type)} \u00b7 ${new Date(e.ts).toLocaleDateString()}</div></div>`).join('')}</div>`:''}`;
+}
+window.submitJournal=function(){
+  const content=document.getElementById('jTxt').value.trim();
+  const type=document.getElementById('jType').value;
+  if(!content){alert('Please write something.');return}
+  S.push('journal',{id:uid(),type,content,ts:Date.now()},1000);
+  loadSection('journal');
+};
+
+function renderHistory(el){
+  const hist=S.get('checkin_history',[]);
+  const journal=S.get('journal',[]);
+  const pledges=S.get('pledges',[]);
+  const streak=getStreak();
+
+  // Mood chart - last 30 entries
+  const recent=hist.slice(-30);
+  let chartSvg='';
+  if(recent.length>=2){
+    const w=100,h=100,pad=5;
+    const pts=recent.map((r,i)=>{const x=pad+(i/(recent.length-1))*(w-2*pad);const y=h-pad-(((r.mood-1)/4)*(h-2*pad));return`${x},${y}`});
+    const line=pts.join(' ');
+    // Area fill
+    const area=`${pad},${h-pad} ${line} ${w-pad},${h-pad}`;
+    chartSvg=`<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" aria-label="Mood trend chart">
+      <defs><linearGradient id="mg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="var(--p)" stop-opacity=".3"/><stop offset="100%" stop-color="var(--p)" stop-opacity=".02"/></linearGradient></defs>
+      <polygon points="${area}" fill="url(#mg)"/>
+      <polyline points="${line}" fill="none" stroke="var(--p)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      ${pts.map((p,i)=>`<circle cx="${p.split(',')[0]}" cy="${p.split(',')[1]}" r="1.5" fill="var(--p)"><title>${recent[i].date}: ${MOOD_LABELS[recent[i].mood-1]}</title></circle>`).join('')}
+      ${[1,2,3,4,5].map(m=>{const y=h-pad-(((m-1)/4)*(h-2*pad));return`<line x1="${pad}" y1="${y}" x2="${w-pad}" y2="${y}" stroke="#ddd" stroke-width=".3"/><text x="0" y="${y+1}" font-size="3" fill="var(--tl)">${MOOD_EMOJI[m-1]}</text>`}).join('')}
+    </svg>`;
+  }
+
+  // Feeling frequency
+  const feelCounts={};
+  hist.forEach(h=>(h.feelings||[]).forEach(f=>{feelCounts[f]=(feelCounts[f]||0)+1}));
+  const topFeelings=Object.entries(feelCounts).sort((a,b)=>b[1]-a[1]).slice(0,8);
+
+  // Average mood
+  const avgMood=hist.length?(hist.reduce((s,h)=>s+h.mood,0)/hist.length).toFixed(1):'--';
+
+  el.innerHTML=`
+    <div class="card" style="text-align:center">
+      <h2>Your Wellness Journey</h2>
+      <div style="display:flex;justify-content:center;gap:2rem;flex-wrap:wrap;margin:.75rem 0">
+        <div><p style="font-size:2rem;font-weight:700;color:var(--p)">${streak}</p><p class="label">Day streak</p></div>
+        <div><p style="font-size:2rem;font-weight:700;color:var(--p)">${hist.length}</p><p class="label">Check-ins</p></div>
+        <div><p style="font-size:2rem;font-weight:700;color:var(--p)">${journal.length}</p><p class="label">Journal entries</p></div>
+        <div><p style="font-size:2rem;font-weight:700;color:var(--p)">${pledges.length}</p><p class="label">Pledges</p></div>
+        <div><p style="font-size:2rem;font-weight:700;color:var(--p)">${avgMood}</p><p class="label">Avg mood</p></div>
+      </div>
+    </div>
+    ${chartSvg?`<div class="card"><h2>Mood Trend</h2><p class="label">Last ${recent.length} check-ins</p><div class="chart-wrap">${chartSvg}</div></div>`:'<div class="card"><h2>Mood Trend</h2><p>Complete at least 2 check-ins to see your mood trend.</p></div>'}
+    ${topFeelings.length?`<div class="card"><h2>Most Common Feelings</h2><div class="nav">${topFeelings.map(([f,c])=>`<span class="btn btn-o" style="cursor:default">${esc(f)} (${c})</span>`).join('')}</div></div>`:''}
+    ${hist.length?`<div class="card"><h2>Recent Check-ins</h2>${hist.slice(-7).reverse().map(h=>`<div style="padding:.4rem 0;border-bottom:1px solid #eee">${MOOD_EMOJI[h.mood-1]} <strong>${MOOD_LABELS[h.mood-1]}</strong> \u00b7 ${h.date} ${(h.feelings||[]).length?'\u00b7 '+h.feelings.join(', '):''}</div>`).join('')}</div>`:''}
+    <div class="card" style="text-align:center"><p style="color:var(--tl)">All your data is stored privately on this device. Nothing is sent to any server.</p></div>`;
+}
+
+function renderResources(el){
+  const crisis=RESOURCES.filter(r=>r.available==='24/7');
+  const regions=[...new Set(RESOURCES.map(r=>r.region))];
+  el.innerHTML=`
+    <div class="crisis"><strong>If you are in immediate danger, please call your local emergency services.</strong></div>
+    <div class="card"><h2>24/7 Crisis Resources</h2>${crisis.map(r=>`<div style="padding:.5rem 0;border-bottom:1px solid #eee"><strong>${esc(r.name)}</strong> <span class="label">${esc(r.region)}</span><p>${esc(r.description)}</p><p><strong>${esc(r.contact)}</strong> (${esc(r.contactType)})</p></div>`).join('')}</div>
+    <div class="card"><h2>All Resources by Region</h2><div class="nav">${regions.map(r=>`<button class="btn btn-o" onclick="showRegion('${esc(r)}')">${esc(r)}</button>`).join('')}</div><div id="regR"></div></div>`;
+}
+window.showRegion=function(region){
+  document.getElementById('regR').innerHTML=RESOURCES.filter(r=>r.region===region).map(r=>`<div style="padding:.5rem 0;border-bottom:1px solid #eee"><strong>${esc(r.name)}</strong><p>${esc(r.description)}</p><p><strong>${esc(r.contact)}</strong> (${esc(r.contactType)}) \u00b7 ${esc(r.available)}</p></div>`).join('');
+};
+
+// Initial load
+loadSection('daily');
+</script>
+</body>
+</html>

@@ -564,6 +564,14 @@ function renderDaily(el){
   const milestones=[{d:7,msg:'One week! You\u2019re building a real habit.',icon:'\u{1F31F}'},{d:14,msg:'Two weeks strong! Consistency is changing your brain.',icon:'\u{1F4AA}'},{d:30,msg:'30 days! You\u2019re a wellness warrior.',icon:'\u{1F3C6}'},{d:60,msg:'60 days! Your dedication inspires.',icon:'\u{1F525}'},{d:90,msg:'90 days! You\u2019ve transformed this into a lifestyle.',icon:'\u{1F451}'},{d:180,msg:'Half a year of showing up for yourself!',icon:'\u{1F48E}'},{d:365,msg:'One entire year! You are extraordinary.',icon:'\u{1F30D}'}];
   const milestone=milestones.find(m=>m.d===streak);
   const isNew=!S.get('checkin_history',[]).length && !S.get('journal',[]).length;
+  const userName=S.get('user_name','');
+  const lastVisitDate=S.get('last_visit_date','');
+  const visitCount=S.get('visit_count',0);
+  // Track this visit
+  const today=todayStr();
+  if(lastVisitDate!==today){S.set('visit_count',visitCount+1);S.set('last_visit_date',today)}
+  const daysSinceLastVisit=lastVisitDate?Math.floor((new Date(today)-new Date(lastVisitDate))/(864e5)):0;
+  const greeting=userName?`Welcome back, ${esc(userName)}!`:'Welcome back!';
   // Daily challenge: combines different activities
   const challenges=[
     {text:'Do a kindness act and log it in your Peace Log',section:'peaceLog'},
@@ -584,6 +592,7 @@ function renderDaily(el){
     ${isNew?`<div class="card" style="text-align:center;border-left:4px solid var(--p)"><h2>Welcome to Good Friend \u{1F44B}</h2>
     <p style="font-size:1.05rem">Your free, private companion for wellness, empathy, and peace.</p>
     <p style="margin-top:.5rem;color:var(--tl)">Everything stays on your device. No accounts, no tracking.</p>
+    <div style="margin:.75rem auto;max-width:260px"><input type="text" id="nameInput" placeholder="What should we call you? (optional)" style="text-align:center"><button class="btn" style="margin-top:.3rem;width:100%" onclick="saveName()">Get Started</button></div>
     <div class="quick-actions" style="margin-top:.75rem">
     <button onclick="navigateTo('checkin')"><span>\u{1F4CA}</span>How are you feeling?</button>
     <button onclick="startBreathingTimer('478')"><span>\u{1F32C}\uFE0F</span>Breathe with me</button>
@@ -591,7 +600,9 @@ function renderDaily(el){
     <button onclick="navigateTo('cultures')"><span>\u{1F30D}</span>Explore cultures</button>
     </div>
     <p style="margin-top:.5rem;font-size:.85rem;color:var(--tl)">Come back daily \u2014 new content rotates every day</p></div>`
-    :(!todayChecked?'':'')}
+    :(!todayChecked?`<div class="card" style="text-align:center;border-left:4px solid var(--p)"><h2>${greeting}</h2>
+    ${daysSinceLastVisit>1?`<p style="color:var(--tl)">It's been ${daysSinceLastVisit} days \u2014 glad you're here!</p>`:'<p style="color:var(--tl)">Good to see you today.</p>'}
+    ${!userName?`<div style="margin:.4rem auto;max-width:220px"><input type="text" id="nameInput" placeholder="Your name (optional)" style="text-align:center;font-size:.85rem"><button class="btn btn-o" style="margin-top:.2rem;font-size:.8rem;padding:.2rem .6rem" onclick="saveName()">Save</button></div>`:''}</div>`:'')}
     ${milestone?`<div class="card" style="text-align:center;background:var(--pl);border:2px solid var(--p)"><span style="font-size:2.5rem">${milestone.icon}</span><h2 style="margin:.3rem 0">Milestone: ${milestone.d} Days!</h2><p style="font-size:1.1rem">${esc(milestone.msg)}</p></div>`:''}
     ${streak>0&&!milestone?`<div class="streak-bar"><span class="fire">\u{1F525}</span><span class="count">${streak}-day streak!</span><span>Keep showing up for yourself.</span></div>`:''}
     ${!todayChecked&&!isNew?`<div class="card" style="text-align:center"><h2>Quick Mood Check</h2><p>How are you feeling right now?</p><div class="mood-scale">${MOOD_EMOJI.map((e,i)=>`<button onclick="quickMood(${i+1})" title="${MOOD_LABELS[i]}">${e}</button>`).join('')}</div>
@@ -1580,6 +1591,34 @@ loadSection=function(s){
   trackVisit(s);
   _origLoadSection(s);
 };
+
+// ============================================================
+// NAME PERSONALIZATION
+// ============================================================
+window.saveName=function(){
+  const input=document.getElementById('nameInput');
+  if(!input)return;
+  const name=input.value.trim().slice(0,30);
+  if(name){S.set('user_name',name);showToast(`Nice to meet you, ${name}!`)}
+  else{showToast('Welcome to Good Friend!')}
+  loadSection('daily');
+};
+
+// ============================================================
+// NAV DISCOVERY NUDGE — Auto-expand a group after a few visits
+// ============================================================
+(function(){
+  const vc=S.get('visit_count',0);
+  if(vc>=3&&vc<=6){
+    const visited=S.get('visited_sections',[]);
+    const groups=[{id:'ng-wellness',sections:['affirmations','mindfulness','journal','gratitude','gratLetter','values','journeys']},{id:'ng-peace',sections:['tolerance','kindness','kindWords','empathy','cultures','stories','pledges']},{id:'ng-skills',sections:['deescalation','conflict','forgiveness','peaceLog','resources']}];
+    const unvisitedGroup=groups.find(g=>!g.sections.some(s=>visited.includes(s)));
+    if(unvisitedGroup){
+      const g=document.getElementById(unvisitedGroup.id);
+      if(g&&g.classList.contains('collapsed')){g.classList.remove('collapsed');const l=g.querySelector('.nav-group-label');if(l)l.textContent=l.textContent.replace('\u25B6','\u25BC')}
+    }
+  }
+})();
 </script>
 </body>
 </html>

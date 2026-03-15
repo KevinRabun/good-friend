@@ -41,7 +41,8 @@
     .story-card{border-left:4px solid var(--a);padding-left:1rem;margin:.75rem 0}
     .story-card .meta{font-size:.82rem;color:var(--tl);margin-top:.4rem}
     .enc{color:var(--a);font-weight:700}
-    #content{min-height:300px}
+    #content{min-height:300px;transition:opacity .15s ease}
+    #content.fading{opacity:0}
     .loading{text-align:center;padding:2rem;color:var(--tl)}
     .hidden{display:none}
     footer{text-align:center;padding:1.5rem 1rem;color:var(--tl);font-size:.85rem}
@@ -86,6 +87,10 @@
     .nav-group-label{font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--tl);font-weight:700;width:100%;text-align:left;padding:.2rem .3rem 0;cursor:pointer;user-select:none}
     .nav-group-items{display:flex;flex-wrap:wrap;gap:.3rem}
     .nav-group.collapsed .nav-group-items{display:none}
+    .quick-actions{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.5rem;margin:.5rem 0}
+    .quick-actions button{padding:.75rem .5rem;border-radius:var(--r);border:2px solid var(--p);background:var(--c);cursor:pointer;font-size:.85rem;color:var(--t);transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:.3rem}
+    .quick-actions button:hover{background:var(--pl);transform:translateY(-2px)}
+    .quick-actions button span{font-size:1.4rem}
   </style>
 </head>
 <body>
@@ -104,8 +109,8 @@
         <button class="btn btn-o" data-s="insights">Insights</button>
         <button class="btn btn-o" data-s="history">My History</button>
       </div>
-      <div class="nav-group" id="ng-wellness">
-        <div class="nav-group-label" onclick="togNavGroup('ng-wellness')">Wellness &amp; Mindfulness \u25BC</div>
+      <div class="nav-group collapsed" id="ng-wellness">
+        <div class="nav-group-label" onclick="togNavGroup('ng-wellness')">Wellness &amp; Mindfulness \u25B6</div>
         <div class="nav-group-items">
           <button class="btn btn-o" data-s="affirmations">Affirmations</button>
           <button class="btn btn-o" data-s="mindfulness">Mindfulness</button>
@@ -116,8 +121,8 @@
           <button class="btn btn-o" data-s="journeys">Journeys</button>
         </div>
       </div>
-      <div class="nav-group" id="ng-peace">
-        <div class="nav-group-label" onclick="togNavGroup('ng-peace')">Peace &amp; Empathy \u25BC</div>
+      <div class="nav-group collapsed" id="ng-peace">
+        <div class="nav-group-label" onclick="togNavGroup('ng-peace')">Peace &amp; Empathy \u25B6</div>
         <div class="nav-group-items">
           <button class="btn btn-o" data-s="tolerance">Understanding</button>
           <button class="btn btn-o" data-s="kindness">Kindness</button>
@@ -128,8 +133,8 @@
           <button class="btn btn-o" data-s="pledges">Pledges</button>
         </div>
       </div>
-      <div class="nav-group" id="ng-skills">
-        <div class="nav-group-label" onclick="togNavGroup('ng-skills')">Skills &amp; Growth \u25BC</div>
+      <div class="nav-group collapsed" id="ng-skills">
+        <div class="nav-group-label" onclick="togNavGroup('ng-skills')">Skills &amp; Growth \u25B6</div>
         <div class="nav-group-items">
           <button class="btn btn-o" data-s="deescalation">De-escalation</button>
           <button class="btn btn-o" data-s="conflict">Conflict</button>
@@ -468,42 +473,73 @@ function processCheckIn(mood,feelings){
 let curSection='daily';
 document.getElementById('mainNav').addEventListener('click',e=>{
   if(!e.target.dataset.s)return;
+  navigateTo(e.target.dataset.s);
+});
+
+function navigateTo(s){
+  if(s===curSection&&document.getElementById('content').innerHTML.indexOf('loading')===-1){
+    window.scrollTo({top:document.getElementById('content').offsetTop-8,behavior:'smooth'});
+    return;
+  }
+  history.pushState(null,null,'#'+s);
+  activateSection(s);
+}
+
+function activateSection(s){
   document.querySelectorAll('#mainNav .btn').forEach(b=>{b.classList.remove('act');b.classList.add('btn-o')});
-  e.target.classList.add('act');e.target.classList.remove('btn-o');
-  curSection=e.target.dataset.s;
-  loadSection(curSection);
+  const navBtn=document.querySelector('#mainNav .btn[data-s="'+s+'"]');
+  if(navBtn){navBtn.classList.add('act');navBtn.classList.remove('btn-o');
+    // Auto-expand the parent nav group if collapsed
+    const group=navBtn.closest('.nav-group');
+    if(group&&group.classList.contains('collapsed'))togNavGroup(group.id);
+  }
+  curSection=s;
+  loadSection(s);
+}
+
+// Back/forward button support
+window.addEventListener('popstate',()=>{
+  const hash=location.hash.slice(1);
+  if(hash)activateSection(hash);
+  else activateSection('daily');
 });
 
 function loadSection(s){
   const el=document.getElementById('content');
-  el.innerHTML='<div class="loading">Loading...</div>';
+  el.classList.add('fading');
+  // Scroll to content area
+  window.scrollTo({top:el.offsetTop-8,behavior:'smooth'});
+  // Fade in after rendering
+  setTimeout(()=>{
   try{
     switch(s){
-      case'daily':return renderDaily(el);
-      case'affirmations':return renderAffirmations(el);
-      case'mindfulness':return renderMindfulness(el);
-      case'tolerance':return renderTolerance(el);
-      case'kindness':return renderKindness(el);
-      case'checkin':return renderCheckIn(el);
-      case'journeys':return renderJourneys(el);
-      case'deescalation':return renderDeescalation(el);
-      case'stories':return renderStories(el);
-      case'pledges':return renderPledges(el);
-      case'journal':return renderJournal(el);
-      case'gratitude':return renderGratitude(el);
-      case'history':return renderHistory(el);
-      case'insights':return renderInsights(el);
-      case'cultures':return renderCultures(el);
-      case'empathy':return renderEmpathy(el);
-      case'forgiveness':return renderForgiveness(el);
-      case'conflict':return renderConflict(el);
-      case'peaceLog':return renderPeaceLog(el);
-      case'kindWords':return renderKindWords(el);
-      case'values':return renderValues(el);
-      case'gratLetter':return renderGratLetter(el);
-      case'resources':return renderResources(el);
+      case'daily':renderDaily(el);break;
+      case'affirmations':renderAffirmations(el);break;
+      case'mindfulness':renderMindfulness(el);break;
+      case'tolerance':renderTolerance(el);break;
+      case'kindness':renderKindness(el);break;
+      case'checkin':renderCheckIn(el);break;
+      case'journeys':renderJourneys(el);break;
+      case'deescalation':renderDeescalation(el);break;
+      case'stories':renderStories(el);break;
+      case'pledges':renderPledges(el);break;
+      case'journal':renderJournal(el);break;
+      case'gratitude':renderGratitude(el);break;
+      case'history':renderHistory(el);break;
+      case'insights':renderInsights(el);break;
+      case'cultures':renderCultures(el);break;
+      case'empathy':renderEmpathy(el);break;
+      case'forgiveness':renderForgiveness(el);break;
+      case'conflict':renderConflict(el);break;
+      case'peaceLog':renderPeaceLog(el);break;
+      case'kindWords':renderKindWords(el);break;
+      case'values':renderValues(el);break;
+      case'gratLetter':renderGratLetter(el);break;
+      case'resources':renderResources(el);break;
     }
   }catch(err){el.innerHTML='<div class="card"><p>Something went wrong. Please try again.</p></div>';}
+  requestAnimationFrame(()=>el.classList.remove('fading'));
+  },20);
 }
 
 // ============================================================
@@ -539,24 +575,31 @@ function renderDaily(el){
   const dailyChallenge=challenges[doy%challenges.length];
   el.innerHTML=`
     ${isNew?`<div class="card" style="text-align:center;border-left:4px solid var(--p)"><h2>Welcome to Good Friend \u{1F44B}</h2>
-    <p style="font-size:1.05rem">This is your free, private companion for wellness, empathy, and peace. Everything stays on your device.</p>
-    <p style="margin-top:.5rem"><strong>Getting started:</strong></p>
-    <ul style="text-align:left;margin:.5rem auto;max-width:400px;list-style:disc;padding-left:1.5rem">
-    <li>Tap <strong>Check-In</strong> to log how you\u2019re feeling</li>
-    <li>Explore <strong>Mindfulness</strong> for breathing exercises</li>
-    <li>Try <strong>Empathy</strong> to walk in someone else\u2019s shoes</li>
-    <li>Visit <strong>Cultures</strong> to discover world traditions</li>
-    <li>Come back daily \u2014 new content rotates every day</li>
-    </ul></div>`:''}
+    <p style="font-size:1.05rem">Your free, private companion for wellness, empathy, and peace.</p>
+    <p style="margin-top:.5rem;color:var(--tl)">Everything stays on your device. No accounts, no tracking.</p>
+    <div class="quick-actions" style="margin-top:.75rem">
+    <button onclick="navigateTo('checkin')"><span>\u{1F4CA}</span>How are you feeling?</button>
+    <button onclick="startBreathingTimer('478')"><span>\u{1F32C}\uFE0F</span>Breathe with me</button>
+    <button onclick="navigateTo('empathy')"><span>\u{1F463}</span>Build empathy</button>
+    <button onclick="navigateTo('cultures')"><span>\u{1F30D}</span>Explore cultures</button>
+    </div>
+    <p style="margin-top:.5rem;font-size:.85rem;color:var(--tl)">Come back daily \u2014 new content rotates every day</p></div>`
+    :(!todayChecked?'':'')}
     ${milestone?`<div class="card" style="text-align:center;background:var(--pl);border:2px solid var(--p)"><span style="font-size:2.5rem">${milestone.icon}</span><h2 style="margin:.3rem 0">Milestone: ${milestone.d} Days!</h2><p style="font-size:1.1rem">${esc(milestone.msg)}</p></div>`:''}
     ${streak>0&&!milestone?`<div class="streak-bar"><span class="fire">\u{1F525}</span><span class="count">${streak}-day streak!</span><span>Keep showing up for yourself.</span></div>`:''}
-    ${!todayChecked?`<div class="card" style="text-align:center"><h2>Quick Mood Check</h2><p>How are you feeling right now?</p><div class="mood-scale">${MOOD_EMOJI.map((e,i)=>`<button onclick="quickMood(${i+1})" title="${MOOD_LABELS[i]}">${e}</button>`).join('')}</div></div>`:''}
+    ${!todayChecked&&!isNew?`<div class="card" style="text-align:center"><h2>Quick Mood Check</h2><p>How are you feeling right now?</p><div class="mood-scale">${MOOD_EMOJI.map((e,i)=>`<button onclick="quickMood(${i+1})" title="${MOOD_LABELS[i]}">${e}</button>`).join('')}</div>
+    <div class="quick-actions" style="margin-top:.75rem">
+    <button onclick="navigateTo('mindfulness')"><span>\u{1F9D8}</span>Mindfulness</button>
+    <button onclick="navigateTo('journal')"><span>\u{1F4DD}</span>Journal</button>
+    <button onclick="navigateTo('kindWords')"><span>\u{1F4AC}</span>Send kind words</button>
+    </div></div>`
+    :(!todayChecked&&isNew?'':'')}
     <div class="card"><h2>Today's Affirmation</h2><div class="quote">${esc(aff.text)}</div><p class="label">${esc(aff.theme)} ${shareBtn(aff.text,'affirmation')}</p></div>
     <div class="card" style="border-left:4px solid var(--a)"><p style="font-style:italic">${esc(wis)}</p></div>
     <div class="card"><h2>Today's Reflection</h2><p>${esc(prm.prompt)}</p><div class="refl"><h3>Reflect on:</h3><ul>${prm.reflectionQuestions.map(q=>`<li>${esc(q)}</li>`).join('')}</ul></div></div>
     <div class="card"><h2>Today's Kindness Challenge</h2><p><strong>${esc(knd.suggestion)}</strong> ${shareBtn(knd.suggestion,'kindness act')}</p><p class="label">${esc(knd.scope)} \u00b7 ${esc(knd.effortLevel)} effort</p><p>${esc(knd.impact)}</p></div>
     <div class="card" style="border-left:4px solid #9c27b0"><h2>World Culture: ${esc(cul.name)}</h2><p class="label">${esc(cul.origin)}</p><p>${esc(cul.desc)}</p><p style="margin-top:.4rem;color:var(--p);font-style:italic">${esc(cul.value)}</p></div>
-    <div class="card" style="background:var(--pl)"><h2>\u{1F3AF} Today's Challenge</h2><p style="font-size:1.05rem">${esc(dailyChallenge.text)}</p><button class="btn" style="margin-top:.4rem" onclick="loadSection('${dailyChallenge.section}')">Go \u2192</button></div>
+    <div class="card" style="background:var(--pl)"><h2>\u{1F3AF} Today's Challenge</h2><p style="font-size:1.05rem">${esc(dailyChallenge.text)}</p><button class="btn" style="margin-top:.4rem" onclick="navigateTo('${dailyChallenge.section}')">Go \u2192</button></div>
     ${getBadges()}
     ${getWeeklyReflection()}
     <div class="card" style="text-align:center"><p style="font-style:italic;color:var(--p)">Here's your daily dose of positivity. You matter, and the world is better with you in it.</p></div>`;
@@ -615,7 +658,7 @@ window.doCheckIn=function(){
   if(resp.resourcesRecommended)h+=`<div class="crisis" style="margin-top:.75rem"><strong>Support is available.</strong><p>If you need someone to talk to, help is just a call or text away.</p><button class="btn btn-w" onclick="document.querySelector('[data-s=resources]').click()">View Resources</button></div>`;
   // Mood-based section recommendations
   const recs=selMoodVal<=2?[{s:'mindfulness',l:'Try Mindfulness'},{s:'journal',l:'Write in Journal'},{s:'affirmations',l:'Read Affirmations'}]:selMoodVal===3?[{s:'empathy',l:'Try Empathy'},{s:'cultures',l:'Explore Cultures'},{s:'gratitude',l:'Gratitude Wall'}]:[{s:'kindness',l:'Do Kindness'},{s:'peaceLog',l:'Log Peace Action'},{s:'kindWords',l:'Send Kind Words'}];
-  h+=`<div style="margin-top:.75rem"><h3>Recommended for you:</h3><div class="nav">${recs.map(r=>`<button class="btn btn-o" onclick="loadSection('${r.s}')">${r.l}</button>`).join('')}</div></div>`;
+  h+=`<div style="margin-top:.75rem"><h3>Recommended for you:</h3><div class="nav">${recs.map(r=>`<button class="btn btn-o" onclick="navigateTo('${r.s}')">${r.l}</button>`).join('')}</div></div>`;
   h+=`<p style="margin-top:.5rem;color:var(--p);font-style:italic">\u{1F525} ${getStreak()}-day streak! Keep showing up.</p></div>`;
   document.getElementById('ciResult').innerHTML=h;
   selMoodVal=null;selFeelings.clear();
@@ -631,7 +674,7 @@ function renderJourneys(el){
 }
 window.showJourney=function(id){
   const j=JOURNEYS.find(x=>x.id===id);if(!j)return;
-  document.getElementById('content').innerHTML=`<div class="card"><h2>${esc(j.title)}</h2><p class="label">${esc(j.theme)}</p><p>${esc(j.purpose)}</p></div>${j.steps.map(s=>`<div class="card"><h2>Step ${s.stepNumber}</h2><p><strong>${esc(s.instruction)}</strong></p><div class="refl"><h3>Prompt:</h3><p>${esc(s.prompt)}</p></div><p style="margin-top:.4rem;font-style:italic;color:var(--p)">${esc(s.followUp)}</p></div>`).join('')}<div class="card" style="text-align:center"><button class="btn" onclick="loadSection('journeys')">Back to Journeys</button></div>`;
+  document.getElementById('content').innerHTML=`<div class="card"><h2>${esc(j.title)}</h2><p class="label">${esc(j.theme)}</p><p>${esc(j.purpose)}</p></div>${j.steps.map(s=>`<div class="card"><h2>Step ${s.stepNumber}</h2><p><strong>${esc(s.instruction)}</strong></p><div class="refl"><h3>Prompt:</h3><p>${esc(s.prompt)}</p></div><p style="margin-top:.4rem;font-style:italic;color:var(--p)">${esc(s.followUp)}</p></div>`).join('')}<div class="card" style="text-align:center"><button class="btn" onclick="navigateTo('journeys')">Back to Journeys</button></div>`;
 };
 
 function renderDeescalation(el){
@@ -865,7 +908,7 @@ window.startForgiveness=function(){
     renderFg();
   },1000);
 };
-window.stopFg=function(){if(fgInterval){clearInterval(fgInterval);fgInterval=null}loadSection('forgiveness')};
+window.stopFg=function(){if(fgInterval){clearInterval(fgInterval);fgInterval=null}navigateTo('forgiveness')};
 window.selfForgive=function(){
   const el=document.getElementById('content');
   el.innerHTML=`<div class="card"><h2>Self-Forgiveness</h2>
@@ -1266,7 +1309,7 @@ window.importData=function(event){
       if(data.values_reflections)S.set('values_reflections',data.values_reflections);
       if(data.gratitude_letters)S.set('gratitude_letters',data.gratitude_letters);
       showToast('Data imported successfully!');
-      loadSection('insights');
+      navigateTo('insights');
     }catch{showToast('Could not read file.')}
   };
   reader.readAsText(file);
@@ -1303,8 +1346,12 @@ function scheduleReminder(){
 }
 if(S.get('reminders'))scheduleReminder();
 
-// Initial load
-loadSection('daily');
+// Initial load — respect hash for deep linking
+(function(){
+  const hash=location.hash.slice(1);
+  if(hash){activateSection(hash)}
+  else{loadSection('daily')}
+})();
 
 // ============================================================
 // SHARE — Web Share API or copy fallback
@@ -1371,7 +1418,7 @@ window.startBreathingTimer=function(type){
     renderTimer();
   },1000);
 };
-window.stopTimer=function(){if(timerInterval){clearInterval(timerInterval);timerInterval=null}loadSection('mindfulness')};
+window.stopTimer=function(){if(timerInterval){clearInterval(timerInterval);timerInterval=null}navigateTo('mindfulness')};
 
 // ============================================================
 // GUIDED LOVING-KINDNESS MEDITATION
@@ -1416,7 +1463,7 @@ window.startLovingKindness=function(){
     renderLK();
   },1000);
 };
-window.stopLK=function(){if(lkInterval){clearInterval(lkInterval);lkInterval=null}loadSection('mindfulness')};
+window.stopLK=function(){if(lkInterval){clearInterval(lkInterval);lkInterval=null}navigateTo('mindfulness')};
 
 // ============================================================
 // DARK MODE
@@ -1430,7 +1477,10 @@ window.toggleDark=function(){
 
 // Nav group toggle
 window.togNavGroup=function(id){
-  document.getElementById(id).classList.toggle('collapsed');
+  const g=document.getElementById(id);
+  g.classList.toggle('collapsed');
+  const label=g.querySelector('.nav-group-label');
+  if(label)label.textContent=label.textContent.replace(/[\u25BC\u25B6]/,g.classList.contains('collapsed')?'\u25B6':'\u25BC');
 };
 
 // ============================================================

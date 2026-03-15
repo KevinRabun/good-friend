@@ -91,7 +91,9 @@
       <button class="btn btn-o" data-s="stories">Stories</button>
       <button class="btn btn-o" data-s="pledges">Pledges</button>
       <button class="btn btn-o" data-s="journal">Journal</button>
+      <button class="btn btn-o" data-s="gratitude">Gratitude</button>
       <button class="btn btn-o" data-s="history">My History</button>
+      <button class="btn btn-o" data-s="insights">Insights</button>
       <button class="btn btn-o" data-s="resources">Resources</button>
     </nav>
     <div id="content" role="main" aria-live="polite"><div class="loading">Loading...</div></div>
@@ -327,7 +329,9 @@ function loadSection(s){
       case'stories':return renderStories(el);
       case'pledges':return renderPledges(el);
       case'journal':return renderJournal(el);
+      case'gratitude':return renderGratitude(el);
       case'history':return renderHistory(el);
+      case'insights':return renderInsights(el);
       case'resources':return renderResources(el);
     }
   }catch(err){el.innerHTML='<div class="card"><p>Something went wrong. Please try again.</p></div>';}
@@ -543,6 +547,177 @@ function renderResources(el){
 window.showRegion=function(region){
   document.getElementById('regR').innerHTML=RESOURCES.filter(r=>r.region===region).map(r=>`<div style="padding:.5rem 0;border-bottom:1px solid #eee"><strong>${esc(r.name)}</strong><p>${esc(r.description)}</p><p><strong>${esc(r.contact)}</strong> (${esc(r.contactType)}) \u00b7 ${esc(r.available)}</p></div>`).join('');
 };
+
+// ============================================================
+// GRATITUDE WALL
+// ============================================================
+const GRATITUDE_PROMPTS=[
+  'What made you smile today?',
+  'Name someone who brightened your day.',
+  'What small comfort are you grateful for right now?',
+  'What skill or ability are you thankful to have?',
+  'What part of nature brings you peace?',
+  'What memory are you grateful for?',
+  'What challenge helped you grow?',
+  'Who believed in you when you needed it most?',
+];
+function renderGratitude(el){
+  const notes=S.get('gratitude',[]);
+  const prompt=pick(GRATITUDE_PROMPTS);
+  el.innerHTML=`
+    <div class="card"><h2>Gratitude Wall</h2><p>Write what you're grateful for. Every note stays on your device, building your personal mosaic of thankfulness.</p>
+    <div class="refl"><h3>Prompt:</h3><p>${esc(prompt)}</p></div>
+    <textarea id="gTxt" placeholder="I'm grateful for..."></textarea>
+    <button class="btn btn-w" style="width:100%" onclick="addGratitude()">Add to Wall</button></div>
+    <div class="card"><h2>Your Gratitude Notes (${notes.length})</h2>
+    ${notes.length?`<div style="columns:2;column-gap:.75rem">${notes.slice().reverse().map(n=>`<div style="break-inside:avoid;background:var(--pl);padding:.6rem;border-radius:8px;margin-bottom:.5rem"><p style="font-size:.9rem">${esc(n.text)}</p><p class="label">${new Date(n.ts).toLocaleDateString()}</p></div>`).join('')}</div>`:'<p style="color:var(--tl)">Your wall is empty. Start by adding your first note of gratitude.</p>'}
+    </div>`;
+}
+window.addGratitude=function(){
+  const text=document.getElementById('gTxt').value.trim();
+  if(!text){alert('Please write what you\'re grateful for.');return}
+  S.push('gratitude',{text,ts:Date.now()},500);
+  loadSection('gratitude');
+};
+
+// ============================================================
+// INSIGHTS — Self-reflection analysis
+// ============================================================
+function renderInsights(el){
+  const hist=S.get('checkin_history',[]);
+  const journal=S.get('journal',[]);
+  const gratitude=S.get('gratitude',[]);
+  const pledges=S.get('pledges',[]);
+  const streak=getStreak();
+  const insights=[];
+
+  if(hist.length>=5){
+    // Mood trend
+    const recent=hist.slice(-7);
+    const avg=recent.reduce((s,h)=>s+h.mood,0)/recent.length;
+    const older=hist.slice(-14,-7);
+    if(older.length>=3){
+      const oldAvg=older.reduce((s,h)=>s+h.mood,0)/older.length;
+      if(avg>oldAvg+0.3)insights.push({icon:'\u{1F4C8}',text:'Your mood has been trending upward recently. Whatever you\'re doing, keep it up!',type:'positive'});
+      else if(avg<oldAvg-0.3)insights.push({icon:'\u{1F4C9}',text:'Your mood has dipped recently. Be extra gentle with yourself. Consider trying a mindfulness exercise or journaling about what\'s on your mind.',type:'care'});
+      else insights.push({icon:'\u{1F4CA}',text:'Your mood has been steady. Consistency is a form of strength.',type:'neutral'});
+    }
+    // Common feelings
+    const feelMap={};
+    hist.forEach(h=>(h.feelings||[]).forEach(f=>{feelMap[f]=(feelMap[f]||0)+1}));
+    const topFeel=Object.entries(feelMap).sort((a,b)=>b[1]-a[1]);
+    if(topFeel.length){
+      const positive=['calm','grateful','hopeful','content','energized','peaceful','joyful','connected','inspired','loved'];
+      const posCount=topFeel.filter(([f])=>positive.includes(f)).reduce((s,[,c])=>s+c,0);
+      const total=topFeel.reduce((s,[,c])=>s+c,0);
+      const ratio=posCount/total;
+      if(ratio>.6)insights.push({icon:'\u{2728}',text:`Your dominant feelings have been positive (${Math.round(ratio*100)}% of the time). You're cultivating a resilient inner landscape.`,type:'positive'});
+      else if(ratio<.3)insights.push({icon:'\u{1F49C}',text:'You\'ve been experiencing more challenging feelings lately. Remember: acknowledging them is brave. Each check-in is an act of self-care.',type:'care'});
+    }
+    // Best day pattern
+    const dayMap={};
+    hist.forEach(h=>{const d=new Date(h.date).getDay();dayMap[d]=(dayMap[d]||{sum:0,count:0});dayMap[d].sum+=h.mood;dayMap[d].count++});
+    const dayNames=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    let bestDay=null,bestAvg=0;
+    Object.entries(dayMap).forEach(([d,{sum,count}])=>{const a=sum/count;if(a>bestAvg){bestAvg=a;bestDay=Number(d)}});
+    if(bestDay!==null&&bestAvg>=3.5)insights.push({icon:'\u{1F4C5}',text:`You tend to feel best on ${dayNames[bestDay]}s. Consider scheduling meaningful activities on your peak days.`,type:'neutral'});
+  }
+
+  if(streak>=7)insights.push({icon:'\u{1F525}',text:`${streak}-day streak! Consistency like this rewires your brain for positivity. You\'re building a powerful habit.`,type:'positive'});
+  else if(streak>=3)insights.push({icon:'\u{1F31F}',text:`${streak}-day streak! You're building momentum. Keep showing up.`,type:'positive'});
+
+  if(journal.length>=5)insights.push({icon:'\u{1F4DD}',text:`You've written ${journal.length} journal entries. Regular reflection strengthens self-awareness and emotional processing.`,type:'positive'});
+  if(gratitude.length>=10)insights.push({icon:'\u{1F49A}',text:`Your gratitude wall has ${gratitude.length} notes! Research shows gratitude practice physically changes brain patterns toward positivity.`,type:'positive'});
+  if(pledges.length>=3)insights.push({icon:'\u{1F91D}',text:`You've made ${pledges.length} pledges for a better world. Each one is a commitment to the kind of person you want to be.`,type:'positive'});
+
+  if(!insights.length){
+    insights.push({icon:'\u{1F331}',text:'Keep using Good Friend for a few days and personalized insights will appear here. Try doing a check-in, journaling, or adding gratitude notes.',type:'neutral'});
+  }
+
+  const typeColor={positive:'var(--pl)',care:'#fff3e0',neutral:'#f5f5f5'};
+  el.innerHTML=`
+    <div class="card"><h2>Personal Insights</h2><p>Reflections based on your journey so far. The more you engage, the richer your insights become.</p></div>
+    ${insights.map(i=>`<div class="card" style="background:${typeColor[i.type]||'var(--c)'}"><span style="font-size:1.5rem">${i.icon}</span> <span>${esc(i.text)}</span></div>`).join('')}
+    <div class="card"><h2>Data Portability</h2><p>Your data belongs to you. Export everything to a file, or import from another device.</p>
+    <button class="btn" onclick="exportData()">Export My Data</button>
+    <button class="btn btn-o" onclick="document.getElementById('importFile').click()">Import Data</button>
+    <input type="file" id="importFile" accept=".json" class="hidden" onchange="importData(event)">
+    <p style="margin-top:.5rem;font-size:.82rem;color:var(--tl)">Exported as JSON. No data leaves your device unless you choose to share the file.</p></div>
+    <div class="card"><h2>Daily Reminders</h2><p>Get a gentle browser notification to check in with yourself.</p>
+    <button class="btn" onclick="enableReminders()">Enable Daily Reminders</button>
+    <p style="margin-top:.3rem;font-size:.82rem;color:var(--tl)">Uses browser notifications. You can disable them anytime in your browser settings.</p></div>`;
+}
+
+// ============================================================
+// DATA EXPORT / IMPORT
+// ============================================================
+window.exportData=function(){
+  const data={
+    version:1,
+    exported:new Date().toISOString(),
+    checkin_history:S.get('checkin_history',[]),
+    journal:S.get('journal',[]),
+    pledges:S.get('pledges',[]),
+    stories:S.get('stories',[]),
+    gratitude:S.get('gratitude',[]),
+  };
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download='good-friend-data-'+todayStr()+'.json';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('Data exported!');
+};
+window.importData=function(event){
+  const file=event.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      const data=JSON.parse(e.target.result);
+      if(!data.version){showToast('Invalid file format.');return}
+      if(data.checkin_history)S.set('checkin_history',data.checkin_history);
+      if(data.journal)S.set('journal',data.journal);
+      if(data.pledges)S.set('pledges',data.pledges);
+      if(data.stories){S.set('stories',data.stories);S.set('stories_init',true)}
+      if(data.gratitude)S.set('gratitude',data.gratitude);
+      showToast('Data imported successfully!');
+      loadSection('insights');
+    }catch{showToast('Could not read file.')}
+  };
+  reader.readAsText(file);
+  event.target.value='';
+};
+
+// ============================================================
+// DAILY REMINDERS — Notification API
+// ============================================================
+window.enableReminders=function(){
+  if(!('Notification' in window)){showToast('Notifications not supported in this browser.');return}
+  Notification.requestPermission().then(perm=>{
+    if(perm==='granted'){
+      S.set('reminders',true);
+      showToast('Reminders enabled! You\'ll get a gentle nudge to check in.');
+      scheduleReminder();
+    }else{showToast('Permission denied. You can enable from browser settings.')}
+  });
+};
+function scheduleReminder(){
+  if(!S.get('reminders'))return;
+  // Check every hour if a reminder should be shown today
+  setInterval(()=>{
+    const lastReminder=S.get('last_reminder','');
+    if(lastReminder===todayStr())return;
+    const h=new Date().getHours();
+    if(h>=9&&h<=10){
+      S.set('last_reminder',todayStr());
+      if(Notification.permission==='granted'){
+        new Notification('Good Friend',{body:'Take a moment to check in with yourself today. You matter. \u{1F49A}',icon:'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">\u{1F49A}</text></svg>'});
+      }
+    }
+  },3600000);
+}
+if(S.get('reminders'))scheduleReminder();
 
 // Initial load
 loadSection('daily');

@@ -69,12 +69,26 @@
     .timer-phase{font-size:.8rem;fill:var(--tl)}
     .toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:var(--p);color:#fff;padding:.5rem 1.2rem;border-radius:8px;z-index:200;opacity:0;transition:opacity .3s}
     .toast.show{opacity:1}
+    @media(prefers-color-scheme:dark){:root{--bg:#1a1a2e;--c:#16213e;--t:#e0e0e0;--tl:#aaa;--pl:#1b3a2a;--sh:0 2px 8px rgba(0,0,0,.3)}.quote{background:#1b3a2a}.refl{background:#2a2a1a}.avoid{background:#2a1a1a}.crisis{background:#2a1a1a;border-color:#5a2020}.crisis strong{color:#ef5350}textarea,input[type="text"],select{background:#1a1a2e;color:#e0e0e0;border-color:#444}.mood-scale button{background:#16213e;color:#e0e0e0;border-color:var(--p)}.streak-bar{background:#1b3a2a}}
+    .dark{--bg:#1a1a2e;--c:#16213e;--t:#e0e0e0;--tl:#aaa;--pl:#1b3a2a;--sh:0 2px 8px rgba(0,0,0,.3)}
+    .dark .quote{background:#1b3a2a}.dark .refl{background:#2a2a1a}.dark .avoid{background:#2a1a1a}.dark .crisis{background:#2a1a1a;border-color:#5a2020}.dark .crisis strong{color:#ef5350}
+    .dark textarea,.dark input[type="text"],.dark select{background:#1a1a2e;color:#e0e0e0;border-color:#444}
+    .dark .mood-scale button{background:#16213e;color:#e0e0e0}.dark .streak-bar{background:#1b3a2a}
+    .dm-toggle{position:absolute;top:.75rem;right:1rem;background:none;border:none;font-size:1.4rem;cursor:pointer;color:#fff;opacity:.8}
+    .dm-toggle:hover{opacity:1}
+    .cal{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin:.5rem 0}
+    .cal-day{aspect-ratio:1;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:.7rem;background:#f0f0f0;color:var(--tl)}
+    .cal-day.active{background:var(--p);color:#fff}
+    .cal-day.today{border:2px solid var(--a)}
+    .cal-head{font-size:.7rem;text-align:center;color:var(--tl);font-weight:700}
+    .dark .cal-day{background:#2a2a3e}
   </style>
 </head>
 <body>
   <a href="#content" class="skip">Skip to content</a>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
-  <header role="banner">
+  <header role="banner" style="position:relative">
+    <button class="dm-toggle" onclick="toggleDark()" aria-label="Toggle dark mode" title="Toggle dark mode">&#x1F319;</button>
     <h1>Good Friend</h1>
     <p>Your free, offline companion for wellness, empathy, and peace. You matter.</p>
   </header>
@@ -137,6 +151,28 @@ const AFFIRMATIONS=[
 {id:'cn-2',text:'Meaningful connections nourish my soul and strengthen my spirit.',theme:'connection'},
 {id:'cn-3',text:'When I reach out to others, I also lift myself up.',theme:'connection'},
 {id:'cn-4',text:'Shared joy is doubled; shared sorrow is halved.',theme:'connection'},
+{id:'sw-5',text:'I release the need for perfection and embrace my authentic self.',theme:'self-worth'},
+{id:'rs-5',text:'I am resilient, and every experience adds to my wisdom.',theme:'resilience'},
+{id:'cm-5',text:'I choose to see the goodness in people, even when it\'s hidden.',theme:'compassion'},
+{id:'tl-6',text:'Every voice matters, and I make space for voices that often go unheard.',theme:'tolerance'},
+{id:'pc-5',text:'I release resentment and make room for healing.',theme:'peace'},
+{id:'gr-5',text:'Even in hardship, I can find something to be thankful for.',theme:'gratitude'},
+{id:'cn-5',text:'I open my heart to the beautiful diversity of the human family.',theme:'connection'},
+{id:'sw-6',text:'My worth is not measured by productivity; I am enough as I am.',theme:'self-worth'},
+{id:'rs-6',text:'I trust the journey, even when I cannot see the destination.',theme:'resilience'},
+{id:'cm-6',text:'Small acts of compassion create waves of change I may never see.',theme:'compassion'},
+{id:'tl-7',text:'I choose to listen more than I speak, and to learn more than I teach.',theme:'tolerance'},
+{id:'pc-6',text:'I am a peacekeeper in my own heart first, then in the world.',theme:'peace'},
+{id:'gr-6',text:'I am grateful for the lessons hidden in my struggles.',theme:'gratitude'},
+{id:'cn-6',text:'Loneliness reminds me of my deep capacity for love and connection.',theme:'connection'},
+{id:'hl-1',text:'I nourish my body and mind with care, not as a duty but as an act of love.',theme:'healing'},
+{id:'hl-2',text:'Healing is not linear, and I honor my own pace.',theme:'healing'},
+{id:'hl-3',text:'I forgive myself for the times I wasn\'t kind to myself.',theme:'healing'},
+{id:'hl-4',text:'My scars tell a story of survival and strength.',theme:'healing'},
+{id:'hp-1',text:'I see the seeds of a better world in the kindness around me.',theme:'hope'},
+{id:'hp-2',text:'Tomorrow holds possibilities I cannot yet imagine.',theme:'hope'},
+{id:'hp-3',text:'Hope is a choice I make, and I choose it today.',theme:'hope'},
+{id:'hp-4',text:'Even in darkness, I can be a light for someone.',theme:'hope'},
 ];
 
 const EXERCISES=[
@@ -491,6 +527,7 @@ function renderHistory(el){
   const hist=S.get('checkin_history',[]);
   const journal=S.get('journal',[]);
   const pledges=S.get('pledges',[]);
+  const gratitude=S.get('gratitude',[]);
   const streak=getStreak();
 
   // Mood chart - last 30 entries
@@ -500,7 +537,6 @@ function renderHistory(el){
     const w=100,h=100,pad=5;
     const pts=recent.map((r,i)=>{const x=pad+(i/(recent.length-1))*(w-2*pad);const y=h-pad-(((r.mood-1)/4)*(h-2*pad));return`${x},${y}`});
     const line=pts.join(' ');
-    // Area fill
     const area=`${pad},${h-pad} ${line} ${w-pad},${h-pad}`;
     chartSvg=`<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" aria-label="Mood trend chart">
       <defs><linearGradient id="mg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="var(--p)" stop-opacity=".3"/><stop offset="100%" stop-color="var(--p)" stop-opacity=".02"/></linearGradient></defs>
@@ -519,6 +555,26 @@ function renderHistory(el){
   // Average mood
   const avgMood=hist.length?(hist.reduce((s,h)=>s+h.mood,0)/hist.length).toFixed(1):'--';
 
+  // Reflection calendar — current month
+  const now=new Date();
+  const year=now.getFullYear(),month=now.getMonth();
+  const firstDay=new Date(year,month,1).getDay();
+  const daysInMonth=new Date(year,month+1,0).getDate();
+  const todayDate=now.getDate();
+  const activeDates=new Set();
+  hist.forEach(h=>{const d=new Date(h.date);if(d.getFullYear()===year&&d.getMonth()===month)activeDates.add(d.getDate())});
+  journal.forEach(j=>{const d=new Date(j.ts);if(d.getFullYear()===year&&d.getMonth()===month)activeDates.add(d.getDate())});
+  gratitude.forEach(g=>{const d=new Date(g.ts);if(d.getFullYear()===year&&d.getMonth()===month)activeDates.add(d.getDate())});
+  const monthNames=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  let calHtml=`<div class="cal"><span class="cal-head">S</span><span class="cal-head">M</span><span class="cal-head">T</span><span class="cal-head">W</span><span class="cal-head">T</span><span class="cal-head">F</span><span class="cal-head">S</span>`;
+  for(let i=0;i<firstDay;i++)calHtml+='<span></span>';
+  for(let d=1;d<=daysInMonth;d++){
+    const isActive=activeDates.has(d);
+    const isToday=d===todayDate;
+    calHtml+=`<span class="cal-day${isActive?' active':''}${isToday?' today':''}">${d}</span>`;
+  }
+  calHtml+='</div>';
+
   el.innerHTML=`
     <div class="card" style="text-align:center">
       <h2>Your Wellness Journey</h2>
@@ -530,6 +586,7 @@ function renderHistory(el){
         <div><p style="font-size:2rem;font-weight:700;color:var(--p)">${avgMood}</p><p class="label">Avg mood</p></div>
       </div>
     </div>
+    <div class="card"><h2>Reflection Calendar \u2014 ${monthNames[month]} ${year}</h2><p class="label">Green days = you checked in, journaled, or practiced gratitude</p>${calHtml}</div>
     ${chartSvg?`<div class="card"><h2>Mood Trend</h2><p class="label">Last ${recent.length} check-ins</p><div class="chart-wrap">${chartSvg}</div></div>`:'<div class="card"><h2>Mood Trend</h2><p>Complete at least 2 check-ins to see your mood trend.</p></div>'}
     ${topFeelings.length?`<div class="card"><h2>Most Common Feelings</h2><div class="nav">${topFeelings.map(([f,c])=>`<span class="btn btn-o" style="cursor:default">${esc(f)} (${c})</span>`).join('')}</div></div>`:''}
     ${hist.length?`<div class="card"><h2>Recent Check-ins</h2>${hist.slice(-7).reverse().map(h=>`<div style="padding:.4rem 0;border-bottom:1px solid #eee">${MOOD_EMOJI[h.mood-1]} <strong>${MOOD_LABELS[h.mood-1]}</strong> \u00b7 ${h.date} ${(h.feelings||[]).length?'\u00b7 '+h.feelings.join(', '):''}</div>`).join('')}</div>`:''}
@@ -788,6 +845,16 @@ window.startBreathingTimer=function(type){
   },1000);
 };
 window.stopTimer=function(){if(timerInterval){clearInterval(timerInterval);timerInterval=null}loadSection('mindfulness')};
+
+// ============================================================
+// DARK MODE
+// ============================================================
+window.toggleDark=function(){
+  const isDark=document.documentElement.classList.toggle('dark');
+  S.set('dark',isDark);
+  document.querySelector('.dm-toggle').textContent=isDark?'\u2600\ufe0f':'\u{1F319}';
+};
+(function(){if(S.get('dark')){document.documentElement.classList.add('dark');document.querySelector('.dm-toggle').textContent='\u2600\ufe0f'}})();
 
 // ============================================================
 // PWA — Service Worker registration

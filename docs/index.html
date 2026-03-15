@@ -175,6 +175,7 @@
           <button class="btn btn-o" data-s="resources">Resources</button>
         </div>
       </div>
+      <button class="btn btn-o" data-s="settings" style="margin-top:.3rem;width:100%">\u2699\uFE0F Settings</button>
     </nav>
     <div id="content" role="main" aria-live="polite" tabindex="-1"><div class="loading">Loading...</div></div>
   </div>
@@ -269,6 +270,9 @@ const EXERCISES=[
 {id:'bs-1',title:'Progressive Body Scan',category:'body-scan',durationMinutes:15,steps:['Lie down or sit comfortably. Close your eyes.','Bring attention to your toes. Notice any sensations without judgment.','Slowly move your awareness up through your feet and ankles.','Continue through your legs, hips, and lower back.','Notice your abdomen rising and falling with each breath.','Move through your chest, shoulders, and down each arm.','Bring awareness to your neck, face, and the top of your head.','Take a full breath and appreciate your body for carrying you through life.'],benefit:'Releases physical tension stored in the body and deepens body-mind awareness.'},
 {id:'lk-1',title:'Loving-Kindness Meditation',category:'loving-kindness',durationMinutes:10,steps:['Sit comfortably and close your eyes.','Begin by directing kindness toward yourself: "May I be happy. May I be healthy. May I be safe. May I live with ease."','Think of someone you love. Direct the same wishes to them.','Think of a neutral person. Extend these wishes to them.','Think of someone you find difficult. With courage, extend these wishes to them too.','Finally, extend loving-kindness to all beings everywhere: "May all beings be happy. May all beings be at peace."','Sit with this expansive feeling of care for a few moments.'],benefit:'Builds empathy, reduces bias, and strengthens feelings of connection across all people.'},
 {id:'gp-1',title:'Gratitude Reflection',category:'gratitude-practice',durationMinutes:5,steps:['Find a quiet moment and take three calming breaths.','Think of three things that went well today, no matter how small.','For each one, reflect on why it happened and how it made you feel.','Think of one person who positively impacted your day.','Consider how you might express your gratitude to them.','Close by silently thanking yourself for taking this time.'],benefit:'Shifts focus from scarcity to abundance, improving overall wellbeing and life satisfaction.'},
+{id:'wm-1',title:'Walking Meditation',category:'movement',durationMinutes:10,steps:['Find a quiet path or space where you can walk slowly without obstacles.','Stand still for a moment. Feel your feet on the ground.','Begin walking very slowly. Notice the lifting, moving, and placing of each foot.','Synchronize your breath with your steps: inhale for 3 steps, exhale for 3 steps.','If your mind wanders, gently return attention to the sensation of walking.','After 10 minutes, stand still again and notice how your body feels.'],benefit:'Combines gentle movement with meditation, ideal for people who find sitting still difficult or for managing anxiety.'},
+{id:'so-1',title:'Sound Bath Awareness',category:'sensory',durationMinutes:7,steps:['Sit or lie down comfortably and close your eyes.','Begin by noticing the furthest sound you can hear.','Gradually bring your attention to closer sounds.','Notice sounds you normally tune out \u2014 the hum of electronics, distant traffic, wind.','Don\u2019t label or judge sounds \u2014 just let them wash over you.','After 7 minutes, notice how much richer your auditory world has become.'],benefit:'Trains present-moment awareness using hearing, reducing mental chatter and rumination.'},
+{id:'sg-1',title:'Self-Compassion Break',category:'self-compassion',durationMinutes:5,steps:['Think of something that\u2019s causing you stress right now.','Say to yourself: "This is a moment of suffering." (Acknowledge the pain.)','Place your hand over your heart and say: "Suffering is part of life." (Common humanity.)','Say: "May I be kind to myself in this moment." (Self-kindness.)','Breathe gently and repeat these phrases as needed.','Close with: "May I give myself the compassion I need."'],benefit:'Developed by Dr. Kristin Neff. Activates the care system in the brain, reducing cortisol and increasing feelings of safety.'},
 ];
 
 const PROMPTS=[
@@ -444,6 +448,10 @@ const EMPATHY_SCENARIOS=[
 {situation:'A single parent is juggling two jobs, raising three children, and just missed a parent-teacher conference. The teacher sends a disapproving note home.',perspective:'Single parents often carry the weight of two adults while being judged by the standards of a two-parent household. Every missed event represents an impossible choice, not indifference.',questions:['What might that parent\u2019s daily schedule look like?','How does judgment from others compound an already stressful situation?','What support would make the biggest difference for this family?']},
 {situation:'A veteran returns home from service and finds it hard to connect with friends and family. Loud noises make them flinch, and they avoid crowded places.',perspective:'The transition from a combat environment to civilian life involves processing experiences that most people can\u2019t imagine. The distance they feel isn\u2019t rejection \u2014 it\u2019s protection.',questions:['How might the gap between their experiences and yours create misunderstandings?','What would patience and understanding look like in this relationship?','How can you be present for someone without pressuring them to "get back to normal"?']},
 {situation:'A colleague quietly removes a religious symbol before a meeting because they\u2019ve been told it makes others "uncomfortable."',perspective:'Being asked to hide a fundamental part of your identity to make others comfortable is a form of erasure. It sends the message that who you are is a problem to be managed.',questions:['What parts of your identity do you take for granted being able to express freely?','How would it feel to be told your beliefs make others uncomfortable?','What does true religious tolerance look like in shared spaces?']},
+{situation:'A coworker who recently became a parent is struggling to keep up at work. Others whisper about their "lack of commitment" and missed deadlines.',perspective:'New parents face an invisible marathon of sleep deprivation, identity shifts, and the pressure to perform at work as if nothing has changed. Every "late" arrival may follow a night of zero sleep.',questions:['Have you ever judged someone without knowing what they were going through at home?','How could workplaces better support people through major life transitions?','What would empathy look like from their team right now?']},
+{situation:'A teenager\u2019s grandparent insists they put down their phone at family gatherings. The teen feels controlled; the grandparent feels ignored.',perspective:'Two generations with fundamentally different relationships to technology, each feeling disrespected. The grandparent remembers undivided attention as love; the teen sees their phone as connection, not disconnection.',questions:['How do different generations define "being present"?','What valid need does each person have in this situation?','How could both people feel respected?']},
+{situation:'Someone who has been sober for two years is pressured by friends to "just have one drink" at a celebration.',perspective:'Recovery is a daily decision that requires constant vigilance. What looks like a simple social drink to others feels like standing on the edge of a cliff. The casual pressure minimizes years of hard-won progress.',questions:['Have you ever minimized someone else\u2019s struggle because it doesn\u2019t match your experience?','How can social settings be welcoming without centering alcohol?','What would genuine support look like in this moment?']},
+{situation:'A person with chronic pain cancels plans at the last minute \u2014 again. Their friends are frustrated and starting to stop inviting them.',perspective:'Chronic pain is invisible and unpredictable. Each cancellation comes with guilt, grief for the social life they\u2019re losing, and the fear of becoming isolated. They want to come more than anyone knows.',questions:['How does invisible illness change the way we judge reliability?','What would it feel like to never know if your body will cooperate with your plans?','How could friends maintain the relationship while respecting their limitations?']},
 ];
 
 const FORGIVENESS_STEPS=[
@@ -624,6 +632,7 @@ function loadSection(s){
       case'values':renderValues(el);break;
       case'gratLetter':renderGratLetter(el);break;
       case'resources':renderResources(el);break;
+      case'settings':renderSettings(el);break;
     }
   }catch(err){el.innerHTML='<div class="card"><p>Something went wrong. Please try again.</p></div>';}
   el.setAttribute('aria-label',s==='daily'?'Daily view':s.replace(/([A-Z])/g,' $1').trim());
@@ -656,7 +665,7 @@ function renderDaily(el){
   const daysSinceLastVisit=lastVisitDate?Math.floor((new Date(today)-new Date(lastVisitDate))/(864e5)):0;
   const greeting=userName?`Welcome back, ${esc(userName)}!`:'Welcome back!';
   const lastSection=S.get('last_section','');
-  const sectionLabels={checkin:'Check-In',mindfulness:'Mindfulness',journal:'Journal',gratitude:'Gratitude',gratLetter:'Gratitude Letters',values:'Values',journeys:'Journeys',tolerance:'Understanding',kindness:'Kindness',kindWords:'Kind Words',empathy:'Empathy',cultures:'Cultures',stories:'Stories',pledges:'Pledges',deescalation:'De-escalation',conflict:'Conflict',forgiveness:'Forgiveness',peaceLog:'Peace Log',affirmations:'Affirmations',resources:'Resources',history:'My History',insights:'Insights'};
+  const sectionLabels={checkin:'Check-In',mindfulness:'Mindfulness',journal:'Journal',gratitude:'Gratitude',gratLetter:'Gratitude Letters',values:'Values',journeys:'Journeys',tolerance:'Understanding',kindness:'Kindness',kindWords:'Kind Words',empathy:'Empathy',cultures:'Cultures',stories:'Stories',pledges:'Pledges',deescalation:'De-escalation',conflict:'Conflict',forgiveness:'Forgiveness',peaceLog:'Peace Log',affirmations:'Affirmations',resources:'Resources',history:'My History',insights:'Insights',settings:'Settings'};
   const totalEntries=(S.get('checkin_history',[]).length||0)+(S.get('journal',[]).length||0)+(S.get('gratitude',[]).length||0);
   const needsBackup=totalEntries>=10&&!S.get('backup_dismissed');
   // Daily challenge: combines different activities
@@ -680,11 +689,14 @@ function renderDaily(el){
     <p style="font-size:1.05rem">Your free, private companion for wellness, empathy, and peace.</p>
     <p style="margin-top:.5rem;color:var(--tl)">Everything stays on your device. No accounts, no tracking.</p>
     <div style="margin:.75rem auto;max-width:260px"><input type="text" id="nameInput" placeholder="What should we call you? (optional)" style="text-align:center"><button class="btn" style="margin-top:.3rem;width:100%" onclick="saveName()">Get Started</button></div>
-    <div class="quick-actions" style="margin-top:.75rem">
-    <button onclick="navigateTo('checkin')"><span>\u{1F4CA}</span>How are you feeling?</button>
-    <button onclick="startBreathingTimer('478')"><span>\u{1F32C}\uFE0F</span>Breathe with me</button>
-    <button onclick="navigateTo('empathy')"><span>\u{1F463}</span>Build empathy</button>
-    <button onclick="navigateTo('cultures')"><span>\u{1F30D}</span>Explore cultures</button>
+    <p style="margin-top:.75rem;font-weight:600;font-size:1rem">What do you need right now?</p>
+    <div class="quick-actions" style="margin-top:.35rem">
+    <button onclick="startBreathingTimer('478')"><span>\u{1F32C}\uFE0F</span>I need to calm down</button>
+    <button onclick="navigateTo('checkin')"><span>\u{1F4CA}</span>Check in with myself</button>
+    <button onclick="navigateTo('empathy')"><span>\u{1F463}</span>Understand others better</button>
+    <button onclick="navigateTo('journal')"><span>\u{1F4DD}</span>Write my thoughts</button>
+    <button onclick="navigateTo('cultures')"><span>\u{1F30D}</span>Explore world cultures</button>
+    <button onclick="navigateTo('resources')"><span>\u{1F6A8}</span>I\u2019m in crisis</button>
     </div>
     <p style="margin-top:.5rem;font-size:.85rem;color:var(--tl)">Come back daily \u2014 new content rotates every day</p></div>`
     :(!todayChecked?`<div class="card" style="text-align:center;border-left:4px solid var(--p)"><h2>${greeting}</h2>
@@ -770,7 +782,8 @@ window.doCheckIn=function(){
   // Save to history
   S.push('checkin_history',{date:todayStr(),mood:selMoodVal,feelings,ts:Date.now()},365);
   let h=`<div class="card" style="margin-top:.75rem"><h2>Your Check-In Response</h2><p style="font-size:1rem">${esc(resp.message)}</p><h3 style="margin-top:.75rem">Suggestions:</h3><ul>${resp.suggestions.map(s=>`<li>${esc(s)}</li>`).join('')}</ul>`;
-  if(resp.resourcesRecommended)h+=`<div class="crisis" style="margin-top:.75rem"><strong>Support is available.</strong><p>If you need someone to talk to, help is just a call or text away.</p><button class="btn btn-w" onclick="document.querySelector('[data-s=resources]').click()">View Resources</button></div>`;
+  if(resp.resourcesRecommended&&selMoodVal<=1)h+=`<div class="crisis" style="margin-top:.75rem;padding:1.25rem;border:2px solid #c62828"><strong style="font-size:1.1rem">You don\u2019t have to face this alone.</strong><p style="margin:.5rem 0">You matter. Support is available right now, 24/7, free and confidential.</p><div style="display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;margin:.5rem 0"><a href="tel:988" style="display:inline-block;background:#c62828;color:#fff;padding:.5rem 1rem;border-radius:8px;text-decoration:none;font-weight:700">Call 988 (US)</a><a href="sms:741741&body=HELLO" style="display:inline-block;background:#c62828;color:#fff;padding:.5rem 1rem;border-radius:8px;text-decoration:none;font-weight:700">Text 741741</a></div><button class="btn btn-w" onclick="navigateTo('resources')" style="width:100%;margin-top:.3rem">View All Crisis Resources</button></div>`;
+  else if(resp.resourcesRecommended)h+=`<div class="crisis" style="margin-top:.75rem"><strong>Support is available.</strong><p>If you need someone to talk to, help is just a call or text away.</p><button class="btn btn-w" onclick="navigateTo('resources')">View Resources</button></div>`;
   // Mood-based section recommendations
   const recs=selMoodVal<=2?[{s:'mindfulness',l:'Try Mindfulness'},{s:'journal',l:'Write in Journal'},{s:'affirmations',l:'Read Affirmations'}]:selMoodVal===3?[{s:'empathy',l:'Try Empathy'},{s:'cultures',l:'Explore Cultures'},{s:'gratitude',l:'Gratitude Wall'}]:[{s:'kindness',l:'Do Kindness'},{s:'peaceLog',l:'Log Peace Action'},{s:'kindWords',l:'Send Kind Words'}];
   h+=`<div style="margin-top:.75rem"><h3>Recommended for you:</h3><div class="nav">${recs.map(r=>`<button class="btn btn-o" onclick="navigateTo('${r.s}')">${r.l}</button>`).join('')}</div></div>`;
@@ -1007,7 +1020,8 @@ window.startForgiveness=function(){
     const progress=second/ph.duration;
     el.innerHTML=`<div class="card" style="text-align:center"><h2>Forgiveness Practice</h2>
       <p class="label">Phase ${phaseIdx+1} of ${FORGIVENESS_STEPS.length}: ${esc(ph.phase)}</p>
-      <div class="timer-ring"><svg viewBox="0 0 200 200">
+      <div class="timer-ring"><svg viewBox="0 0 200 200" role="img" aria-label="Forgiveness timer: ${esc(ph.phase)}, ${Math.ceil(ph.duration-second)} seconds remaining">
+        <title>Forgiveness - ${esc(ph.phase)}: ${Math.ceil(ph.duration-second)}s</title>
         <circle cx="100" cy="100" r="80" stroke="#e0e0e0"/>
         <circle cx="100" cy="100" r="80" stroke="#9c27b0" stroke-dasharray="${2*Math.PI*80}" stroke-dashoffset="${2*Math.PI*80*(1-progress)}" transform="rotate(-90 100 100)"/>
         <text x="100" y="95" text-anchor="middle" class="timer-label">${Math.ceil(ph.duration-second)}s</text>
@@ -1517,7 +1531,8 @@ window.startBreathingTimer=function(type){
     const ph=phases[phaseIdx];
     const progress=second/ph.dur;
     el.innerHTML=`<div class="card" style="text-align:center"><h2>${esc(label)}</h2><p>Cycle ${cycle+1} of ${totalCycles}</p>
-      <div class="timer-ring"><svg viewBox="0 0 200 200">
+      <div class="timer-ring"><svg viewBox="0 0 200 200" role="img" aria-label="${esc(label)} timer: ${esc(ph.name)} phase, ${second} seconds">
+        <title>${esc(label)} - ${esc(ph.name)}: ${second}s</title>
         <circle cx="100" cy="100" r="${R}" stroke="#e0e0e0"/>
         <circle cx="100" cy="100" r="${R}" stroke="var(--p)" stroke-dasharray="${C}" stroke-dashoffset="${C*(1-progress)}" transform="rotate(-90 100 100)"/>
         <text x="100" y="95" text-anchor="middle" class="timer-label">${second}s</text>
@@ -1564,7 +1579,8 @@ window.startLovingKindness=function(){
     const progress=second/ph.dur;
     el.innerHTML=`<div class="card" style="text-align:center"><h2>Loving-Kindness Meditation</h2>
       <p class="label">Phase ${phaseIdx+1} of ${LK_PHASES.length}: ${esc(ph.target)}</p>
-      <div class="timer-ring"><svg viewBox="0 0 200 200">
+      <div class="timer-ring"><svg viewBox="0 0 200 200" role="img" aria-label="Loving-Kindness timer: ${esc(ph.target)}, ${Math.ceil(ph.dur-second)} seconds remaining">
+        <title>Loving-Kindness - ${esc(ph.target)}: ${Math.ceil(ph.dur-second)}s</title>
         <circle cx="100" cy="100" r="80" stroke="#e0e0e0"/>
         <circle cx="100" cy="100" r="80" stroke="var(--a)" stroke-dasharray="${2*Math.PI*80}" stroke-dashoffset="${2*Math.PI*80*(1-progress)}" transform="rotate(-90 100 100)"/>
         <text x="100" y="95" text-anchor="middle" class="timer-label">${Math.ceil(ph.dur-second)}s</text>
@@ -1797,6 +1813,65 @@ window.showPrivacy=function(){
     <p style="margin-top:.75rem;font-style:italic;color:var(--tl)">Good Friend is not a substitute for professional mental health care. If you are in crisis, please contact your local emergency services or a crisis hotline.</p>
     <button class="btn" style="margin-top:.75rem" onclick="navigateTo('daily')">Back to Good Friend</button></div>`;
 };
+
+// ============================================================
+// SETTINGS PAGE
+// ============================================================
+function renderSettings(el){
+  const isDark=document.documentElement.classList.contains('dark');
+  const curFS=parseInt(getComputedStyle(document.documentElement).getPropertyValue('--fs'))||16;
+  const remOn=!!S.get('reminders');
+  const userName=S.get('name','');
+  const lang=S.get('lang','en');
+  const totalCheckins=S.get('checkin_history',[]).length;
+  const totalJournals=S.get('journal',[]).length;
+  const totalGratitude=S.get('gratitude',[]).length;
+  el.innerHTML=`
+    <div class="card"><h2>\u2699\uFE0F Settings</h2><p style="color:var(--tl)">Customize your Good Friend experience. All preferences are saved on your device.</p></div>
+    <div class="card"><h3>Profile</h3>
+      <label style="display:block;margin-bottom:.3rem;font-size:.9rem;color:var(--tl)">Display Name</label>
+      <div style="display:flex;gap:.3rem"><input type="text" id="settingsName" value="${esc(userName)}" placeholder="Your name (optional)" style="flex:1"><button class="btn" onclick="S.set('name',document.getElementById('settingsName').value.trim());showToast('Name saved!')">Save</button></div>
+    </div>
+    <div class="card"><h3>Appearance</h3>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem">
+        <span>Dark Mode</span>
+        <button class="btn btn-o" onclick="toggleDark();loadSection('settings')">${isDark?'\u2600\uFE0F Light Mode':'\u{1F319} Dark Mode'}</button>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <span>Font Size</span>
+        <div style="display:flex;align-items:center;gap:.3rem">
+          <button class="btn btn-o" onclick="changeFontSize(-1);document.getElementById('fsSetting').textContent=(parseInt(getComputedStyle(document.documentElement).getPropertyValue('--fs'))||16)+'px'">A-</button>
+          <span id="fsSetting" style="min-width:40px;text-align:center">${curFS}px</span>
+          <button class="btn btn-o" onclick="changeFontSize(1);document.getElementById('fsSetting').textContent=(parseInt(getComputedStyle(document.documentElement).getPropertyValue('--fs'))||16)+'px'">A+</button>
+        </div>
+      </div>
+    </div>
+    <div class="card"><h3>Language</h3>
+      <select id="settingsLang" onchange="I18N.load(this.value)" style="width:100%;padding:.4rem;border-radius:8px;border:1px solid #ccc;background:var(--c);color:var(--t)">
+        <option value="en" ${lang==='en'?'selected':''}>English</option>
+        <option value="es" ${lang==='es'?'selected':''}>Espa\u00f1ol</option>
+      </select>
+      <p style="font-size:.8rem;color:var(--tl);margin-top:.3rem">Help us translate! See <a href="https://github.com/KevinRabun/good-friend/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">CONTRIBUTING.md</a></p>
+    </div>
+    <div class="card"><h3>Notifications</h3>
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <span>Daily Reminders</span>
+        <button class="btn ${remOn?'':'btn-o'}" onclick="${remOn?`S.set('reminders',false);showToast('Reminders disabled');loadSection('settings')`:`enableReminders();setTimeout(()=>loadSection('settings'),500)`}">${remOn?'\u2705 Enabled':'\u{1F514} Enable'}</button>
+      </div>
+      <p style="font-size:.8rem;color:var(--tl);margin-top:.3rem">${remOn?'You\u2019ll get a gentle nudge each morning (9\u201310 AM) to check in.':'Get a daily browser notification reminder to check in.'}</p>
+    </div>
+    <div class="card"><h3>Your Data</h3>
+      <p style="font-size:.9rem;color:var(--tl)">Stored locally: <strong>${totalCheckins}</strong> check-ins, <strong>${totalJournals}</strong> journal entries, <strong>${totalGratitude}</strong> gratitude items.</p>
+      <div style="display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.5rem">
+        <button class="btn btn-o" onclick="navigateTo('insights')">Export Data</button>
+        <button class="btn btn-o" style="color:#c62828;border-color:#c62828" onclick="if(confirm('This will permanently delete ALL your Good Friend data. This cannot be undone. Are you sure?')){Object.keys(localStorage).filter(k=>k.startsWith('gf_')).forEach(k=>localStorage.removeItem(k));showToast('All data cleared.');loadSection('daily')}">Clear All Data</button>
+      </div>
+    </div>
+    <div class="card"><h3>About</h3>
+      <p style="font-size:.9rem">Good Friend is a free, open-source mental health and empathy app. No accounts, no tracking, no servers.</p>
+      <p style="font-size:.85rem;margin-top:.3rem"><a href="https://github.com/KevinRabun/good-friend" target="_blank" rel="noopener">GitHub</a> \u00b7 <a href="#" onclick="event.preventDefault();showPrivacy()">Privacy Policy</a> \u00b7 <a href="https://github.com/KevinRabun/good-friend/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">Contribute</a></p>
+    </div>`;
+}
 
 // ============================================================
 // SHAREABLE MILESTONE CARD

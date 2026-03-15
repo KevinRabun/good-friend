@@ -91,6 +91,11 @@
     .quick-actions button{padding:.75rem .5rem;border-radius:var(--r);border:2px solid var(--p);background:var(--c);cursor:pointer;font-size:.85rem;color:var(--t);transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:.3rem}
     .quick-actions button:hover{background:var(--pl);transform:translateY(-2px)}
     .quick-actions button span{font-size:1.4rem}
+    .install-btn{background:var(--a);color:#fff;border:none;padding:.35rem .8rem;border-radius:8px;cursor:pointer;font-size:.85rem;position:absolute;top:.75rem;right:3.5rem;display:none;transition:opacity .3s}
+    .install-btn:hover{background:#e68a00}
+    .explore-more{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.5rem}
+    .explore-more button{font-size:.8rem;padding:.3rem .6rem;border-radius:8px;border:1px solid var(--p);background:var(--c);color:var(--p);cursor:pointer;transition:all .15s}
+    .explore-more button:hover{background:var(--pl)}
   </style>
 </head>
 <body>
@@ -98,6 +103,7 @@
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
   <header role="banner" style="position:relative">
     <button class="dm-toggle" onclick="toggleDark()" aria-label="Toggle dark mode" title="Toggle dark mode">&#x1F319;</button>
+    <button class="install-btn" id="installBtn" onclick="installPWA()" aria-label="Install app">Install App</button>
     <h1>Good Friend</h1>
     <p>Your free, offline companion for wellness, empathy, and peace. You matter.</p>
   </header>
@@ -150,6 +156,7 @@
     <p>Good Friend — Promoting positive mental health, tolerance, and peace.</p>
     <p>If you're in crisis: <strong>988</strong> (US) · <strong>116 123</strong> (UK) · <strong>1300 22 4636</strong> (AU)</p>
     <p style="margin-top:.5rem;font-size:.8rem">100% free. No server. Works offline. Your data stays on your device.</p>
+    <button onclick="shareApp()" style="margin-top:.5rem;background:var(--p);color:#fff;border:none;padding:.4rem .8rem;border-radius:8px;cursor:pointer;font-size:.85rem">Share Good Friend with someone &#x1F49A;</button>
   </footer>
 <script>
 // ============================================================
@@ -602,7 +609,8 @@ function renderDaily(el){
     <div class="card" style="background:var(--pl)"><h2>\u{1F3AF} Today's Challenge</h2><p style="font-size:1.05rem">${esc(dailyChallenge.text)}</p><button class="btn" style="margin-top:.4rem" onclick="navigateTo('${dailyChallenge.section}')">Go \u2192</button></div>
     ${getBadges()}
     ${getWeeklyReflection()}
-    <div class="card" style="text-align:center"><p style="font-style:italic;color:var(--p)">Here's your daily dose of positivity. You matter, and the world is better with you in it.</p></div>`;
+    <div class="card" style="text-align:center"><p style="font-style:italic;color:var(--p)">Here's your daily dose of positivity. You matter, and the world is better with you in it.</p>
+    <button onclick="shareApp()" style="margin-top:.5rem;background:none;border:1px solid var(--p);color:var(--p);padding:.35rem .8rem;border-radius:8px;cursor:pointer;font-size:.85rem">Share Good Friend with someone \u{1F49A}</button></div>`;
 }
 
 function renderAffirmations(el){
@@ -610,7 +618,8 @@ function renderAffirmations(el){
   const themes=[...new Set(AFFIRMATIONS.map(a=>a.theme))];
   el.innerHTML=`
     <div class="card"><h2>Affirmation</h2><div class="quote">${esc(r.text)}</div><p class="label">${esc(r.theme)} ${shareBtn(r.text,'affirmation')}</p><button class="btn" onclick="loadSection('affirmations')">Another one</button></div>
-    <div class="card"><h2>Browse by Theme</h2><div class="nav">${themes.map(t=>`<button class="btn btn-o" onclick="showTheme('${esc(t)}')">${esc(t)}</button>`).join('')}</div><div id="themeR"></div></div>`;
+    <div class="card"><h2>Browse by Theme</h2><div class="nav">${themes.map(t=>`<button class="btn btn-o" onclick="showTheme('${esc(t)}')">${esc(t)}</button>`).join('')}</div><div id="themeR"></div></div>
+    ${exploreMore('affirmations')}`;
 }
 window.showTheme=function(t){
   document.getElementById('themeR').innerHTML=AFFIRMATIONS.filter(a=>a.theme===t).map(a=>`<div class="quote" style="margin:.4rem 0">${esc(a.text)}</div>`).join('');
@@ -622,17 +631,20 @@ function renderMindfulness(el){
   const timerType=r.id==='br-1'?'478':'box';
   el.innerHTML=`<div class="card"><h2>${esc(r.title)}</h2><p class="label">${esc(r.category)} \u00b7 ${r.durationMinutes} minutes</p><ol class="steps">${r.steps.map(s=>`<li>${esc(s)}</li>`).join('')}</ol><p style="margin-top:.75rem"><strong>Benefit:</strong> ${esc(r.benefit)}</p>${isBreathing?`<button class="btn btn-w" style="margin-top:.5rem" onclick="startBreathingTimer('${timerType}')">Start Interactive Timer</button>`:''}<button class="btn" style="margin-top:.5rem" onclick="loadSection('mindfulness')">Try another exercise</button></div>
     <div class="card"><h2>Quick Start Timers</h2><p>Launch a guided breathing session:</p><button class="btn" onclick="startBreathingTimer('478')">4-7-8 Breathing</button> <button class="btn" onclick="startBreathingTimer('box')">Box Breathing</button></div>
-    <div class="card"><h2>Loving-Kindness Meditation</h2><p>A guided practice to cultivate compassion for yourself, loved ones, strangers, and even difficult people. Research shows this meditation reduces implicit bias and builds empathy across groups.</p><button class="btn btn-w" onclick="startLovingKindness()">Begin Meditation (~3.5 min)</button></div>`;
+    <div class="card"><h2>Loving-Kindness Meditation</h2><p>A guided practice to cultivate compassion for yourself, loved ones, strangers, and even difficult people. Research shows this meditation reduces implicit bias and builds empathy across groups.</p><button class="btn btn-w" onclick="startLovingKindness()">Begin Meditation (~3.5 min)</button></div>
+    ${exploreMore('mindfulness')}`;
 }
 
 function renderTolerance(el){
   const r=pick(PROMPTS);
-  el.innerHTML=`<div class="card"><h2>Perspective Prompt</h2><p class="label">${esc(r.category)}</p><p style="font-size:1.05rem">${esc(r.prompt)}</p><div class="refl"><h3>Reflect on:</h3><ul>${r.reflectionQuestions.map(q=>`<li>${esc(q)}</li>`).join('')}</ul></div><button class="btn" onclick="loadSection('tolerance')">Next prompt</button></div>`;
+  el.innerHTML=`<div class="card"><h2>Perspective Prompt</h2><p class="label">${esc(r.category)}</p><p style="font-size:1.05rem">${esc(r.prompt)}</p><div class="refl"><h3>Reflect on:</h3><ul>${r.reflectionQuestions.map(q=>`<li>${esc(q)}</li>`).join('')}</ul></div><button class="btn" onclick="loadSection('tolerance')">Next prompt</button></div>
+    ${exploreMore('tolerance')}`;
 }
 
 function renderKindness(el){
   const r=pick(KINDNESS_ACTS);
-  el.innerHTML=`<div class="card"><h2>Kindness Suggestion</h2><p style="font-size:1.05rem"><strong>${esc(r.suggestion)}</strong> ${shareBtn(r.suggestion,'kindness act')}</p><p class="label">${esc(r.scope)} \u00b7 ${esc(r.effortLevel)} effort</p><p>${esc(r.impact)}</p><button class="btn" onclick="loadSection('kindness')">Another idea</button></div>`;
+  el.innerHTML=`<div class="card"><h2>Kindness Suggestion</h2><p style="font-size:1.05rem"><strong>${esc(r.suggestion)}</strong> ${shareBtn(r.suggestion,'kindness act')}</p><p class="label">${esc(r.scope)} \u00b7 ${esc(r.effortLevel)} effort</p><p>${esc(r.impact)}</p><button class="btn" onclick="loadSection('kindness')">Another idea</button></div>
+    ${exploreMore('kindness')}`;
 }
 
 function renderCheckIn(el){
@@ -670,7 +682,8 @@ window.quickMood=function(mood){
 };
 
 function renderJourneys(el){
-  el.innerHTML=`<div class="card"><h2>Guided Journeys</h2><p>Choose a reflective journey:</p></div>${JOURNEYS.map(j=>`<div class="card"><h2>${esc(j.title)}</h2><p class="label">${esc(j.theme)}</p><p>${esc(j.purpose)}</p><button class="btn" onclick="showJourney('${esc(j.id)}')">Begin Journey</button></div>`).join('')}`;
+  el.innerHTML=`<div class="card"><h2>Guided Journeys</h2><p>Choose a reflective journey:</p></div>${JOURNEYS.map(j=>`<div class="card"><h2>${esc(j.title)}</h2><p class="label">${esc(j.theme)}</p><p>${esc(j.purpose)}</p><button class="btn" onclick="showJourney('${esc(j.id)}')">Begin Journey</button></div>`).join('')}
+    ${exploreMore('journeys')}`;
 }
 window.showJourney=function(id){
   const j=JOURNEYS.find(x=>x.id===id);if(!j)return;
@@ -678,13 +691,15 @@ window.showJourney=function(id){
 };
 
 function renderDeescalation(el){
-  el.innerHTML=`<div class="card"><h2>Conflict De-escalation Guide</h2><p>Tools for navigating tense moments with calm and empathy.</p></div>${DEESCALATION.map(s=>`<div class="card"><h2>${esc(s.title)}</h2><p class="label">${esc(s.situation)}</p><ol class="steps">${s.steps.map(st=>`<li>${esc(st)}</li>`).join('')}</ol><div class="refl" style="margin-top:.75rem"><h3>Helpful phrases:</h3><ul>${s.phrases.map(p=>`<li style="color:var(--p)">${esc(p)}</li>`).join('')}</ul></div><div class="avoid"><h3>Avoid saying:</h3><ul>${s.avoidPhrases.map(p=>`<li>${esc(p)}</li>`).join('')}</ul></div><p style="margin-top:.75rem;font-style:italic;color:var(--p)">${esc(s.principle)}</p></div>`).join('')}`;
+  el.innerHTML=`<div class="card"><h2>Conflict De-escalation Guide</h2><p>Tools for navigating tense moments with calm and empathy.</p></div>${DEESCALATION.map(s=>`<div class="card"><h2>${esc(s.title)}</h2><p class="label">${esc(s.situation)}</p><ol class="steps">${s.steps.map(st=>`<li>${esc(st)}</li>`).join('')}</ol><div class="refl" style="margin-top:.75rem"><h3>Helpful phrases:</h3><ul>${s.phrases.map(p=>`<li style="color:var(--p)">${esc(p)}</li>`).join('')}</ul></div><div class="avoid"><h3>Avoid saying:</h3><ul>${s.avoidPhrases.map(p=>`<li>${esc(p)}</li>`).join('')}</ul></div><p style="margin-top:.75rem;font-style:italic;color:var(--p)">${esc(s.principle)}</p></div>`).join('')}
+    ${exploreMore('deescalation')}`;
 }
 
 function renderStories(el){
   const stories=S.get('stories',SEED_STORIES.map((s,i)=>({...s,id:'seed-'+i,encouragements:Math.floor(Math.random()*40)+5,ts:Date.now()})));
   if(!S.get('stories_init')){S.set('stories',stories);S.set('stories_init',true)}
-  el.innerHTML=`<div class="card"><h2>Community Stories</h2><p>Anonymous stories of kindness, growth, and peace.</p><button class="btn btn-w" onclick="showShareForm()">Share Your Story</button></div><div id="shareF" class="hidden"></div>${stories.map(s=>`<div class="card"><div class="story-card"><p>${esc(s.story)}</p><div class="meta"><span class="label">${esc(s.category)}</span>${s.location?' \u00b7 '+esc(s.location):''} \u00b7 <span class="enc">${s.encouragements} encouragements</span> <button class="btn btn-o" style="padding:.15rem .4rem;font-size:.75rem" onclick="encStory('${esc(s.id)}')">Encourage</button></div></div></div>`).join('')}`;
+  el.innerHTML=`<div class="card"><h2>Community Stories</h2><p>Anonymous stories of kindness, growth, and peace.</p><button class="btn btn-w" onclick="showShareForm()">Share Your Story</button></div><div id="shareF" class="hidden"></div>${stories.map(s=>`<div class="card"><div class="story-card"><p>${esc(s.story)}</p><div class="meta"><span class="label">${esc(s.category)}</span>${s.location?' \u00b7 '+esc(s.location):''} \u00b7 <span class="enc">${s.encouragements} encouragements</span> <button class="btn btn-o" style="padding:.15rem .4rem;font-size:.75rem" onclick="encStory('${esc(s.id)}')">Encourage</button></div></div></div>`).join('')}
+    ${exploreMore('stories')}`;
 }
 window.showShareForm=function(){
   const f=document.getElementById('shareF');f.classList.remove('hidden');
@@ -827,7 +842,8 @@ function renderCultures(el){
     <div class="card" style="border-left:4px solid #9c27b0"><h2>${esc(today.name)}</h2><p class="label">${esc(today.origin)}</p><p>${esc(today.desc)}</p><p style="margin-top:.5rem;color:var(--p);font-weight:600">${esc(today.value)}</p></div>
     <div class="card"><h2>Explore World Cultures</h2><p>Every tradition carries wisdom. Understanding different cultures builds the empathy that makes a peaceful society possible.</p>
     ${WORLD_CULTURES.map(c=>`<div style="padding:.6rem 0;border-bottom:1px solid #eee"><strong>${esc(c.name)}</strong> <span class="label">${esc(c.origin)}</span><p>${esc(c.desc)}</p><p style="font-style:italic;color:var(--p)">${esc(c.value)}</p></div>`).join('')}
-    </div>`;
+    </div>
+    ${exploreMore('cultures')}`;
 }
 
 // ============================================================
@@ -843,7 +859,8 @@ function renderEmpathy(el){
     <textarea placeholder="Write your reflections here..." id="empathyNote"></textarea>
     <button class="btn" onclick="saveEmpathyNote()">Save Reflection</button>
     <button class="btn btn-o" onclick="loadSection('empathy')">Next scenario</button></div>
-    <div class="card"><h2>Why Empathy Matters</h2><p>Research shows that perspective-taking exercises reduce prejudice, increase helping behavior, and build the social bonds needed for a peaceful society. Each time you truly consider another person\u2019s experience, you strengthen your capacity for compassion.</p></div>`;
+    <div class="card"><h2>Why Empathy Matters</h2><p>Research shows that perspective-taking exercises reduce prejudice, increase helping behavior, and build the social bonds needed for a peaceful society. Each time you truly consider another person\u2019s experience, you strengthen your capacity for compassion.</p></div>
+    ${exploreMore('empathy')}`;
 }
 window.saveEmpathyNote=function(){
   const note=document.getElementById('empathyNote').value.trim();
@@ -868,7 +885,8 @@ function renderForgiveness(el){
     <textarea placeholder="What hurt are you ready to let go of?" id="fgNote"></textarea>
     <button class="btn" onclick="saveFgNote()">Save to Journal</button>
     ${saved.length?`<div style="margin-top:.75rem"><h3 style="font-size:.9rem;color:var(--tl)">Previous entries</h3>${saved.slice(-5).reverse().map(n=>`<div style="padding:.4rem 0;border-bottom:1px solid #eee;font-size:.9rem"><span class="label">${esc(n.date)}</span><p>${esc(n.text)}</p></div>`).join('')}</div>`:''}</div>
-    <div class="card"><h2>The Science of Forgiveness</h2><p>Studies show that forgiveness lowers cortisol, reduces anxiety and depression, improves cardiovascular health, and strengthens relationships. It is one of the most powerful acts of self-care you can practice.</p></div>`;
+    <div class="card"><h2>The Science of Forgiveness</h2><p>Studies show that forgiveness lowers cortisol, reduces anxiety and depression, improves cardiovascular health, and strengthens relationships. It is one of the most powerful acts of self-care you can practice.</p></div>
+    ${exploreMore('forgiveness')}`;
 }
 window.saveFgNote=function(){
   const note=document.getElementById('fgNote').value.trim();
@@ -944,7 +962,8 @@ function renderConflict(el){
     ${CONFLICT_TOOLS.map(t=>`<div class="card"><h2>${t.icon} ${esc(t.name)}</h2><p>${esc(t.desc)}</p><ol class="steps">${t.steps.map(s=>`<li>${esc(s)}</li>`).join('')}</ol></div>`).join('')}
     <div class="card"><h2>Practice Scenario</h2><p>Think of a recent or ongoing conflict. Choose one tool above and mentally walk through the steps. Notice how it shifts your perspective.</p>
     <textarea placeholder="Describe a conflict you want to resolve, and which tool you'd use..." id="conflictNote"></textarea>
-    <button class="btn" onclick="saveConflictNote()">Save Practice Note</button></div>`;
+    <button class="btn" onclick="saveConflictNote()">Save Practice Note</button></div>
+    ${exploreMore('conflict')}`;
 }
 window.saveConflictNote=function(){
   const note=document.getElementById('conflictNote').value.trim();
@@ -971,7 +990,8 @@ function renderPeaceLog(el){
       <button class="btn btn-w" onclick="logPeaceAction()">Log Action</button>
     </div></div>
     ${actions.length?`<div class="card"><h2>Your Peace Timeline</h2>${actions.slice(-20).reverse().map(a=>`<div style="padding:.5rem 0;border-bottom:1px solid #eee"><p>${esc(a.desc)}</p><p class="label">${esc(a.category)} \u00b7 ${esc(a.date)}</p></div>`).join('')}</div>`:''}
-    ${getWeeklyReflection()}`;
+    ${getWeeklyReflection()}
+    ${exploreMore('peaceLog')}`;
 }
 let paCat='kindness';
 window.togPaCat=function(btn,cat){
@@ -1049,7 +1069,8 @@ function renderKindWords(el){
     <textarea placeholder="Write your kind words here..." id="kwMessage"></textarea>
     <button class="btn btn-w" onclick="saveKindWord()">Save & Copy</button></div>
     <div class="card"><h2>All Templates</h2>
-    ${KIND_WORDS.map(k=>`<div style="margin-bottom:.75rem"><h3 style="font-size:.95rem;color:var(--p)">${esc(k.type)}</h3>${k.templates.map(t=>`<div class="quote" style="margin:.3rem 0;font-size:.9rem">${esc(t)} ${shareBtn(t,'kind words')}</div>`).join('')}</div>`).join('')}</div>`;
+    ${KIND_WORDS.map(k=>`<div style="margin-bottom:.75rem"><h3 style="font-size:.95rem;color:var(--p)">${esc(k.type)}</h3>${k.templates.map(t=>`<div class="quote" style="margin:.3rem 0;font-size:.9rem">${esc(t)} ${shareBtn(t,'kind words')}</div>`).join('')}</div>`).join('')}</div>
+    ${exploreMore('kindWords')}`;
 }
 window.saveKindWord=function(){
   const recipient=document.getElementById('kwRecipient').value.trim();
@@ -1484,11 +1505,81 @@ window.togNavGroup=function(id){
 };
 
 // ============================================================
-// PWA — Service Worker registration
+// PWA — Service Worker registration + Install prompt
 // ============================================================
+let deferredPrompt=null;
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault();
+  deferredPrompt=e;
+  document.getElementById('installBtn').style.display='block';
+});
+window.installPWA=async function(){
+  if(!deferredPrompt)return;
+  deferredPrompt.prompt();
+  const result=await deferredPrompt.userChoice;
+  if(result.outcome==='accepted')showToast('App installed!');
+  deferredPrompt=null;
+  document.getElementById('installBtn').style.display='none';
+};
+window.addEventListener('appinstalled',()=>{
+  document.getElementById('installBtn').style.display='none';
+  deferredPrompt=null;
+});
 if('serviceWorker' in navigator){
   navigator.serviceWorker.register('sw.js').catch(()=>{});
 }
+
+// ============================================================
+// SHARE APP — Share the site with others
+// ============================================================
+window.shareApp=async function(){
+  const url='https://kevinrabun.github.io/good-friend/';
+  const text='Check out Good Friend \u2014 a free, private wellness companion for positive mental health, empathy, and peace.';
+  if(navigator.share){try{await navigator.share({title:'Good Friend',text,url});return}catch{}}
+  try{await navigator.clipboard.writeText(url);showToast('Link copied! Share it with someone who matters.')}catch{showToast('Visit kevinrabun.github.io/good-friend')}
+};
+
+// ============================================================
+// EXPLORE MORE — Suggest unvisited sections
+// ============================================================
+function trackVisit(section){
+  const visited=S.get('visited_sections',[]);
+  if(!visited.includes(section)){visited.push(section);S.set('visited_sections',visited)}
+}
+function exploreMore(current){
+  const allSections=[
+    {s:'checkin',l:'\u{1F4CA} Check-In',g:'wellness'},
+    {s:'mindfulness',l:'\u{1F9D8} Mindfulness',g:'wellness'},
+    {s:'journal',l:'\u{1F4DD} Journal',g:'wellness'},
+    {s:'gratitude',l:'\u{1F49A} Gratitude',g:'wellness'},
+    {s:'gratLetter',l:'\u{1F48C} Letters',g:'wellness'},
+    {s:'values',l:'\u{1F9ED} Values',g:'wellness'},
+    {s:'journeys',l:'\u{1F6A3} Journeys',g:'wellness'},
+    {s:'empathy',l:'\u{1F463} Empathy',g:'peace'},
+    {s:'cultures',l:'\u{1F30D} Cultures',g:'peace'},
+    {s:'kindness',l:'\u{2764}\uFE0F Kindness',g:'peace'},
+    {s:'kindWords',l:'\u{1F4AC} Kind Words',g:'peace'},
+    {s:'stories',l:'\u{1F4D6} Stories',g:'peace'},
+    {s:'pledges',l:'\u{1F91D} Pledges',g:'peace'},
+    {s:'conflict',l:'\u{1F527} Conflict',g:'skills'},
+    {s:'forgiveness',l:'\u{1F49C} Forgiveness',g:'skills'},
+    {s:'deescalation',l:'\u{1F54A}\uFE0F De-escalation',g:'skills'},
+    {s:'peaceLog',l:'\u{270D}\uFE0F Peace Log',g:'skills'},
+  ];
+  const visited=S.get('visited_sections',[]);
+  const unvisited=allSections.filter(x=>x.s!==current&&!visited.includes(x.s));
+  if(!unvisited.length)return '';
+  // Show up to 4 random suggestions
+  const shuffled=unvisited.sort(()=>Math.random()-.5).slice(0,4);
+  return `<div class="card"><h2>Explore More</h2><p class="label">${visited.length} of ${allSections.length} sections explored</p><div class="explore-more">${shuffled.map(x=>`<button onclick="navigateTo('${x.s}')">${x.l}</button>`).join('')}</div></div>`;
+}
+
+// Track section visits in loadSection
+const _origLoadSection=loadSection;
+loadSection=function(s){
+  trackVisit(s);
+  _origLoadSection(s);
+};
 </script>
 </body>
 </html>

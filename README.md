@@ -75,6 +75,10 @@ Go to **[https://kevinrabun.github.io/good-friend/](https://kevinrabun.github.io
 
 That's it. You now have your own independent copy. No builds, no CI, no dependencies.
 
+### One-Click Cloud Deploy
+
+[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/KevinRabun/good-friend) [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/KevinRabun/good-friend&output-directory=docs) [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/KevinRabun/good-friend)
+
 ### 3. Download & Use Offline
 Save `docs/index.html` to your computer. Open it in any browser. Works offline, no internet needed.
 

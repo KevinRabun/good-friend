@@ -17,9 +17,9 @@
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Good Friend","url":"https://kevinrabun.github.io/good-friend/","description":"A free, offline wellness companion promoting positive mental health, empathy, and peace.","applicationCategory":"HealthApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"author":{"@type":"Person","name":"Kevin Rabun"}}</script>
   <title>Good Friend — Wellness Companion</title>
   <style>
-    :root{--p:#5b8c6e;--pl:#e8f5e9;--a:#ff9800;--t:#333;--tl:#666;--bg:#fafafa;--c:#fff;--sh:0 2px 8px rgba(0,0,0,.08);--r:12px}
+    :root{--p:#5b8c6e;--pl:#e8f5e9;--a:#ff9800;--t:#2a2a2a;--tl:#555;--bg:#fafafa;--c:#fff;--sh:0 2px 8px rgba(0,0,0,.08);--r:12px;--fs:16px}
     *{margin:0;padding:0;box-sizing:border-box}
-    body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--t);line-height:1.6}
+    body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--t);line-height:1.6;font-size:var(--fs)}
     a{color:var(--p)}
     header{background:linear-gradient(135deg,var(--p),#3e6b4e);color:#fff;text-align:center;padding:1.5rem 1rem}
     header h1{font-size:1.8rem;margin-bottom:.3rem}
@@ -112,6 +112,10 @@
     .fab-checkin.vis{opacity:.85;pointer-events:auto}
     .fab-checkin:hover{opacity:1}
     @media(prefers-reduced-motion:reduce){#content{transition:none}.back-top,.fab-checkin,.explore-more button,.mood-scale button,.quick-actions button{transition:none}}
+    .font-ctrl{position:absolute;top:.75rem;right:6.5rem;display:flex;gap:.15rem}
+    .font-ctrl button{background:rgba(255,255,255,.2);border:none;color:#fff;cursor:pointer;border-radius:4px;padding:.1rem .35rem;font-size:.75rem;opacity:.8}
+    .font-ctrl button:hover{opacity:1}
+    @media print{body{background:#fff;color:#000;font-size:12pt}header,.skip,.back-top,.fab-checkin,.dm-toggle,.install-btn,.font-ctrl,#mainNav,#favRow,#toast,footer button,footer select,.btn,.btn-o,.btn-w,.nav,.quick-actions,.explore-more{display:none!important}footer{color:#333}.card{box-shadow:none;border:1px solid #ccc;page-break-inside:avoid}.quote{border-left:3px solid #666;color:#333;background:#f9f9f9}a{color:#333;text-decoration:underline}}
   </style>
 </head>
 <body>
@@ -122,6 +126,7 @@
   <header role="banner" style="position:relative">
     <button class="dm-toggle" onclick="toggleDark()" aria-label="Toggle dark mode" title="Toggle dark mode">&#x1F319;</button>
     <button class="install-btn" id="installBtn" onclick="installPWA()" aria-label="Install app">Install App</button>
+    <div class="font-ctrl"><button onclick="changeFontSize(-1)" aria-label="Decrease font size">A-</button><button onclick="changeFontSize(1)" aria-label="Increase font size">A+</button></div>
     <h1>Good Friend</h1>
     <p>Your free, offline companion for wellness, empathy, and peace. You matter.</p>
     <div id="headerStreak" style="margin-top:.4rem;font-size:.9rem;opacity:.85;display:none"></div>
@@ -177,6 +182,8 @@
     <p>Good Friend — Promoting positive mental health, tolerance, and peace.</p>
     <p>If you're in crisis: <strong>988</strong> (US) · <strong>116 123</strong> (UK) · <strong>1300 22 4636</strong> (AU)</p>
     <p style="margin-top:.5rem;font-size:.8rem">100% free. No server. Works offline. Your data stays on your device.</p>
+    <p style="margin-top:.3rem;font-size:.75rem;color:var(--tl)">Good Friend is not a substitute for professional mental health care. If you are struggling, please reach out to a licensed professional.</p>
+    <p style="font-size:.75rem"><a href="#" onclick="event.preventDefault();showPrivacy()" style="color:var(--tl)">Privacy Policy</a></p>
     <div style="margin-top:.5rem"><select onchange="I18N.load(this.value);loadSection(curSection)" style="font-size:.8rem;padding:.2rem;border-radius:6px;border:1px solid #ccc;background:var(--c);color:var(--t)"><option value="en">English</option><option value="es">Espa\u00f1ol</option></select></div>
     <button onclick="shareApp()" style="margin-top:.5rem;background:var(--p);color:#fff;border:none;padding:.4rem .8rem;border-radius:8px;cursor:pointer;font-size:.85rem">Share Good Friend with someone &#x1F49A;</button>
   </footer>
@@ -236,6 +243,22 @@ const AFFIRMATIONS=[
 {id:'hp-2',text:'Tomorrow holds possibilities I cannot yet imagine.',theme:'hope'},
 {id:'hp-3',text:'Hope is a choice I make, and I choose it today.',theme:'hope'},
 {id:'hp-4',text:'Even in darkness, I can be a light for someone.',theme:'hope'},
+{id:'gf-1',text:'My grief is proof of how deeply I loved. That love still exists.',theme:'grief'},
+{id:'gf-2',text:'I allow myself to grieve at my own pace. There is no timeline for healing.',theme:'grief'},
+{id:'gf-3',text:'Loss has changed me, but it has not diminished me.',theme:'grief'},
+{id:'gf-4',text:'I carry my loved ones with me in the way I live my life.',theme:'grief'},
+{id:'id-1',text:'My identity is valid. I celebrate all of who I am.',theme:'identity'},
+{id:'id-2',text:'I deserve to take up space in this world, authentically and unapologetically.',theme:'identity'},
+{id:'id-3',text:'Being true to myself is an act of courage and self-love.',theme:'identity'},
+{id:'cg-1',text:'Caring for others is noble, but caring for myself is necessary.',theme:'caregiver'},
+{id:'cg-2',text:'I cannot pour from an empty cup. Rest is not selfish.',theme:'caregiver'},
+{id:'cg-3',text:'My worth is not measured by how much I sacrifice.',theme:'caregiver'},
+{id:'ag-1',text:'My anger is a signal, not a sentence. I can feel it and still choose my response.',theme:'anger'},
+{id:'ag-2',text:'I release what I cannot control and focus on what I can.',theme:'anger'},
+{id:'ag-3',text:'Beneath my frustration is a need worth understanding.',theme:'anger'},
+{id:'ds-1',text:'My body or mind has limits, and I am still whole.',theme:'disability'},
+{id:'ds-2',text:'I adapt, I persist, I am resourceful. My challenges do not define my worth.',theme:'disability'},
+{id:'ds-3',text:'I deserve the same joy, love, and opportunities as anyone else.',theme:'disability'},
 ];
 
 const EXERCISES=[
@@ -289,6 +312,16 @@ const RESOURCES=[
 {id:'r-6',name:'Kids Help Phone',description:'Canada\'s only 24/7 national support service for young people.',region:'Canada',contactType:'phone',contact:'1-800-668-6868',available:'24/7'},
 {id:'r-7',name:'BEFRIENDERS Worldwide',description:'Volunteer network providing emotional support to prevent suicide worldwide.',region:'International',contactType:'website',contact:'https://befrienders.org/find-support',available:'Varies by center'},
 {id:'r-8',name:'International Association for Suicide Prevention',description:'Global directory of crisis centers and prevention resources.',region:'International',contactType:'website',contact:'https://www.iasp.info/resources/Crisis_Centres/',available:'Varies by center'},
+{id:'r-9',name:'Telefonseelsorge',description:'Free emotional support and crisis counseling for German speakers.',region:'Germany',contactType:'phone',contact:'0800 111 0 111',available:'24/7'},
+{id:'r-10',name:'SOS Amiti\u00e9',description:'Emotional support and suicide prevention service in France.',region:'France',contactType:'phone',contact:'09 72 39 40 50',available:'24/7'},
+{id:'r-11',name:'Telefono Amico',description:'Italian helpline providing emotional support and crisis intervention.',region:'Italy',contactType:'phone',contact:'02 2327 2327',available:'Daily 10am-midnight'},
+{id:'r-12',name:'Tel\u00e9fono de la Esperanza',description:'Spanish crisis hotline for emotional distress and suicide prevention.',region:'Spain',contactType:'phone',contact:'717 003 717',available:'24/7'},
+{id:'r-13',name:'CVV (Centro de Valoriza\u00e7\u00e3o da Vida)',description:'Brazilian emotional support and suicide prevention service.',region:'Brazil',contactType:'phone',contact:'188',available:'24/7'},
+{id:'r-14',name:'AASRA',description:'Crisis intervention centre for the depressed and suicidal in India.',region:'India',contactType:'phone',contact:'91-22-27546669',available:'24/7'},
+{id:'r-15',name:'Lifeline (NZ)',description:'Free telephone counseling service in New Zealand.',region:'New Zealand',contactType:'phone',contact:'0800 543 354',available:'24/7'},
+{id:'r-16',name:'Tokyo English Lifeline (TELL)',description:'English-language support for anyone in Japan experiencing difficulties.',region:'Japan',contactType:'phone',contact:'03-5774-0992',available:'9am-11pm'},
+{id:'r-17',name:'Befrienders KL',description:'Emotional support for those in distress, despair, or suicidal.',region:'Malaysia',contactType:'phone',contact:'03-7627 2929',available:'24/7'},
+{id:'r-18',name:'South African Depression and Anxiety Group',description:'Support for those affected by depression, anxiety, and trauma.',region:'South Africa',contactType:'phone',contact:'0800 567 567',available:'24/7'},
 ];
 
 const JOURNEYS=[
@@ -395,6 +428,11 @@ const WORLD_CULTURES=[
 {name:'Sabbath / Shabbat',origin:'Jewish tradition',desc:'A weekly day of rest, reflection, and family time. From sunset Friday to sunset Saturday, work stops and presence with loved ones begins.',value:'Regular rest and reflection are essential for wellbeing.'},
 {name:'Songkran',origin:'Thailand',desc:'New Year celebration where water is playfully splashed to symbolize cleansing and renewal. Elders\u2019 hands are gently bathed as a sign of respect.',value:'Respect for elders and joyful renewal.'},
 {name:'Thanksgiving',origin:'Various cultures worldwide',desc:'Harvest festivals exist across many cultures \u2014 giving thanks for abundance. From Sukkot to Pongal to the North American tradition, gratitude unites humanity.',value:'Gratitude for what sustains us is universal.'},
+{name:'Tet Trung Thu',origin:'Vietnam',desc:'The Mid-Autumn Festival where children carry colorful lanterns and eat mooncakes. Families celebrate togetherness and children are honored as the future.',value:'Children carry our hopes forward \u2014 nurture them with love.'},
+{name:'Fiesta de Quincea\u00f1era',origin:'Latin America',desc:'A coming-of-age celebration for 15-year-old girls marking the transition from childhood to adulthood, surrounded by family, faith, and tradition.',value:'Transitions deserve recognition, support, and celebration.'},
+{name:'Dreamtime',origin:'Aboriginal Australian',desc:'A profound spiritual framework where the past, present, and future exist together. Stories connect people to land, ancestors, and moral responsibility.',value:'We are connected to the land and to each other across time.'},
+{name:'Ramadan',origin:'Islamic traditions worldwide',desc:'A month of fasting, prayer, and reflection. Beyond physical abstinence, Ramadan cultivates empathy for the hungry, discipline of the self, and gratitude.',value:'Restraint and reflection deepen our character.'},
+{name:'Inti Raymi',origin:'Andean / Inca',desc:'Festival of the Sun honoring Pachamama (Mother Earth) and the sun. Communities gather for music, dance, and gratitude for the harvest.',value:'The Earth sustains us \u2014 we owe it reverence and care.'},
 ];
 
 const EMPATHY_SCENARIOS=[
@@ -495,9 +533,12 @@ function getStreak(){
   // Check if today is included
   const todayDone=hist.some(h=>h.date===todayStr());
   if(!todayDone){d.setDate(d.getDate()-1)}
+  // Grace day: allow 1 missed day per week
+  let gracesLeft=1,consecutive=0;
   while(true){
     const ds=d.toISOString().slice(0,10);
-    if(hist.some(h=>h.date===ds)){streak++;d.setDate(d.getDate()-1)}
+    if(hist.some(h=>h.date===ds)){streak++;consecutive=0;d.setDate(d.getDate()-1)}
+    else if(gracesLeft>0){gracesLeft--;streak++;d.setDate(d.getDate()-1)}
     else break;
   }
   return streak;
@@ -649,7 +690,7 @@ function renderDaily(el){
     :(!todayChecked?`<div class="card" style="text-align:center;border-left:4px solid var(--p)"><h2>${greeting}</h2>
     ${daysSinceLastVisit>1?`<p style="color:var(--tl)">It's been ${daysSinceLastVisit} days \u2014 glad you're here!</p>`:'<p style="color:var(--tl)">Good to see you today.</p>'}
     ${!userName?`<div style="margin:.4rem auto;max-width:220px"><input type="text" id="nameInput" placeholder="Your name (optional)" style="text-align:center;font-size:.85rem"><button class="btn btn-o" style="margin-top:.2rem;font-size:.8rem;padding:.2rem .6rem" onclick="saveName()">Save</button></div>`:''}</div>`:'')}
-    ${milestone?`<div class="card" style="text-align:center;background:var(--pl);border:2px solid var(--p)"><span style="font-size:2.5rem">${milestone.icon}</span><h2 style="margin:.3rem 0">Milestone: ${milestone.d} Days!</h2><p style="font-size:1.1rem">${esc(milestone.msg)}</p></div>`:''}
+    ${milestone?`<div class="card" style="text-align:center;background:var(--pl);border:2px solid var(--p)"><span style="font-size:2.5rem">${milestone.icon}</span><h2 style="margin:.3rem 0">Milestone: ${milestone.d} Days!</h2><p style="font-size:1.1rem">${esc(milestone.msg)}</p><button class="btn btn-o" style="margin-top:.5rem;font-size:.8rem" onclick="shareMilestone(${milestone.d})">Share this milestone</button></div>`:''}
     ${streak>0&&!milestone?`<div class="streak-bar"><span class="fire">\u{1F525}</span><span class="count">${streak}-day streak!</span><span>Keep showing up for yourself.</span></div>`:''}
     ${!todayChecked&&!isNew?`<div class="card" style="text-align:center"><h2>Quick Mood Check</h2><p>How are you feeling right now?</p><div class="mood-scale">${MOOD_EMOJI.map((e,i)=>`<button onclick="quickMood(${i+1})" title="${MOOD_LABELS[i]}">${e}</button>`).join('')}</div>
     <div class="quick-actions" style="margin-top:.75rem">
@@ -1723,6 +1764,47 @@ window.saveName=function(){
   };
   renderFavRow();
 })();
+
+// ============================================================
+// FONT SIZE CONTROL
+// ============================================================
+window.changeFontSize=function(dir){
+  const sizes=[14,16,18,20];
+  const current=parseInt(getComputedStyle(document.documentElement).getPropertyValue('--fs'))||16;
+  const idx=sizes.indexOf(current);
+  const next=sizes[Math.max(0,Math.min(sizes.length-1,(idx===-1?1:idx)+dir))];
+  document.documentElement.style.setProperty('--fs',next+'px');
+  S.set('font_size',next);
+};
+(function(){const fs=S.get('font_size',0);if(fs)document.documentElement.style.setProperty('--fs',fs+'px')})();
+
+// ============================================================
+// PRIVACY POLICY — Inline modal
+// ============================================================
+window.showPrivacy=function(){
+  const el=document.getElementById('content');
+  el.innerHTML=`<div class="card"><h2>Privacy Policy</h2>
+    <p><strong>Good Friend collects zero data.</strong></p>
+    <ul style="margin:.5rem 0 0 1.2rem">
+    <li>All your data is stored in your browser\u2019s localStorage on your device.</li>
+    <li>Nothing is sent to any server, ever.</li>
+    <li>No cookies, no analytics, no tracking pixels, no third-party scripts.</li>
+    <li>No account creation or personal information is required.</li>
+    <li>Your data stays on your device unless you explicitly export it.</li>
+    </ul>
+    <p style="margin-top:.75rem"><strong>GDPR & CCPA:</strong> Since no personal data is collected, processed, or stored on any server, Good Friend is compliant by design. There is nothing to delete because we never have your data.</p>
+    <p style="margin-top:.75rem"><strong>Open Source:</strong> The full source code is publicly available for inspection at <a href="https://github.com/KevinRabun/good-friend" target="_blank" rel="noopener">github.com/KevinRabun/good-friend</a>.</p>
+    <p style="margin-top:.75rem;font-style:italic;color:var(--tl)">Good Friend is not a substitute for professional mental health care. If you are in crisis, please contact your local emergency services or a crisis hotline.</p>
+    <button class="btn" style="margin-top:.75rem" onclick="navigateTo('daily')">Back to Good Friend</button></div>`;
+};
+
+// ============================================================
+// SHAREABLE MILESTONE CARD
+// ============================================================
+window.shareMilestone=function(days){
+  const text='\u{1F31F} I just hit '+days+' days of daily wellness check-ins with Good Friend! Building resilience one day at a time. Join me \u2192 kevinrabun.github.io/good-friend';
+  shareText(text);
+};
 
 // ============================================================
 // SESSION TIMER — Track time spent

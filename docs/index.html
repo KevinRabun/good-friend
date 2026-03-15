@@ -111,6 +111,8 @@
       <button class="btn btn-o" data-s="cultures">Cultures</button>
       <button class="btn btn-o" data-s="empathy">Empathy</button>
       <button class="btn btn-o" data-s="forgiveness">Forgiveness</button>
+      <button class="btn btn-o" data-s="conflict">Conflict</button>
+      <button class="btn btn-o" data-s="peaceLog">Peace Log</button>
       <button class="btn btn-o" data-s="resources">Resources</button>
     </nav>
     <div id="content" role="main" aria-live="polite"><div class="loading">Loading...</div></div>
@@ -357,6 +359,26 @@ const FORGIVENESS_STEPS=[
 {phase:'Compassion',instruction:'Extend compassion \u2014 first to yourself for carrying this burden, then to the other person. Wish them well, even if it feels difficult. This is an act of strength, not weakness.',duration:45},
 ];
 
+const CONFLICT_TOOLS=[
+{name:'Active Listening',icon:'\u{1F442}',desc:'Give your full attention. Repeat what you heard. Ask clarifying questions. Don\u2019t plan your response while they\u2019re speaking.',steps:['Put away distractions and make eye contact','Listen without interrupting','Paraphrase: "What I\u2019m hearing is..."','Ask: "Did I understand you correctly?"','Validate their feelings before responding']},
+{name:'"I" Statements',icon:'\u{1F4AC}',desc:'Express your feelings without blaming. Replace "You always..." with "I feel... when... because..."',steps:['Start with "I feel..." (name the emotion)','Add "when..." (describe the specific behavior)','Add "because..." (explain the impact on you)','End with "I would appreciate..." (state what you need)','Example: "I feel worried when plans change suddenly because I need time to adjust. I would appreciate a heads-up."']},
+{name:'Find Common Ground',icon:'\u{1F91D}',desc:'Even in deep disagreements, there are usually shared values beneath opposing positions. Finding these creates a foundation for resolution.',steps:['Ask: "What do we both want from this situation?"','Look for shared values beneath different opinions','Acknowledge what you agree on before addressing differences','Use "Yes, and..." instead of "Yes, but..."','Ask: "What would a solution look like that works for both of us?"']},
+{name:'Cool-Down Protocol',icon:'\u2744\uFE0F',desc:'When emotions run high, taking a structured break prevents escalation while showing you remain committed to resolution.',steps:['Recognize the signs: raised voice, racing heart, clenching fists','Say: "I care about resolving this. I need 20 minutes to collect my thoughts."','During the break: breathe deeply, walk, drink water','Return at the agreed time \u2014 keeping your word builds trust','Resume with: "I\u2019ve had time to think, and here\u2019s what I want to say..."']},
+{name:'Perspective Swap',icon:'\u{1F504}',desc:'Each person takes 3 minutes to argue the other\u2019s position as convincingly as possible. This exercise often reveals misunderstandings and builds empathy.',steps:['Set a timer for 3 minutes per person','Person A argues Person B\u2019s position','Person B argues Person A\u2019s position','Discuss: "What surprised you about defending my view?"','Identify which parts of the other\u2019s perspective have merit']},
+{name:'Repair Conversation',icon:'\u{1F49A}',desc:'After a conflict, a structured repair conversation restores trust and prevents resentment from building.',steps:['Start with: "I want to repair what happened between us."','Each person shares how they experienced the conflict','Acknowledge your role: "My part in this was..."','Express what you need to move forward','End with an explicit commitment or agreement']},
+];
+
+const WEEKLY_PROMPTS=[
+'What moment this week am I most grateful for, and why?',
+'When did I show kindness this week? How did it feel?',
+'Was there a conflict this week? What could I have handled differently?',
+'What did I learn about someone different from me this week?',
+'When did I feel most at peace this week? What contributed to that feeling?',
+'How did I take care of my mental health this week?',
+'What\u2019s one thing I want to do next week to make the world a little better?',
+'Who made a positive impact on me this week? Have I told them?',
+];
+
 // ============================================================
 // STORAGE — localStorage wrapper for all user data
 // ============================================================
@@ -436,6 +458,8 @@ function loadSection(s){
       case'cultures':return renderCultures(el);
       case'empathy':return renderEmpathy(el);
       case'forgiveness':return renderForgiveness(el);
+      case'conflict':return renderConflict(el);
+      case'peaceLog':return renderPeaceLog(el);
       case'resources':return renderResources(el);
     }
   }catch(err){el.innerHTML='<div class="card"><p>Something went wrong. Please try again.</p></div>';}
@@ -461,6 +485,7 @@ function renderDaily(el){
     <div class="card"><h2>Today's Reflection</h2><p>${esc(prm.prompt)}</p><div class="refl"><h3>Reflect on:</h3><ul>${prm.reflectionQuestions.map(q=>`<li>${esc(q)}</li>`).join('')}</ul></div></div>
     <div class="card"><h2>Today's Kindness Challenge</h2><p><strong>${esc(knd.suggestion)}</strong> ${shareBtn(knd.suggestion,'kindness act')}</p><p class="label">${esc(knd.scope)} \u00b7 ${esc(knd.effortLevel)} effort</p><p>${esc(knd.impact)}</p></div>
     <div class="card" style="border-left:4px solid #9c27b0"><h2>World Culture: ${esc(cul.name)}</h2><p class="label">${esc(cul.origin)}</p><p>${esc(cul.desc)}</p><p style="margin-top:.4rem;color:var(--p);font-style:italic">${esc(cul.value)}</p></div>
+    ${getWeeklyReflection()}
     <div class="card" style="text-align:center"><p style="font-style:italic;color:var(--p)">Here's your daily dose of positivity. You matter, and the world is better with you in it.</p></div>`;
 }
 
@@ -790,6 +815,82 @@ window.saveSfNote=function(){
   loadSection('forgiveness');
 };
 
+// ============================================================
+// CONFLICT RESOLUTION TOOLKIT
+// ============================================================
+function renderConflict(el){
+  el.innerHTML=`
+    <div class="card"><h2>Conflict Resolution Toolkit</h2>
+    <p>Conflict is natural and inevitable. How we handle it determines whether it destroys or strengthens our relationships. These evidence-based tools help you navigate disagreements with grace.</p></div>
+    ${CONFLICT_TOOLS.map(t=>`<div class="card"><h2>${t.icon} ${esc(t.name)}</h2><p>${esc(t.desc)}</p><ol class="steps">${t.steps.map(s=>`<li>${esc(s)}</li>`).join('')}</ol></div>`).join('')}
+    <div class="card"><h2>Practice Scenario</h2><p>Think of a recent or ongoing conflict. Choose one tool above and mentally walk through the steps. Notice how it shifts your perspective.</p>
+    <textarea placeholder="Describe a conflict you want to resolve, and which tool you'd use..." id="conflictNote"></textarea>
+    <button class="btn" onclick="saveConflictNote()">Save Practice Note</button></div>`;
+}
+window.saveConflictNote=function(){
+  const note=document.getElementById('conflictNote').value.trim();
+  if(!note)return;
+  S.push('conflict_notes',{text:note,date:todayStr()},50);
+  showToast('Practice note saved');
+  document.getElementById('conflictNote').value='';
+};
+
+// ============================================================
+// PEACE ACTIONS LOG
+// ============================================================
+function renderPeaceLog(el){
+  const actions=S.get('peace_actions',[]);
+  const thisWeek=actions.filter(a=>{const d=new Date(a.date);const now=new Date();const diff=(now-d)/(864e5);return diff<7});
+  const categories=['kindness','tolerance','empathy','service','peace-building','forgiveness'];
+  el.innerHTML=`
+    <div class="card"><h2>Peace Actions Log</h2>
+    <p>Track the concrete actions you take to build a more peaceful world. Small acts ripple outward.</p>
+    <p style="margin-top:.5rem"><strong>This week: ${thisWeek.length} action${thisWeek.length!==1?'s':''}</strong></p>
+    <div style="margin:.75rem 0">
+      <input type="text" id="paDesc" placeholder="What did you do? (e.g., &quot;Helped a neighbor carry groceries&quot;)">
+      <div class="nav" style="margin:.4rem 0">${categories.map(c=>`<button class="btn btn-o fb" onclick="togPaCat(this,'${esc(c)}')">${esc(c)}</button>`).join('')}</div>
+      <button class="btn btn-w" onclick="logPeaceAction()">Log Action</button>
+    </div></div>
+    ${actions.length?`<div class="card"><h2>Your Peace Timeline</h2>${actions.slice(-20).reverse().map(a=>`<div style="padding:.5rem 0;border-bottom:1px solid #eee"><p>${esc(a.desc)}</p><p class="label">${esc(a.category)} \u00b7 ${esc(a.date)}</p></div>`).join('')}</div>`:''}
+    ${getWeeklyReflection()}`;
+}
+let paCat='kindness';
+window.togPaCat=function(btn,cat){
+  document.querySelectorAll('#content .fb').forEach(b=>b.classList.remove('act'));
+  btn.classList.add('act');paCat=cat;
+};
+window.logPeaceAction=function(){
+  const desc=document.getElementById('paDesc').value.trim();
+  if(!desc)return;
+  S.push('peace_actions',{desc,category:paCat,date:todayStr()},200);
+  showToast('Peace action logged! \u{1F54A}\uFE0F');
+  loadSection('peaceLog');
+};
+
+// ============================================================
+// WEEKLY REFLECTION
+// ============================================================
+function getWeeklyReflection(){
+  const dayNum=new Date().getDay(); // 0=Sun
+  if(dayNum!==0)return ''; // Show only on Sundays
+  const weekNum=Math.floor(dayOfYear()/7);
+  const prompt=WEEKLY_PROMPTS[weekNum%WEEKLY_PROMPTS.length];
+  const saved=S.get('weekly_reflections',[]);
+  const todayDone=saved.some(r=>r.date===todayStr());
+  if(todayDone)return `<div class="card" style="border-left:4px solid var(--a)"><h2>Weekly Reflection</h2><p style="color:var(--p)">You\u2019ve completed this week\u2019s reflection. See you next Sunday!</p></div>`;
+  return `<div class="card" style="border-left:4px solid var(--a)"><h2>Weekly Reflection</h2>
+    <p style="font-size:1.05rem;margin-bottom:.5rem">${esc(prompt)}</p>
+    <textarea placeholder="Take a moment to reflect..." id="weeklyNote"></textarea>
+    <button class="btn" onclick="saveWeeklyRefl()">Save Reflection</button></div>`;
+}
+window.saveWeeklyRefl=function(){
+  const note=document.getElementById('weeklyNote').value.trim();
+  if(!note)return;
+  S.push('weekly_reflections',{text:note,date:todayStr(),prompt:WEEKLY_PROMPTS[Math.floor(dayOfYear()/7)%WEEKLY_PROMPTS.length]},52);
+  showToast('Weekly reflection saved');
+  loadSection('peaceLog');
+};
+
 function renderResources(el){
   const crisis=RESOURCES.filter(r=>r.available==='24/7');
   const regions=[...new Set(RESOURCES.map(r=>r.region))];
@@ -916,6 +1017,9 @@ window.exportData=function(){
     gratitude:S.get('gratitude',[]),
     empathy_reflections:S.get('empathy_reflections',[]),
     forgiveness_notes:S.get('forgiveness_notes',[]),
+    peace_actions:S.get('peace_actions',[]),
+    conflict_notes:S.get('conflict_notes',[]),
+    weekly_reflections:S.get('weekly_reflections',[]),
   };
   const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
   const url=URL.createObjectURL(blob);
@@ -939,6 +1043,9 @@ window.importData=function(event){
       if(data.gratitude)S.set('gratitude',data.gratitude);
       if(data.empathy_reflections)S.set('empathy_reflections',data.empathy_reflections);
       if(data.forgiveness_notes)S.set('forgiveness_notes',data.forgiveness_notes);
+      if(data.peace_actions)S.set('peace_actions',data.peace_actions);
+      if(data.conflict_notes)S.set('conflict_notes',data.conflict_notes);
+      if(data.weekly_reflections)S.set('weekly_reflections',data.weekly_reflections);
       showToast('Data imported successfully!');
       loadSection('insights');
     }catch{showToast('Could not read file.')}

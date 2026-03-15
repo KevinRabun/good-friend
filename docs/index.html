@@ -521,6 +521,22 @@ function renderDaily(el){
   const milestones=[{d:7,msg:'One week! You\u2019re building a real habit.',icon:'\u{1F31F}'},{d:14,msg:'Two weeks strong! Consistency is changing your brain.',icon:'\u{1F4AA}'},{d:30,msg:'30 days! You\u2019re a wellness warrior.',icon:'\u{1F3C6}'},{d:60,msg:'60 days! Your dedication inspires.',icon:'\u{1F525}'},{d:90,msg:'90 days! You\u2019ve transformed this into a lifestyle.',icon:'\u{1F451}'},{d:180,msg:'Half a year of showing up for yourself!',icon:'\u{1F48E}'},{d:365,msg:'One entire year! You are extraordinary.',icon:'\u{1F30D}'}];
   const milestone=milestones.find(m=>m.d===streak);
   const isNew=!S.get('checkin_history',[]).length && !S.get('journal',[]).length;
+  // Daily challenge: combines different activities
+  const challenges=[
+    {text:'Do a kindness act and log it in your Peace Log',section:'peaceLog'},
+    {text:'Try the Loving-Kindness Meditation',section:'mindfulness'},
+    {text:'Write a gratitude letter to someone who matters',section:'gratLetter'},
+    {text:'Read an empathy scenario and write a reflection',section:'empathy'},
+    {text:'Practice a conflict resolution tool',section:'conflict'},
+    {text:'Try a forgiveness exercise',section:'forgiveness'},
+    {text:'Send kind words to someone today',section:'kindWords'},
+    {text:'Explore a world culture you didn\u2019t know about',section:'cultures'},
+    {text:'Write in your journal about today\u2019s reflection',section:'journal'},
+    {text:'Add 3 things to your gratitude wall',section:'gratitude'},
+    {text:'Make a pledge for peace',section:'pledges'},
+    {text:'Identify your top values and reflect on alignment',section:'values'},
+  ];
+  const dailyChallenge=challenges[doy%challenges.length];
   el.innerHTML=`
     ${isNew?`<div class="card" style="text-align:center;border-left:4px solid var(--p)"><h2>Welcome to Good Friend \u{1F44B}</h2>
     <p style="font-size:1.05rem">This is your free, private companion for wellness, empathy, and peace. Everything stays on your device.</p>
@@ -540,6 +556,8 @@ function renderDaily(el){
     <div class="card"><h2>Today's Reflection</h2><p>${esc(prm.prompt)}</p><div class="refl"><h3>Reflect on:</h3><ul>${prm.reflectionQuestions.map(q=>`<li>${esc(q)}</li>`).join('')}</ul></div></div>
     <div class="card"><h2>Today's Kindness Challenge</h2><p><strong>${esc(knd.suggestion)}</strong> ${shareBtn(knd.suggestion,'kindness act')}</p><p class="label">${esc(knd.scope)} \u00b7 ${esc(knd.effortLevel)} effort</p><p>${esc(knd.impact)}</p></div>
     <div class="card" style="border-left:4px solid #9c27b0"><h2>World Culture: ${esc(cul.name)}</h2><p class="label">${esc(cul.origin)}</p><p>${esc(cul.desc)}</p><p style="margin-top:.4rem;color:var(--p);font-style:italic">${esc(cul.value)}</p></div>
+    <div class="card" style="background:var(--pl)"><h2>\u{1F3AF} Today's Challenge</h2><p style="font-size:1.05rem">${esc(dailyChallenge.text)}</p><button class="btn" style="margin-top:.4rem" onclick="loadSection('${dailyChallenge.section}')">Go \u2192</button></div>
+    ${getBadges()}
     ${getWeeklyReflection()}
     <div class="card" style="text-align:center"><p style="font-style:italic;color:var(--p)">Here's your daily dose of positivity. You matter, and the world is better with you in it.</p></div>`;
 }
@@ -595,6 +613,9 @@ window.doCheckIn=function(){
   S.push('checkin_history',{date:todayStr(),mood:selMoodVal,feelings,ts:Date.now()},365);
   let h=`<div class="card" style="margin-top:.75rem"><h2>Your Check-In Response</h2><p style="font-size:1rem">${esc(resp.message)}</p><h3 style="margin-top:.75rem">Suggestions:</h3><ul>${resp.suggestions.map(s=>`<li>${esc(s)}</li>`).join('')}</ul>`;
   if(resp.resourcesRecommended)h+=`<div class="crisis" style="margin-top:.75rem"><strong>Support is available.</strong><p>If you need someone to talk to, help is just a call or text away.</p><button class="btn btn-w" onclick="document.querySelector('[data-s=resources]').click()">View Resources</button></div>`;
+  // Mood-based section recommendations
+  const recs=selMoodVal<=2?[{s:'mindfulness',l:'Try Mindfulness'},{s:'journal',l:'Write in Journal'},{s:'affirmations',l:'Read Affirmations'}]:selMoodVal===3?[{s:'empathy',l:'Try Empathy'},{s:'cultures',l:'Explore Cultures'},{s:'gratitude',l:'Gratitude Wall'}]:[{s:'kindness',l:'Do Kindness'},{s:'peaceLog',l:'Log Peace Action'},{s:'kindWords',l:'Send Kind Words'}];
+  h+=`<div style="margin-top:.75rem"><h3>Recommended for you:</h3><div class="nav">${recs.map(r=>`<button class="btn btn-o" onclick="loadSection('${r.s}')">${r.l}</button>`).join('')}</div></div>`;
   h+=`<p style="margin-top:.5rem;color:var(--p);font-style:italic">\u{1F525} ${getStreak()}-day streak! Keep showing up.</p></div>`;
   document.getElementById('ciResult').innerHTML=h;
   selMoodVal=null;selFeelings.clear();
@@ -925,6 +946,28 @@ window.logPeaceAction=function(){
 // ============================================================
 // WEEKLY REFLECTION
 // ============================================================
+// Achievement badges
+function getBadges(){
+  const badges=[];
+  const hist=S.get('checkin_history',[]);
+  const journal=S.get('journal',[]);
+  const pa=S.get('peace_actions',[]);
+  const gr=S.get('gratitude',[]);
+  const em=S.get('empathy_reflections',[]);
+  const st=getStreak();
+  if(hist.length>=1)badges.push({icon:'\u{1F331}',name:'First Step',desc:'First check-in'});
+  if(hist.length>=10)badges.push({icon:'\u{1F33F}',name:'Growing',desc:'10 check-ins'});
+  if(hist.length>=50)badges.push({icon:'\u{1F333}',name:'Rooted',desc:'50 check-ins'});
+  if(journal.length>=5)badges.push({icon:'\u{1F4D6}',name:'Reflector',desc:'5 journal entries'});
+  if(pa.length>=5)badges.push({icon:'\u{1F54A}\uFE0F',name:'Peacemaker',desc:'5 peace actions'});
+  if(gr.length>=10)badges.push({icon:'\u{2728}',name:'Thankful Heart',desc:'10 gratitude notes'});
+  if(em.length>=3)badges.push({icon:'\u{1F463}',name:'Empath',desc:'3 empathy reflections'});
+  if(st>=7)badges.push({icon:'\u{1F525}',name:'Week Warrior',desc:'7-day streak'});
+  if(st>=30)badges.push({icon:'\u{1F3C6}',name:'Monthly Champion',desc:'30-day streak'});
+  if(!badges.length)return '';
+  return `<div class="card"><h2>Your Badges</h2><div style="display:flex;flex-wrap:wrap;gap:.5rem">${badges.map(b=>`<div style="text-align:center;padding:.4rem .6rem;background:var(--pl);border-radius:8px;min-width:80px" title="${esc(b.desc)}"><div style="font-size:1.5rem">${b.icon}</div><div style="font-size:.7rem;font-weight:600">${esc(b.name)}</div></div>`).join('')}</div></div>`;
+}
+
 function getWeeklyReflection(){
   const dayNum=new Date().getDay(); // 0=Sun
   if(dayNum!==0)return ''; // Show only on Sundays

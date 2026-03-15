@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Good Friend — A free, offline-capable wellness companion promoting positive mental health, empathy, and a peaceful global society.">
   <meta name="theme-color" content="#5b8c6e">
+  <link rel="manifest" href="manifest.json">
   <title>Good Friend — Wellness Companion</title>
   <style>
     :root{--p:#5b8c6e;--pl:#e8f5e9;--a:#ff9800;--t:#333;--tl:#666;--bg:#fafafa;--c:#fff;--sh:0 2px 8px rgba(0,0,0,.08);--r:12px}
@@ -56,10 +57,24 @@
     .avoid{background:#ffebee;padding:.6rem;border-radius:8px;margin-top:.5rem}
     .avoid h3{color:#c62828;font-size:.85rem}
     @media(max-width:600px){header h1{font-size:1.4rem}.nav .btn{font-size:.7rem;padding:.25rem .5rem}}
+    .skip{position:absolute;top:-100%;left:0;background:var(--p);color:#fff;padding:.5rem 1rem;z-index:100;font-size:1rem;border-radius:0 0 8px 0}
+    .skip:focus{top:0}
+    :focus-visible{outline:3px solid var(--a);outline-offset:2px}
+    .share-btn{background:none;border:none;cursor:pointer;font-size:1.1rem;padding:.25rem .5rem;border-radius:6px;color:var(--p);vertical-align:middle}
+    .share-btn:hover{background:var(--pl)}
+    .timer-ring{display:flex;justify-content:center;align-items:center;margin:1rem 0}
+    .timer-ring svg{width:180px;height:180px}
+    .timer-ring circle{fill:none;stroke-width:6;stroke-linecap:round;transition:stroke-dashoffset .3s linear}
+    .timer-label{font-size:1.4rem;font-weight:700;fill:var(--p)}
+    .timer-phase{font-size:.8rem;fill:var(--tl)}
+    .toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:var(--p);color:#fff;padding:.5rem 1.2rem;border-radius:8px;z-index:200;opacity:0;transition:opacity .3s}
+    .toast.show{opacity:1}
   </style>
 </head>
 <body>
-  <header>
+  <a href="#content" class="skip">Skip to content</a>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <header role="banner">
     <h1>Good Friend</h1>
     <p>Your free, offline companion for wellness, empathy, and peace. You matter.</p>
   </header>
@@ -79,7 +94,7 @@
       <button class="btn btn-o" data-s="history">My History</button>
       <button class="btn btn-o" data-s="resources">Resources</button>
     </nav>
-    <div id="content"><div class="loading">Loading...</div></div>
+    <div id="content" role="main" aria-live="polite"><div class="loading">Loading...</div></div>
   </div>
   <footer>
     <p>Good Friend — Promoting positive mental health, tolerance, and peace.</p>
@@ -329,9 +344,9 @@ function renderDaily(el){
   const streak=getStreak();
   el.innerHTML=`
     ${streak>0?`<div class="streak-bar"><span class="fire">\u{1F525}</span><span class="count">${streak}-day streak!</span><span>Keep showing up for yourself.</span></div>`:''}
-    <div class="card"><h2>Today's Affirmation</h2><div class="quote">${esc(aff.text)}</div><p class="label">${esc(aff.theme)}</p></div>
+    <div class="card"><h2>Today's Affirmation</h2><div class="quote">${esc(aff.text)}</div><p class="label">${esc(aff.theme)} ${shareBtn(aff.text,'affirmation')}</p></div>
     <div class="card"><h2>Today's Reflection</h2><p>${esc(prm.prompt)}</p><div class="refl"><h3>Reflect on:</h3><ul>${prm.reflectionQuestions.map(q=>`<li>${esc(q)}</li>`).join('')}</ul></div></div>
-    <div class="card"><h2>Today's Kindness Challenge</h2><p><strong>${esc(knd.suggestion)}</strong></p><p class="label">${esc(knd.scope)} \u00b7 ${esc(knd.effortLevel)} effort</p><p>${esc(knd.impact)}</p></div>
+    <div class="card"><h2>Today's Kindness Challenge</h2><p><strong>${esc(knd.suggestion)}</strong> ${shareBtn(knd.suggestion,'kindness act')}</p><p class="label">${esc(knd.scope)} \u00b7 ${esc(knd.effortLevel)} effort</p><p>${esc(knd.impact)}</p></div>
     <div class="card" style="text-align:center"><p style="font-style:italic;color:var(--p)">Here's your daily dose of positivity. You matter, and the world is better with you in it.</p></div>`;
 }
 
@@ -339,7 +354,7 @@ function renderAffirmations(el){
   const r=pick(AFFIRMATIONS);
   const themes=[...new Set(AFFIRMATIONS.map(a=>a.theme))];
   el.innerHTML=`
-    <div class="card"><h2>Affirmation</h2><div class="quote">${esc(r.text)}</div><p class="label">${esc(r.theme)}</p><button class="btn" onclick="loadSection('affirmations')">Another one</button></div>
+    <div class="card"><h2>Affirmation</h2><div class="quote">${esc(r.text)}</div><p class="label">${esc(r.theme)} ${shareBtn(r.text,'affirmation')}</p><button class="btn" onclick="loadSection('affirmations')">Another one</button></div>
     <div class="card"><h2>Browse by Theme</h2><div class="nav">${themes.map(t=>`<button class="btn btn-o" onclick="showTheme('${esc(t)}')">${esc(t)}</button>`).join('')}</div><div id="themeR"></div></div>`;
 }
 window.showTheme=function(t){
@@ -348,7 +363,10 @@ window.showTheme=function(t){
 
 function renderMindfulness(el){
   const r=pick(EXERCISES);
-  el.innerHTML=`<div class="card"><h2>${esc(r.title)}</h2><p class="label">${esc(r.category)} \u00b7 ${r.durationMinutes} minutes</p><ol class="steps">${r.steps.map(s=>`<li>${esc(s)}</li>`).join('')}</ol><p style="margin-top:.75rem"><strong>Benefit:</strong> ${esc(r.benefit)}</p><button class="btn" style="margin-top:.5rem" onclick="loadSection('mindfulness')">Try another exercise</button></div>`;
+  const isBreathing=r.category==='breathing';
+  const timerType=r.id==='br-1'?'478':'box';
+  el.innerHTML=`<div class="card"><h2>${esc(r.title)}</h2><p class="label">${esc(r.category)} \u00b7 ${r.durationMinutes} minutes</p><ol class="steps">${r.steps.map(s=>`<li>${esc(s)}</li>`).join('')}</ol><p style="margin-top:.75rem"><strong>Benefit:</strong> ${esc(r.benefit)}</p>${isBreathing?`<button class="btn btn-w" style="margin-top:.5rem" onclick="startBreathingTimer('${timerType}')">Start Interactive Timer</button>`:''}<button class="btn" style="margin-top:.5rem" onclick="loadSection('mindfulness')">Try another exercise</button></div>
+    <div class="card"><h2>Quick Start Timers</h2><p>Launch a guided breathing session:</p><button class="btn" onclick="startBreathingTimer('478')">4-7-8 Breathing</button> <button class="btn" onclick="startBreathingTimer('box')">Box Breathing</button></div>`;
 }
 
 function renderTolerance(el){
@@ -358,7 +376,7 @@ function renderTolerance(el){
 
 function renderKindness(el){
   const r=pick(KINDNESS_ACTS);
-  el.innerHTML=`<div class="card"><h2>Kindness Suggestion</h2><p style="font-size:1.05rem"><strong>${esc(r.suggestion)}</strong></p><p class="label">${esc(r.scope)} \u00b7 ${esc(r.effortLevel)} effort</p><p>${esc(r.impact)}</p><button class="btn" onclick="loadSection('kindness')">Another idea</button></div>`;
+  el.innerHTML=`<div class="card"><h2>Kindness Suggestion</h2><p style="font-size:1.05rem"><strong>${esc(r.suggestion)}</strong> ${shareBtn(r.suggestion,'kindness act')}</p><p class="label">${esc(r.scope)} \u00b7 ${esc(r.effortLevel)} effort</p><p>${esc(r.impact)}</p><button class="btn" onclick="loadSection('kindness')">Another idea</button></div>`;
 }
 
 function renderCheckIn(el){
@@ -528,6 +546,80 @@ window.showRegion=function(region){
 
 // Initial load
 loadSection('daily');
+
+// ============================================================
+// SHARE — Web Share API or copy fallback
+// ============================================================
+function shareBtn(text,label){
+  return `<button class="share-btn" onclick="shareText(\`${text.replace(/`/g,'\\`').replace(/\\/g,'\\\\')}\`)" title="Share ${esc(label||'')}" aria-label="Share ${esc(label||'this')}">&#x1F4E4;</button>`;
+}
+window.shareText=async function(text){
+  const full=text+'\n\n\u2014 Good Friend (kevinrabun.github.io/good-friend)';
+  if(navigator.share){try{await navigator.share({text:full});return}catch{}}
+  try{await navigator.clipboard.writeText(full);showToast('Copied to clipboard!')}catch{showToast('Could not share')}
+};
+function showToast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+// ============================================================
+// BREATHING TIMER — Interactive visual breathing exercise
+// ============================================================
+let timerInterval=null;
+window.startBreathingTimer=function(type){
+  const el=document.getElementById('content');
+  let phases,label;
+  if(type==='478'){
+    phases=[{name:'Inhale',dur:4},{name:'Hold',dur:7},{name:'Exhale',dur:8}];
+    label='4-7-8 Breathing';
+  }else{
+    phases=[{name:'Inhale',dur:4},{name:'Hold',dur:4},{name:'Exhale',dur:4},{name:'Hold',dur:4}];
+    label='Box Breathing';
+  }
+  const totalCycleDur=phases.reduce((s,p)=>s+p.dur,0);
+  const totalCycles=4;
+  let cycle=0,phaseIdx=0,second=0;
+  const R=80,C=2*Math.PI*R;
+
+  function renderTimer(){
+    const ph=phases[phaseIdx];
+    const progress=second/ph.dur;
+    el.innerHTML=`<div class="card" style="text-align:center"><h2>${esc(label)}</h2><p>Cycle ${cycle+1} of ${totalCycles}</p>
+      <div class="timer-ring"><svg viewBox="0 0 200 200">
+        <circle cx="100" cy="100" r="${R}" stroke="#e0e0e0"/>
+        <circle cx="100" cy="100" r="${R}" stroke="var(--p)" stroke-dasharray="${C}" stroke-dashoffset="${C*(1-progress)}" transform="rotate(-90 100 100)"/>
+        <text x="100" y="95" text-anchor="middle" class="timer-label">${second}s</text>
+        <text x="100" y="120" text-anchor="middle" class="timer-phase">${esc(ph.name)}</text>
+      </svg></div>
+      <p style="font-size:1.1rem;color:var(--p);margin:.5rem 0">${esc(ph.name)}</p>
+      <button class="btn" onclick="stopTimer()">Stop</button></div>`;
+  }
+
+  if(timerInterval)clearInterval(timerInterval);
+  renderTimer();
+  timerInterval=setInterval(()=>{
+    second++;
+    if(second>phases[phaseIdx].dur){
+      second=0;phaseIdx++;
+      if(phaseIdx>=phases.length){phaseIdx=0;cycle++;
+        if(cycle>=totalCycles){clearInterval(timerInterval);timerInterval=null;
+          el.innerHTML=`<div class="card" style="text-align:center"><h2>Session Complete</h2><p style="font-size:1.2rem">Well done! You completed ${totalCycles} cycles of ${label}.</p><p style="color:var(--p);font-style:italic">Notice how your body feels calmer now.</p><button class="btn" style="margin-top:.75rem" onclick="loadSection('mindfulness')">Back to Mindfulness</button></div>`;
+          return;
+        }
+      }
+    }
+    renderTimer();
+  },1000);
+};
+window.stopTimer=function(){if(timerInterval){clearInterval(timerInterval);timerInterval=null}loadSection('mindfulness')};
+
+// ============================================================
+// PWA — Service Worker registration
+// ============================================================
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
 </script>
 </body>
 </html>

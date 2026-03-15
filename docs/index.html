@@ -108,6 +108,9 @@
       <button class="btn btn-o" data-s="gratitude">Gratitude</button>
       <button class="btn btn-o" data-s="history">My History</button>
       <button class="btn btn-o" data-s="insights">Insights</button>
+      <button class="btn btn-o" data-s="cultures">Cultures</button>
+      <button class="btn btn-o" data-s="empathy">Empathy</button>
+      <button class="btn btn-o" data-s="forgiveness">Forgiveness</button>
       <button class="btn btn-o" data-s="resources">Resources</button>
     </nav>
     <div id="content" role="main" aria-live="polite"><div class="loading">Loading...</div></div>
@@ -316,6 +319,44 @@ const WISDOM=[
 'The world is a dangerous place, not because of those who do evil, but because of those who look on and do nothing. \u2014 Albert Einstein',
 ];
 
+const WORLD_CULTURES=[
+{name:'Diwali',origin:'India / Hindu, Jain, Sikh',desc:'Festival of Lights celebrating the triumph of light over darkness and good over evil. Families light oil lamps, share sweets, and celebrate new beginnings.',value:'Light dispels darkness \u2014 hope and goodness prevail.'},
+{name:'Eid al-Fitr',origin:'Islamic traditions worldwide',desc:'Celebration marking the end of Ramadan. Communities gather for prayers, feasting, and giving to those in need (Zakat al-Fitr).',value:'Discipline, gratitude, and generosity toward all.'},
+{name:'Hanami',origin:'Japan',desc:'The tradition of enjoying cherry blossoms. People gather under blooming trees to appreciate the fleeting beauty of nature.',value:'Beauty is transient \u2014 be present and appreciate each moment.'},
+{name:'Ubuntu Philosophy',origin:'Southern Africa',desc:'"I am because we are." A worldview emphasizing that our humanity is tied to how we treat others. Community and mutual care are central.',value:'Our wellbeing is interconnected with others.'},
+{name:'Lunar New Year',origin:'China, Korea, Vietnam and more',desc:'A celebration of renewal and family reunion. Homes are cleaned, debts settled, and families gather for meals symbolizing prosperity and togetherness.',value:'Fresh starts and honoring family bonds.'},
+{name:'Nowruz',origin:'Iran / Persian and Central Asian cultures',desc:'The Persian New Year celebrated on the spring equinox. The Haft-sin table features seven symbolic items representing life, health, and happiness.',value:'Nature\u2019s renewal mirrors our capacity for personal renewal.'},
+{name:'Day of the Dead',origin:'Mexico',desc:'Families honor deceased loved ones with altars (ofrendas), marigolds, and favorite foods. Death is embraced as a natural part of life\u2019s journey.',value:'Remembering those we\u2019ve lost keeps their spirit alive.'},
+{name:'Ho\u2019oponopono',origin:'Hawaii / Polynesia',desc:'A traditional practice of reconciliation and forgiveness. Families gather to resolve conflicts through honest dialogue, forgiveness, and releasing resentment.',value:'Forgiveness heals both the giver and the receiver.'},
+{name:'Wabi-Sabi',origin:'Japan',desc:'An aesthetic and philosophy that finds beauty in imperfection. Broken pottery repaired with gold (kintsugi) becomes more beautiful for having been broken.',value:'Our imperfections and struggles make us uniquely beautiful.'},
+{name:'Holi',origin:'India',desc:'The Festival of Colors where people throw colored powder, dance, and celebrate the victory of love. Social barriers dissolve as everyone is covered in the same joy.',value:'Joy and color erase the lines that divide us.'},
+{name:'Hygge',origin:'Denmark / Scandinavia',desc:'The art of creating cozy, warm moments of togetherness \u2014 candlelight, warm drinks, and good company. Emphasizes comfort over material wealth.',value:'Simple pleasures and warm connections are life\u2019s true riches.'},
+{name:'Potlatch',origin:'Indigenous peoples of the Pacific Northwest',desc:'A ceremonial feast where wealth is redistributed through generous giving. Status comes not from what you have, but from what you give away.',value:'True abundance comes from generosity.'},
+{name:'Sabbath / Shabbat',origin:'Jewish tradition',desc:'A weekly day of rest, reflection, and family time. From sunset Friday to sunset Saturday, work stops and presence with loved ones begins.',value:'Regular rest and reflection are essential for wellbeing.'},
+{name:'Songkran',origin:'Thailand',desc:'New Year celebration where water is playfully splashed to symbolize cleansing and renewal. Elders\u2019 hands are gently bathed as a sign of respect.',value:'Respect for elders and joyful renewal.'},
+{name:'Thanksgiving',origin:'Various cultures worldwide',desc:'Harvest festivals exist across many cultures \u2014 giving thanks for abundance. From Sukkot to Pongal to the North American tradition, gratitude unites humanity.',value:'Gratitude for what sustains us is universal.'},
+];
+
+const EMPATHY_SCENARIOS=[
+{situation:'A refugee family has just arrived in your community. The parents speak limited English, and their children are starting at a new school where they know nobody.',perspective:'Imagine leaving everything you know \u2014 your home, friends, career, language \u2014 and starting over in a place where you feel invisible.',questions:['What would your first day feel like?','What small gesture from a stranger would mean the most to you?','How might your children feel walking into a classroom where no one looks like them?']},
+{situation:'An elderly neighbor lives alone. You notice they haven\u2019t left their home in days, and their mail is piling up.',perspective:'As we age, the world can shrink. Friends pass away, mobility decreases, and ordinary tasks become monumental challenges.',questions:['What might prevent them from asking for help?','How would you feel if days passed and nobody checked on you?','What assumptions might you be making about their situation?']},
+{situation:'A coworker from a different cultural background eats unfamiliar food at lunch. Others make faces or comments.',perspective:'Food connects us to our heritage, family, and identity. Having something so personal mocked can feel like a rejection of who you are.',questions:['How would you feel if people reacted with disgust to your family\u2019s traditions?','Why might someone feel they need to hide their cultural practices?','How could you create a more welcoming environment?']},
+{situation:'A teenager in your community is struggling with their identity and feels they don\u2019t belong anywhere \u2014 not at school, not at home, not online.',perspective:'Adolescence is already challenging. Adding the weight of feeling fundamentally different from everyone around you can lead to profound isolation.',questions:['What did belonging feel like when you were young?','What would it mean to have just one person who truly accepted you?','How can communities create spaces where every young person feels valued?']},
+{situation:'Someone with a visible disability is being spoken to slowly and loudly by a store clerk, as if they can\u2019t understand normal conversation.',perspective:'Being treated as less capable because of a physical difference is exhausting. Most people with disabilities simply want to be treated as the complete, capable humans they are.',questions:['Have you ever been underestimated? How did it feel?','What assumptions do we unconsciously make about people based on appearance?','How can you interact with people with disabilities with dignity and normalcy?']},
+{situation:'A single parent is juggling two jobs, raising three children, and just missed a parent-teacher conference. The teacher sends a disapproving note home.',perspective:'Single parents often carry the weight of two adults while being judged by the standards of a two-parent household. Every missed event represents an impossible choice, not indifference.',questions:['What might that parent\u2019s daily schedule look like?','How does judgment from others compound an already stressful situation?','What support would make the biggest difference for this family?']},
+{situation:'A veteran returns home from service and finds it hard to connect with friends and family. Loud noises make them flinch, and they avoid crowded places.',perspective:'The transition from a combat environment to civilian life involves processing experiences that most people can\u2019t imagine. The distance they feel isn\u2019t rejection \u2014 it\u2019s protection.',questions:['How might the gap between their experiences and yours create misunderstandings?','What would patience and understanding look like in this relationship?','How can you be present for someone without pressuring them to "get back to normal"?']},
+{situation:'A colleague quietly removes a religious symbol before a meeting because they\u2019ve been told it makes others "uncomfortable."',perspective:'Being asked to hide a fundamental part of your identity to make others comfortable is a form of erasure. It sends the message that who you are is a problem to be managed.',questions:['What parts of your identity do you take for granted being able to express freely?','How would it feel to be told your beliefs make others uncomfortable?','What does true religious tolerance look like in shared spaces?']},
+];
+
+const FORGIVENESS_STEPS=[
+{phase:'Acknowledge',instruction:'Identify the hurt. What happened? Who was involved? How did it affect you? Write or think about it honestly, without minimizing or exaggerating.',duration:60},
+{phase:'Feel',instruction:'Allow yourself to fully feel the emotions \u2014 anger, sadness, betrayal, disappointment. These feelings are valid. You don\u2019t need to push them away.',duration:45},
+{phase:'Understand',instruction:'Try to understand the other person\u2019s perspective. This doesn\u2019t mean excusing their behavior. It means recognizing their humanity and the factors that may have influenced their actions.',duration:60},
+{phase:'Decide',instruction:'Forgiveness is a choice, not a feeling. Decide that you are willing to release the grip this hurt has on you \u2014 not for them, but for your own peace and freedom.',duration:45},
+{phase:'Release',instruction:'Silently or aloud, say: "I release this pain. I choose peace. I reclaim my energy." Visualize the weight lifting from your shoulders.',duration:45},
+{phase:'Compassion',instruction:'Extend compassion \u2014 first to yourself for carrying this burden, then to the other person. Wish them well, even if it feels difficult. This is an act of strength, not weakness.',duration:45},
+];
+
 // ============================================================
 // STORAGE — localStorage wrapper for all user data
 // ============================================================
@@ -392,6 +433,9 @@ function loadSection(s){
       case'gratitude':return renderGratitude(el);
       case'history':return renderHistory(el);
       case'insights':return renderInsights(el);
+      case'cultures':return renderCultures(el);
+      case'empathy':return renderEmpathy(el);
+      case'forgiveness':return renderForgiveness(el);
       case'resources':return renderResources(el);
     }
   }catch(err){el.innerHTML='<div class="card"><p>Something went wrong. Please try again.</p></div>';}
@@ -408,6 +452,7 @@ function renderDaily(el){
   const wis=WISDOM[doy%WISDOM.length];
   const streak=getStreak();
   const todayChecked=S.get('checkin_history',[]).some(h=>h.date===todayStr());
+  const cul=WORLD_CULTURES[doy%WORLD_CULTURES.length];
   el.innerHTML=`
     ${streak>0?`<div class="streak-bar"><span class="fire">\u{1F525}</span><span class="count">${streak}-day streak!</span><span>Keep showing up for yourself.</span></div>`:''}
     ${!todayChecked?`<div class="card" style="text-align:center"><h2>Quick Mood Check</h2><p>How are you feeling right now?</p><div class="mood-scale">${MOOD_EMOJI.map((e,i)=>`<button onclick="quickMood(${i+1})" title="${MOOD_LABELS[i]}">${e}</button>`).join('')}</div></div>`:''}
@@ -415,6 +460,7 @@ function renderDaily(el){
     <div class="card" style="border-left:4px solid var(--a)"><p style="font-style:italic">${esc(wis)}</p></div>
     <div class="card"><h2>Today's Reflection</h2><p>${esc(prm.prompt)}</p><div class="refl"><h3>Reflect on:</h3><ul>${prm.reflectionQuestions.map(q=>`<li>${esc(q)}</li>`).join('')}</ul></div></div>
     <div class="card"><h2>Today's Kindness Challenge</h2><p><strong>${esc(knd.suggestion)}</strong> ${shareBtn(knd.suggestion,'kindness act')}</p><p class="label">${esc(knd.scope)} \u00b7 ${esc(knd.effortLevel)} effort</p><p>${esc(knd.impact)}</p></div>
+    <div class="card" style="border-left:4px solid #9c27b0"><h2>World Culture: ${esc(cul.name)}</h2><p class="label">${esc(cul.origin)}</p><p>${esc(cul.desc)}</p><p style="margin-top:.4rem;color:var(--p);font-style:italic">${esc(cul.value)}</p></div>
     <div class="card" style="text-align:center"><p style="font-style:italic;color:var(--p)">Here's your daily dose of positivity. You matter, and the world is better with you in it.</p></div>`;
 }
 
@@ -627,6 +673,123 @@ function renderHistory(el){
     <div class="card" style="text-align:center"><p style="color:var(--tl)">All your data is stored privately on this device. Nothing is sent to any server.</p></div>`;
 }
 
+// ============================================================
+// WORLD CULTURES
+// ============================================================
+function renderCultures(el){
+  const doy=dayOfYear();
+  const today=WORLD_CULTURES[doy%WORLD_CULTURES.length];
+  el.innerHTML=`
+    <div class="card" style="border-left:4px solid #9c27b0"><h2>${esc(today.name)}</h2><p class="label">${esc(today.origin)}</p><p>${esc(today.desc)}</p><p style="margin-top:.5rem;color:var(--p);font-weight:600">${esc(today.value)}</p></div>
+    <div class="card"><h2>Explore World Cultures</h2><p>Every tradition carries wisdom. Understanding different cultures builds the empathy that makes a peaceful society possible.</p>
+    ${WORLD_CULTURES.map(c=>`<div style="padding:.6rem 0;border-bottom:1px solid #eee"><strong>${esc(c.name)}</strong> <span class="label">${esc(c.origin)}</span><p>${esc(c.desc)}</p><p style="font-style:italic;color:var(--p)">${esc(c.value)}</p></div>`).join('')}
+    </div>`;
+}
+
+// ============================================================
+// EMPATHY SCENARIOS
+// ============================================================
+function renderEmpathy(el){
+  const sc=pick(EMPATHY_SCENARIOS);
+  el.innerHTML=`
+    <div class="card"><h2>Walk In Their Shoes</h2>
+    <p style="font-size:1.05rem;margin-bottom:.75rem">${esc(sc.situation)}</p>
+    <div class="quote">${esc(sc.perspective)}</div>
+    <div class="refl"><h3>Reflect:</h3><ul>${sc.questions.map(q=>`<li>${esc(q)}</li>`).join('')}</ul></div>
+    <textarea placeholder="Write your reflections here..." id="empathyNote"></textarea>
+    <button class="btn" onclick="saveEmpathyNote()">Save Reflection</button>
+    <button class="btn btn-o" onclick="loadSection('empathy')">Next scenario</button></div>
+    <div class="card"><h2>Why Empathy Matters</h2><p>Research shows that perspective-taking exercises reduce prejudice, increase helping behavior, and build the social bonds needed for a peaceful society. Each time you truly consider another person\u2019s experience, you strengthen your capacity for compassion.</p></div>`;
+}
+window.saveEmpathyNote=function(){
+  const note=document.getElementById('empathyNote').value.trim();
+  if(!note)return;
+  S.push('empathy_reflections',{text:note,date:todayStr()},50);
+  showToast('Reflection saved');
+  document.getElementById('empathyNote').value='';
+};
+
+// ============================================================
+// FORGIVENESS PRACTICE
+// ============================================================
+let fgInterval=null;
+function renderForgiveness(el){
+  const saved=S.get('forgiveness_notes',[]);
+  el.innerHTML=`
+    <div class="card"><h2>Guided Forgiveness Practice</h2>
+    <p>Forgiveness is not about excusing harm. It\u2019s about freeing yourself from carrying the weight of resentment. This guided practice walks you through six phases at your own pace.</p>
+    <button class="btn btn-w" onclick="startForgiveness()">Begin Practice (~5 min)</button>
+    <button class="btn btn-o" onclick="selfForgive()">Self-Forgiveness</button></div>
+    <div class="card"><h2>Forgiveness Journal</h2><p>Write freely about what you want to release:</p>
+    <textarea placeholder="What hurt are you ready to let go of?" id="fgNote"></textarea>
+    <button class="btn" onclick="saveFgNote()">Save to Journal</button>
+    ${saved.length?`<div style="margin-top:.75rem"><h3 style="font-size:.9rem;color:var(--tl)">Previous entries</h3>${saved.slice(-5).reverse().map(n=>`<div style="padding:.4rem 0;border-bottom:1px solid #eee;font-size:.9rem"><span class="label">${esc(n.date)}</span><p>${esc(n.text)}</p></div>`).join('')}</div>`:''}</div>
+    <div class="card"><h2>The Science of Forgiveness</h2><p>Studies show that forgiveness lowers cortisol, reduces anxiety and depression, improves cardiovascular health, and strengthens relationships. It is one of the most powerful acts of self-care you can practice.</p></div>`;
+}
+window.saveFgNote=function(){
+  const note=document.getElementById('fgNote').value.trim();
+  if(!note)return;
+  S.push('forgiveness_notes',{text:note,date:todayStr()},50);
+  showToast('Entry saved');
+  loadSection('forgiveness');
+};
+window.startForgiveness=function(){
+  const el=document.getElementById('content');
+  let phaseIdx=0,second=0;
+  function renderFg(){
+    const ph=FORGIVENESS_STEPS[phaseIdx];
+    const progress=second/ph.duration;
+    el.innerHTML=`<div class="card" style="text-align:center"><h2>Forgiveness Practice</h2>
+      <p class="label">Phase ${phaseIdx+1} of ${FORGIVENESS_STEPS.length}: ${esc(ph.phase)}</p>
+      <div class="timer-ring"><svg viewBox="0 0 200 200">
+        <circle cx="100" cy="100" r="80" stroke="#e0e0e0"/>
+        <circle cx="100" cy="100" r="80" stroke="#9c27b0" stroke-dasharray="${2*Math.PI*80}" stroke-dashoffset="${2*Math.PI*80*(1-progress)}" transform="rotate(-90 100 100)"/>
+        <text x="100" y="95" text-anchor="middle" class="timer-label">${Math.ceil(ph.duration-second)}s</text>
+        <text x="100" y="120" text-anchor="middle" class="timer-phase">${esc(ph.phase)}</text>
+      </svg></div>
+      <div class="quote" style="margin:1rem auto;max-width:400px">${esc(ph.instruction)}</div>
+      <button class="btn" style="margin-top:.5rem" onclick="stopFg()">End Session</button></div>`;
+  }
+  if(fgInterval)clearInterval(fgInterval);
+  renderFg();
+  fgInterval=setInterval(()=>{
+    second++;
+    if(second>=FORGIVENESS_STEPS[phaseIdx].duration){
+      second=0;phaseIdx++;
+      if(phaseIdx>=FORGIVENESS_STEPS.length){clearInterval(fgInterval);fgInterval=null;
+        el.innerHTML=`<div class="card" style="text-align:center"><h2>Practice Complete</h2><p style="font-size:1.1rem">You\u2019ve just done something powerful. By choosing to release resentment, you\u2019ve reclaimed energy that was being held captive by the past.</p><p style="color:var(--p);font-style:italic;margin-top:.5rem">"Forgiveness does not change the past, but it does enlarge the future." \u2014 Paul Boese</p><button class="btn" style="margin-top:.75rem" onclick="loadSection('forgiveness')">Back</button></div>`;
+        return;
+      }
+    }
+    renderFg();
+  },1000);
+};
+window.stopFg=function(){if(fgInterval){clearInterval(fgInterval);fgInterval=null}loadSection('forgiveness')};
+window.selfForgive=function(){
+  const el=document.getElementById('content');
+  el.innerHTML=`<div class="card"><h2>Self-Forgiveness</h2>
+    <p>We are often hardest on ourselves. This practice is about releasing the guilt, shame, or regret you carry about your own actions.</p>
+    <div class="quote">I am human. I have made mistakes. Those mistakes do not define me. I choose to learn from them and move forward with compassion for myself.</div>
+    <p style="margin-top:.75rem"><strong>Steps:</strong></p>
+    <ol class="steps">
+      <li>Name what you\u2019re holding against yourself. Be specific.</li>
+      <li>Acknowledge the impact of your actions \u2014 on yourself and others.</li>
+      <li>Ask: "What can I learn from this?"</li>
+      <li>Make amends if possible and appropriate.</li>
+      <li>Say aloud: "I forgive myself. I am allowed to grow."</li>
+    </ol>
+    <textarea placeholder="Write about what you\u2019re ready to forgive yourself for..." id="sfNote"></textarea>
+    <button class="btn" onclick="saveSfNote()">Save Reflection</button>
+    <button class="btn btn-o" onclick="loadSection('forgiveness')">Back</button></div>`;
+};
+window.saveSfNote=function(){
+  const note=document.getElementById('sfNote').value.trim();
+  if(!note)return;
+  S.push('forgiveness_notes',{text:note,date:todayStr(),type:'self'},50);
+  showToast('Self-forgiveness reflection saved');
+  loadSection('forgiveness');
+};
+
 function renderResources(el){
   const crisis=RESOURCES.filter(r=>r.available==='24/7');
   const regions=[...new Set(RESOURCES.map(r=>r.region))];
@@ -751,6 +914,8 @@ window.exportData=function(){
     pledges:S.get('pledges',[]),
     stories:S.get('stories',[]),
     gratitude:S.get('gratitude',[]),
+    empathy_reflections:S.get('empathy_reflections',[]),
+    forgiveness_notes:S.get('forgiveness_notes',[]),
   };
   const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
   const url=URL.createObjectURL(blob);
@@ -772,6 +937,8 @@ window.importData=function(event){
       if(data.pledges)S.set('pledges',data.pledges);
       if(data.stories){S.set('stories',data.stories);S.set('stories_init',true)}
       if(data.gratitude)S.set('gratitude',data.gratitude);
+      if(data.empathy_reflections)S.set('empathy_reflections',data.empathy_reflections);
+      if(data.forgiveness_notes)S.set('forgiveness_notes',data.forgiveness_notes);
       showToast('Data imported successfully!');
       loadSection('insights');
     }catch{showToast('Could not read file.')}

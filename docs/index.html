@@ -292,6 +292,30 @@ const MOOD_LABELS=['Struggling','Low','Okay','Good','Thriving'];
 const MOOD_EMOJI=['\u{1F622}','\u{1F614}','\u{1F610}','\u{1F60A}','\u{1F31F}'];
 const FEELINGS=['anxious','calm','grateful','lonely','hopeful','overwhelmed','content','sad','energized','frustrated','peaceful','worried','joyful','tired','connected','isolated','inspired','stressed','loved','confused'];
 
+const WISDOM=[
+'Darkness cannot drive out darkness; only light can do that. Hate cannot drive out hate; only love can do that. \u2014 Martin Luther King Jr.',
+'Be the change you wish to see in the world. \u2014 Mahatma Gandhi',
+'Peace is not merely a distant goal that we seek, but a means by which we arrive at that goal. \u2014 Martin Luther King Jr.',
+'An eye for an eye only ends up making the whole world blind. \u2014 Mahatma Gandhi',
+'If you want others to be happy, practice compassion. If you want to be happy, practice compassion. \u2014 Dalai Lama',
+'We make a living by what we get, but we make a life by what we give. \u2014 Winston Churchill',
+'No one is born hating another person because of the color of his skin. People must learn to hate, and if they can learn to hate, they can be taught to love. \u2014 Nelson Mandela',
+'The best way to find yourself is to lose yourself in the service of others. \u2014 Mahatma Gandhi',
+'In the middle of difficulty lies opportunity. \u2014 Albert Einstein',
+'You must not lose faith in humanity. Humanity is an ocean; if a few drops of the ocean are dirty, the ocean does not become dirty. \u2014 Mahatma Gandhi',
+'When I was a boy and I would see scary things in the news, my mother would say to me, Look for the helpers. You will always find people who are helping. \u2014 Fred Rogers',
+'Do your little bit of good where you are; it is those little bits of good put together that overwhelm the world. \u2014 Desmond Tutu',
+'We but mirror the world. If we could change ourselves, the tendencies in the world would also change. \u2014 Mahatma Gandhi',
+'I have decided to stick with love. Hate is too great a burden to bear. \u2014 Martin Luther King Jr.',
+'The only way to do great work is to love what you do. \u2014 Steve Jobs',
+'Kindness in words creates confidence. Kindness in thinking creates profundity. Kindness in giving creates love. \u2014 Lao Tzu',
+'We are not enemies, but friends. We must not be enemies. \u2014 Abraham Lincoln',
+'The purpose of our lives is to be happy. \u2014 Dalai Lama',
+'You have not lived today until you have done something for someone who can never repay you. \u2014 John Bunyan',
+'Peace begins with a smile. \u2014 Mother Teresa',
+'The world is a dangerous place, not because of those who do evil, but because of those who look on and do nothing. \u2014 Albert Einstein',
+];
+
 // ============================================================
 // STORAGE — localStorage wrapper for all user data
 // ============================================================
@@ -381,10 +405,14 @@ function renderDaily(el){
   const aff=AFFIRMATIONS[doy%AFFIRMATIONS.length];
   const prm=PROMPTS[doy%PROMPTS.length];
   const knd=KINDNESS_ACTS[doy%KINDNESS_ACTS.length];
+  const wis=WISDOM[doy%WISDOM.length];
   const streak=getStreak();
+  const todayChecked=S.get('checkin_history',[]).some(h=>h.date===todayStr());
   el.innerHTML=`
     ${streak>0?`<div class="streak-bar"><span class="fire">\u{1F525}</span><span class="count">${streak}-day streak!</span><span>Keep showing up for yourself.</span></div>`:''}
+    ${!todayChecked?`<div class="card" style="text-align:center"><h2>Quick Mood Check</h2><p>How are you feeling right now?</p><div class="mood-scale">${MOOD_EMOJI.map((e,i)=>`<button onclick="quickMood(${i+1})" title="${MOOD_LABELS[i]}">${e}</button>`).join('')}</div></div>`:''}
     <div class="card"><h2>Today's Affirmation</h2><div class="quote">${esc(aff.text)}</div><p class="label">${esc(aff.theme)} ${shareBtn(aff.text,'affirmation')}</p></div>
+    <div class="card" style="border-left:4px solid var(--a)"><p style="font-style:italic">${esc(wis)}</p></div>
     <div class="card"><h2>Today's Reflection</h2><p>${esc(prm.prompt)}</p><div class="refl"><h3>Reflect on:</h3><ul>${prm.reflectionQuestions.map(q=>`<li>${esc(q)}</li>`).join('')}</ul></div></div>
     <div class="card"><h2>Today's Kindness Challenge</h2><p><strong>${esc(knd.suggestion)}</strong> ${shareBtn(knd.suggestion,'kindness act')}</p><p class="label">${esc(knd.scope)} \u00b7 ${esc(knd.effortLevel)} effort</p><p>${esc(knd.impact)}</p></div>
     <div class="card" style="text-align:center"><p style="font-style:italic;color:var(--p)">Here's your daily dose of positivity. You matter, and the world is better with you in it.</p></div>`;
@@ -406,7 +434,8 @@ function renderMindfulness(el){
   const isBreathing=r.category==='breathing';
   const timerType=r.id==='br-1'?'478':'box';
   el.innerHTML=`<div class="card"><h2>${esc(r.title)}</h2><p class="label">${esc(r.category)} \u00b7 ${r.durationMinutes} minutes</p><ol class="steps">${r.steps.map(s=>`<li>${esc(s)}</li>`).join('')}</ol><p style="margin-top:.75rem"><strong>Benefit:</strong> ${esc(r.benefit)}</p>${isBreathing?`<button class="btn btn-w" style="margin-top:.5rem" onclick="startBreathingTimer('${timerType}')">Start Interactive Timer</button>`:''}<button class="btn" style="margin-top:.5rem" onclick="loadSection('mindfulness')">Try another exercise</button></div>
-    <div class="card"><h2>Quick Start Timers</h2><p>Launch a guided breathing session:</p><button class="btn" onclick="startBreathingTimer('478')">4-7-8 Breathing</button> <button class="btn" onclick="startBreathingTimer('box')">Box Breathing</button></div>`;
+    <div class="card"><h2>Quick Start Timers</h2><p>Launch a guided breathing session:</p><button class="btn" onclick="startBreathingTimer('478')">4-7-8 Breathing</button> <button class="btn" onclick="startBreathingTimer('box')">Box Breathing</button></div>
+    <div class="card"><h2>Loving-Kindness Meditation</h2><p>A guided practice to cultivate compassion for yourself, loved ones, strangers, and even difficult people. Research shows this meditation reduces implicit bias and builds empathy across groups.</p><button class="btn btn-w" onclick="startLovingKindness()">Begin Meditation (~3.5 min)</button></div>`;
 }
 
 function renderTolerance(el){
@@ -443,6 +472,11 @@ window.doCheckIn=function(){
   h+=`<p style="margin-top:.5rem;color:var(--p);font-style:italic">\u{1F525} ${getStreak()}-day streak! Keep showing up.</p></div>`;
   document.getElementById('ciResult').innerHTML=h;
   selMoodVal=null;selFeelings.clear();
+};
+window.quickMood=function(mood){
+  S.push('checkin_history',{date:todayStr(),mood,feelings:[],ts:Date.now()},365);
+  showToast(`Checked in: ${MOOD_LABELS[mood-1]}. ${getStreak()}-day streak!`);
+  loadSection('daily');
 };
 
 function renderJourneys(el){
@@ -845,6 +879,51 @@ window.startBreathingTimer=function(type){
   },1000);
 };
 window.stopTimer=function(){if(timerInterval){clearInterval(timerInterval);timerInterval=null}loadSection('mindfulness')};
+
+// ============================================================
+// GUIDED LOVING-KINDNESS MEDITATION
+// ============================================================
+const LK_PHASES=[
+  {target:'Yourself',prompt:'May I be happy. May I be healthy. May I be safe. May I live with ease.',dur:45},
+  {target:'A loved one',prompt:'May you be happy. May you be healthy. May you be safe. May you live with ease.',dur:40},
+  {target:'A neutral person',prompt:'May you be happy. May you be healthy. May you be safe. May you live with ease.',dur:40},
+  {target:'A difficult person',prompt:'May you be happy. May you be healthy. May you be safe. May you live with ease.',dur:40},
+  {target:'All beings everywhere',prompt:'May all beings be happy. May all beings be healthy. May all beings be safe. May all beings live with ease.',dur:45},
+];
+let lkInterval=null;
+window.startLovingKindness=function(){
+  const el=document.getElementById('content');
+  let phaseIdx=0,second=0;
+  function renderLK(){
+    const ph=LK_PHASES[phaseIdx];
+    const progress=second/ph.dur;
+    el.innerHTML=`<div class="card" style="text-align:center"><h2>Loving-Kindness Meditation</h2>
+      <p class="label">Phase ${phaseIdx+1} of ${LK_PHASES.length}: ${esc(ph.target)}</p>
+      <div class="timer-ring"><svg viewBox="0 0 200 200">
+        <circle cx="100" cy="100" r="80" stroke="#e0e0e0"/>
+        <circle cx="100" cy="100" r="80" stroke="var(--a)" stroke-dasharray="${2*Math.PI*80}" stroke-dashoffset="${2*Math.PI*80*(1-progress)}" transform="rotate(-90 100 100)"/>
+        <text x="100" y="95" text-anchor="middle" class="timer-label">${Math.ceil(ph.dur-second)}s</text>
+        <text x="100" y="120" text-anchor="middle" class="timer-phase">${esc(ph.target)}</text>
+      </svg></div>
+      <div class="quote" style="margin:1rem auto;max-width:400px">${esc(ph.prompt)}</div>
+      <p style="color:var(--tl);font-size:.85rem">Close your eyes. Repeat these words silently. Feel their warmth.</p>
+      <button class="btn" style="margin-top:.5rem" onclick="stopLK()">End Session</button></div>`;
+  }
+  if(lkInterval)clearInterval(lkInterval);
+  renderLK();
+  lkInterval=setInterval(()=>{
+    second++;
+    if(second>=LK_PHASES[phaseIdx].dur){
+      second=0;phaseIdx++;
+      if(phaseIdx>=LK_PHASES.length){clearInterval(lkInterval);lkInterval=null;
+        el.innerHTML=`<div class="card" style="text-align:center"><h2>Session Complete</h2><p style="font-size:1.2rem">You've just extended love and compassion to yourself, your loved ones, strangers, difficult people, and all beings on earth.</p><p style="color:var(--p);font-style:italic;margin-top:.5rem">This practice is one of the most powerful tools for building empathy and reducing prejudice. Thank you for caring.</p><button class="btn" style="margin-top:.75rem" onclick="loadSection('mindfulness')">Back to Mindfulness</button></div>`;
+        return;
+      }
+    }
+    renderLK();
+  },1000);
+};
+window.stopLK=function(){if(lkInterval){clearInterval(lkInterval);lkInterval=null}loadSection('mindfulness')};
 
 // ============================================================
 // DARK MODE

@@ -5,6 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Good Friend — A free, offline-capable wellness companion promoting positive mental health, empathy, and a peaceful global society.">
   <meta name="theme-color" content="#5b8c6e">
+  <meta property="og:title" content="Good Friend — Wellness Companion">
+  <meta property="og:description" content="A free, private companion for wellness, empathy, and peace. Works offline. No accounts, no tracking.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://kevinrabun.github.io/good-friend/">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Good Friend — Wellness Companion">
+  <meta name="twitter:description" content="Free, private wellness companion. Mindfulness, empathy, gratitude, and more. Works offline.">
   <link rel="manifest" href="manifest.json">
   <title>Good Friend — Wellness Companion</title>
   <style>
@@ -447,7 +454,7 @@ const VALUES_LIST=[
 const S={
   _k(k){return 'gf_'+k},
   get(k,d){try{const v=localStorage.getItem(this._k(k));return v?JSON.parse(v):d}catch{return d}},
-  set(k,v){try{localStorage.setItem(this._k(k),JSON.stringify(v))}catch{}},
+  set(k,v){try{localStorage.setItem(this._k(k),JSON.stringify(v))}catch(e){if(e.name==='QuotaExceededError')showToast('Storage full \u2014 export data to free space')}},
   push(k,item,max){const arr=this.get(k,[]);arr.push(item);if(max&&arr.length>max)arr.splice(0,arr.length-max);this.set(k,arr)},
 };
 
@@ -712,6 +719,7 @@ window.doCheckIn=function(){
 };
 window.quickMood=function(mood){
   S.push('checkin_history',{date:todayStr(),mood,feelings:[],ts:Date.now()},365);
+  if(navigator.vibrate)navigator.vibrate(50);
   showToast(`Checked in: ${MOOD_LABELS[mood-1]}. ${getStreak()}-day streak!`);
   loadSection('daily');
 };

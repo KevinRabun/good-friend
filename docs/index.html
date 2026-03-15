@@ -126,6 +126,7 @@
         <button class="btn btn-o" data-s="insights">Insights</button>
         <button class="btn btn-o" data-s="history">My History</button>
       </div>
+      <div id="favRow" style="display:none;flex-wrap:wrap;gap:.3rem;justify-content:center;margin-bottom:.3rem"></div>
       <div class="nav-group collapsed" id="ng-wellness">
         <div class="nav-group-label" role="button" tabindex="0" onclick="togNavGroup('ng-wellness')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();togNavGroup('ng-wellness')}">Wellness &amp; Mindfulness \u25B6</div>
         <div class="nav-group-items">
@@ -639,9 +640,11 @@ function renderDaily(el){
     <div class="card" style="background:var(--pl)"><h2>\u{1F3AF} Today's Challenge</h2><p style="font-size:1.05rem">${esc(dailyChallenge.text)}</p><button class="btn" style="margin-top:.4rem" onclick="navigateTo('${dailyChallenge.section}')">Go \u2192</button></div>
     ${lastSection&&sectionLabels[lastSection]?`<div class="card" style="border-left:4px solid var(--a);cursor:pointer" onclick="navigateTo('${lastSection}')"><p style="margin:0;font-size:.95rem">\u25B6 Continue where you left off: <strong>${esc(sectionLabels[lastSection])}</strong></p></div>`:''}
     ${needsBackup?`<div class="card" style="border-left:4px solid #ff9800;position:relative"><p style="margin:0"><strong>\u{1F4E6} Back up your data</strong></p><p style="margin:.3rem 0;font-size:.9rem;color:var(--tl)">You have ${totalEntries} entries. Export them so you never lose your progress.</p><button class="btn" style="font-size:.85rem" onclick="navigateTo('insights')">Export Now</button><button style="position:absolute;top:.3rem;right:.5rem;background:none;border:none;cursor:pointer;color:var(--tl);font-size:1rem" onclick="S.set('backup_dismissed',true);this.closest('.card').remove()" title="Dismiss">\u2715</button></div>`:''}
+    ${!isNew&&!S.get('reminders')&&visitCount>=2?`<div class="card" style="text-align:center;border-left:4px solid var(--p)"><p style="margin:0;font-size:.9rem">\u{1F514} Never miss a day \u2014 <button onclick="enableReminders()" style="background:none;border:none;color:var(--p);cursor:pointer;font-weight:700;font-size:.9rem;text-decoration:underline">enable daily reminders</button></p></div>`:''}
     ${getBadges()}
     ${getWeeklyReflection()}
     <div class="card" style="text-align:center"><p style="font-style:italic;color:var(--p)">Here's your daily dose of positivity. You matter, and the world is better with you in it.</p>
+    <p style="font-size:.8rem;color:var(--tl);margin-top:.3rem">\u{23F1}\uFE0F Session: ${Math.max(1,Math.round((Date.now()-window._sessionStart)/60000))} min of wellness</p>
     <button onclick="shareApp()" style="margin-top:.5rem;background:none;border:1px solid var(--p);color:var(--p);padding:.35rem .8rem;border-radius:8px;cursor:pointer;font-size:.85rem">Share Good Friend with someone \u{1F49A}</button></div>`;
 }
 
@@ -1579,6 +1582,8 @@ function trackVisit(section){
   if(!visited.includes(section)){visited.push(section);S.set('visited_sections',visited)}
 }
 function exploreMore(current){
+  const isFav=(S.get('favorites',[])||[]).includes(current);
+  const favBtn=`<div style="text-align:center;margin:.3rem 0"><button onclick="toggleFav('${current}')" style="background:none;border:1px solid var(--p);color:var(--p);padding:.2rem .6rem;border-radius:8px;cursor:pointer;font-size:.8rem">${isFav?'\u2B50 Unfavorite':'\u2606 Add to Favorites'}</button></div>`;
   const allSections=[
     {s:'checkin',l:'\u{1F4CA} Check-In',g:'wellness'},
     {s:'mindfulness',l:'\u{1F9D8} Mindfulness',g:'wellness'},
@@ -1600,10 +1605,10 @@ function exploreMore(current){
   ];
   const visited=S.get('visited_sections',[]);
   const unvisited=allSections.filter(x=>x.s!==current&&!visited.includes(x.s));
-  if(!unvisited.length)return '';
+  if(!unvisited.length)return favBtn;
   // Show up to 4 random suggestions
   const shuffled=unvisited.sort(()=>Math.random()-.5).slice(0,4);
-  return `<div class="card"><h2>Explore More</h2><p class="label">${visited.length} of ${allSections.length} sections explored</p><div class="explore-more">${shuffled.map(x=>`<button onclick="navigateTo('${x.s}')">${x.l}</button>`).join('')}</div></div>`;
+  return `${favBtn}<div class="card"><h2>Explore More</h2><p class="label">${visited.length} of ${allSections.length} sections explored</p><div class="explore-more">${shuffled.map(x=>`<button onclick="navigateTo('${x.s}')">${x.l}</button>`).join('')}</div></div>`;
 }
 
 // Track section visits in loadSection
@@ -1668,6 +1673,33 @@ window.saveName=function(){
     });ticking=true}
   },{passive:true});
 })();
+
+// ============================================================
+// FAVORITES — Pin sections to top nav
+// ============================================================
+(function(){
+  const favRow=document.getElementById('favRow');
+  const favLabels={checkin:'\u{1F4CA}',mindfulness:'\u{1F9D8}',journal:'\u{1F4DD}',gratitude:'\u{1F49A}',gratLetter:'\u{1F48C}',values:'\u{1F9ED}',journeys:'\u{1F6A3}',empathy:'\u{1F463}',cultures:'\u{1F30D}',kindness:'\u{2764}\uFE0F',kindWords:'\u{1F4AC}',stories:'\u{1F4D6}',pledges:'\u{1F91D}',conflict:'\u{1F527}',forgiveness:'\u{1F49C}',deescalation:'\u{1F54A}\uFE0F',peaceLog:'\u{270D}\uFE0F',affirmations:'\u{2728}',tolerance:'\u{1F9E0}',resources:'\u{1F4DA}'};
+  const favNames={checkin:'Check-In',mindfulness:'Mindfulness',journal:'Journal',gratitude:'Gratitude',gratLetter:'Letters',values:'Values',journeys:'Journeys',empathy:'Empathy',cultures:'Cultures',kindness:'Kindness',kindWords:'Kind Words',stories:'Stories',pledges:'Pledges',conflict:'Conflict',forgiveness:'Forgiveness',deescalation:'De-escalation',peaceLog:'Peace Log',affirmations:'Affirmations',tolerance:'Understanding',resources:'Resources'};
+  window.renderFavRow=function(){
+    const favs=S.get('favorites',[]);
+    if(!favs.length){favRow.style.display='none';return}
+    favRow.style.display='flex';
+    favRow.innerHTML=favs.map(f=>`<button class="btn btn-o" style="font-size:.75rem;padding:.2rem .5rem" data-s="${f}" onclick="navigateTo('${f}')">${favLabels[f]||''} ${favNames[f]||f}</button>`).join('');
+  };
+  window.toggleFav=function(section){
+    let favs=S.get('favorites',[]);
+    if(favs.includes(section)){favs=favs.filter(f=>f!==section);showToast('Removed from favorites')}
+    else{if(favs.length>=4){showToast('Max 4 favorites');return}favs.push(section);showToast('Added to favorites \u2B50')}
+    S.set('favorites',favs);renderFavRow();
+  };
+  renderFavRow();
+})();
+
+// ============================================================
+// SESSION TIMER — Track time spent
+// ============================================================
+window._sessionStart=Date.now();
 </script>
 </body>
 </html>

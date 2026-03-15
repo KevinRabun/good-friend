@@ -1,4 +1,4 @@
-const CACHE_NAME = 'good-friend-v7';
+const CACHE_NAME = 'good-friend-v8';
 const ASSETS = ['./'];
 
 self.addEventListener('install', event => {

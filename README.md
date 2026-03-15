@@ -9,43 +9,54 @@ Good Friend works entirely in your browser — no server needed, no accounts, no
 ## Features
 
 ### Daily Wellness Dashboard
-A personalized daily view with today's affirmation, reflection prompt, kindness challenge, and your engagement streak.
+A personalized daily view with affirmation, wisdom quote, reflection prompt, kindness challenge, world culture spotlight, daily challenge, achievement badges, quick mood check, streak milestones, and weekly reflection (Sundays).
 
-### Affirmations
-28+ positive affirmations across 7 themes: self-worth, resilience, compassion, tolerance, peace, gratitude, and connection.
+### Wellness & Mindfulness
+- **Affirmations**: 50 affirmations across 9 themes (self-worth, resilience, compassion, tolerance, peace, gratitude, connection, healing, hope)
+- **Mindfulness**: 7 exercises with interactive breathing timers (4-7-8 and Box Breathing SVG animations)
+- **Loving-Kindness Meditation**: Guided 3.5-minute timer through 5 phases (self, loved one, neutral person, difficult person, all beings)
+- **Reflective Journal**: Private journaling with 16 guided prompts across 6 types
+- **Gratitude Wall**: Masonry display with 8 prompts for daily gratitude practice
+- **Gratitude Letters**: Write and save letters to specific people (research-backed happiness intervention)
+- **Values Discovery**: Identify your top 5 values from 24 options and reflect on alignment
+- **Guided Journeys**: 6 multi-step reflective journeys
 
-### Mindfulness Exercises
-7 guided exercises: breathing (4-7-8, Box), grounding (5-4-3-2-1), visualization, body scan, loving-kindness meditation, and gratitude reflection.
+### Peace & Empathy
+- **Understanding**: 12 perspective-taking prompts for tolerance building
+- **Acts of Kindness**: 15 suggestions across self, family, community, and global scales
+- **Kind Words Generator**: 15 templates across 5 categories (encouragement, appreciation, support, connection, celebration)
+- **Empathy Scenarios**: 8 interactive "walk in their shoes" exercises with reflection prompts
+- **World Cultures**: 15 cultural traditions from around the globe with daily rotation
+- **Community Stories**: Share and encourage anonymous stories of kindness and growth
+- **Peace Pledges**: 12 templates for personal commitments to peace
 
-### Tolerance & Understanding
-12+ perspective-taking prompts covering cultural awareness, empathy building, conflict resolution, inclusive language, and active listening.
+### Skills & Growth
+- **De-escalation Guide**: 5 strategies with helpful phrases and what to avoid
+- **Conflict Resolution**: 6 evidence-based tools (active listening, "I" statements, finding common ground, cool-down protocol, perspective swap, repair conversation)
+- **Forgiveness Practice**: 6-phase guided timer (~5 min) plus self-forgiveness exercise and journal
+- **Peace Actions Log**: Track and categorize your concrete acts of peace, kindness, tolerance, service
+- **Wisdom Quotes**: 21 quotes from global peace leaders (MLK, Gandhi, Dalai Lama, Mandela, and more)
 
-### Acts of Kindness
-15+ kindness suggestions at every scale — self, family, community, and global — with varying effort levels.
+### Engagement & Tracking
+- **Mood Check-In**: 5-level scale with feelings, tailored responses, and mood-based section recommendations
+- **Streak Tracking**: Daily engagement streaks with 7 milestone celebrations (7, 14, 30, 60, 90, 180, 365 days)
+- **Achievement Badges**: 9 badges earned through engagement milestones
+- **Daily Challenges**: 12 rotating challenges linking to different sections
+- **Weekly Reflection**: 8 deep reflection prompts (shown Sundays)
+- **Personal Insights**: Automated mood trend analysis, feeling pattern detection, best-day analysis, progress dashboard
+- **My History**: Mood chart (SVG), reflection calendar, engagement statistics
+- **Data Export/Import**: Full JSON portability — take your data anywhere
+- **Daily Reminders**: Browser notification reminders
+- **Dark Mode**: With OS preference detection and manual toggle
 
-### Wellness Check-In
-A mood-based self-assessment (1-5 scale with feelings) that provides tailored supportive responses and connects to crisis resources when needed.
+### Support
+- **Crisis Resources**: 24/7 crisis support across US, UK, Australia, Canada, and internationally
+- **Welcome Onboarding**: Guided introduction for first-time users
 
-### Guided Journeys
-6 reflective guided journeys: self-compassion, empathy exploration, gratitude deepening, conflict healing, global connection, finding inner peace.
-
-### Conflict De-escalation
-5 strategies for navigating tense moments: the PAUSE Method, Bridge Building, Empathy Reset, Cooling Down, and Cross-Cultural Misunderstanding. Each includes helpful phrases and what to avoid.
-
-### Community Stories
-Anonymous stories of kindness, growth, and reconciliation. Share your own and encourage others.
-
-### Peace Pledges
-Make personal commitments to kindness, tolerance, listening, service, peace, and inclusion.
-
-### Reflective Journal
-Private journaling with guided prompts across 6 types: gratitude, reflection, kindness-log, growth, peace-intention, and free-write.
-
-### My History
-Track your wellness journey: engagement streaks, mood trends (SVG chart), check-in history, most common feelings, and lifetime statistics.
-
-### Mental Health Resources
-Curated crisis support services across US, UK, Australia, Canada, and international organizations.
+### Technical
+- **PWA**: Installable with offline support (service worker + manifest)
+- **Accessibility**: Skip-to-content link, ARIA live regions, focus-visible styling
+- **Share**: Web Share API with clipboard fallback for sharing content
 
 ## Use It — Three Ways
 

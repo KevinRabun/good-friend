@@ -474,11 +474,25 @@ function renderDaily(el){
   const prm=PROMPTS[doy%PROMPTS.length];
   const knd=KINDNESS_ACTS[doy%KINDNESS_ACTS.length];
   const wis=WISDOM[doy%WISDOM.length];
+  const cul=WORLD_CULTURES[doy%WORLD_CULTURES.length];
   const streak=getStreak();
   const todayChecked=S.get('checkin_history',[]).some(h=>h.date===todayStr());
-  const cul=WORLD_CULTURES[doy%WORLD_CULTURES.length];
+  const milestones=[{d:7,msg:'One week! You\u2019re building a real habit.',icon:'\u{1F31F}'},{d:14,msg:'Two weeks strong! Consistency is changing your brain.',icon:'\u{1F4AA}'},{d:30,msg:'30 days! You\u2019re a wellness warrior.',icon:'\u{1F3C6}'},{d:60,msg:'60 days! Your dedication inspires.',icon:'\u{1F525}'},{d:90,msg:'90 days! You\u2019ve transformed this into a lifestyle.',icon:'\u{1F451}'},{d:180,msg:'Half a year of showing up for yourself!',icon:'\u{1F48E}'},{d:365,msg:'One entire year! You are extraordinary.',icon:'\u{1F30D}'}];
+  const milestone=milestones.find(m=>m.d===streak);
+  const isNew=!S.get('checkin_history',[]).length && !S.get('journal',[]).length;
   el.innerHTML=`
-    ${streak>0?`<div class="streak-bar"><span class="fire">\u{1F525}</span><span class="count">${streak}-day streak!</span><span>Keep showing up for yourself.</span></div>`:''}
+    ${isNew?`<div class="card" style="text-align:center;border-left:4px solid var(--p)"><h2>Welcome to Good Friend \u{1F44B}</h2>
+    <p style="font-size:1.05rem">This is your free, private companion for wellness, empathy, and peace. Everything stays on your device.</p>
+    <p style="margin-top:.5rem"><strong>Getting started:</strong></p>
+    <ul style="text-align:left;margin:.5rem auto;max-width:400px;list-style:disc;padding-left:1.5rem">
+    <li>Tap <strong>Check-In</strong> to log how you\u2019re feeling</li>
+    <li>Explore <strong>Mindfulness</strong> for breathing exercises</li>
+    <li>Try <strong>Empathy</strong> to walk in someone else\u2019s shoes</li>
+    <li>Visit <strong>Cultures</strong> to discover world traditions</li>
+    <li>Come back daily \u2014 new content rotates every day</li>
+    </ul></div>`:''}
+    ${milestone?`<div class="card" style="text-align:center;background:var(--pl);border:2px solid var(--p)"><span style="font-size:2.5rem">${milestone.icon}</span><h2 style="margin:.3rem 0">Milestone: ${milestone.d} Days!</h2><p style="font-size:1.1rem">${esc(milestone.msg)}</p></div>`:''}
+    ${streak>0&&!milestone?`<div class="streak-bar"><span class="fire">\u{1F525}</span><span class="count">${streak}-day streak!</span><span>Keep showing up for yourself.</span></div>`:''}
     ${!todayChecked?`<div class="card" style="text-align:center"><h2>Quick Mood Check</h2><p>How are you feeling right now?</p><div class="mood-scale">${MOOD_EMOJI.map((e,i)=>`<button onclick="quickMood(${i+1})" title="${MOOD_LABELS[i]}">${e}</button>`).join('')}</div></div>`:''}
     <div class="card"><h2>Today's Affirmation</h2><div class="quote">${esc(aff.text)}</div><p class="label">${esc(aff.theme)} ${shareBtn(aff.text,'affirmation')}</p></div>
     <div class="card" style="border-left:4px solid var(--a)"><p style="font-style:italic">${esc(wis)}</p></div>
@@ -984,6 +998,16 @@ function renderInsights(el){
   if(journal.length>=5)insights.push({icon:'\u{1F4DD}',text:`You've written ${journal.length} journal entries. Regular reflection strengthens self-awareness and emotional processing.`,type:'positive'});
   if(gratitude.length>=10)insights.push({icon:'\u{1F49A}',text:`Your gratitude wall has ${gratitude.length} notes! Research shows gratitude practice physically changes brain patterns toward positivity.`,type:'positive'});
   if(pledges.length>=3)insights.push({icon:'\u{1F91D}',text:`You've made ${pledges.length} pledges for a better world. Each one is a commitment to the kind of person you want to be.`,type:'positive'});
+
+  // New data sources
+  const peaceActions=S.get('peace_actions',[]);
+  const empathyRefs=S.get('empathy_reflections',[]);
+  const fgNotes=S.get('forgiveness_notes',[]);
+  const weeklyRefs=S.get('weekly_reflections',[]);
+  if(peaceActions.length>=3)insights.push({icon:'\u{1F54A}\uFE0F',text:`You've logged ${peaceActions.length} peace actions! Each one ripples outward into your community.`,type:'positive'});
+  if(empathyRefs.length>=2)insights.push({icon:'\u{1F463}',text:`You've reflected on ${empathyRefs.length} empathy scenarios. Perspective-taking literally rewires the brain for compassion.`,type:'positive'});
+  if(fgNotes.length>=1)insights.push({icon:'\u{1F49C}',text:`You've explored forgiveness ${fgNotes.length} time${fgNotes.length>1?'s':''}. Releasing resentment frees energy for growth and peace.`,type:'positive'});
+  if(weeklyRefs.length>=4)insights.push({icon:'\u{1F4D6}',text:`${weeklyRefs.length} weekly reflections completed. Deep self-reflection is the foundation of wisdom.`,type:'positive'});
 
   if(!insights.length){
     insights.push({icon:'\u{1F331}',text:'Keep using Good Friend for a few days and personalized insights will appear here. Try doing a check-in, journaling, or adding gratitude notes.',type:'neutral'});

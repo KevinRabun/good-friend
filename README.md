@@ -1,5 +1,9 @@
 # Good Friend
 
+[![Tests](https://github.com/KevinRabun/good-friend/actions/workflows/ci.yml/badge.svg)](https://github.com/KevinRabun/good-friend/actions)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
+
 A **free, distributed wellness companion** promoting **positive mental health**, **tolerance**, and a **peaceful global society**.
 
 Good Friend works entirely in your browser — no server needed, no accounts, no costs. Your data stays private on your device. Share the link, save the page, or host it yourself.
@@ -63,10 +67,31 @@ A personalized daily view with affirmation, wisdom quote, reflection prompt, kin
 ### 1. Visit the Live Site (Recommended)
 Go to **[https://kevinrabun.github.io/good-friend/](https://kevinrabun.github.io/good-friend/)**. That's it. Free forever.
 
-### 2. Download & Use Offline
+### 2. Fork & Deploy in 2 Minutes
+1. Click **Fork** at the top of this repo
+2. Go to your fork's **Settings → Pages**
+3. Set Source to **Deploy from a branch**, select `main`, folder `/docs`
+4. Hit Save — your site is live at `https://YOUR_USERNAME.github.io/good-friend/`
+
+That's it. You now have your own independent copy. No builds, no CI, no dependencies.
+
+### 3. Download & Use Offline
 Save `docs/index.html` to your computer. Open it in any browser. Works offline, no internet needed.
 
-### 3. Run the API Server (Developers)
+### 4. Self-Host with Docker
+```bash
+git clone https://github.com/KevinRabun/good-friend.git
+cd good-friend
+docker compose up -d
+```
+The API server starts on port 3000. For just the static site, serve the `docs/` folder with any web server (nginx, Caddy, Apache, Python `http.server`, etc.):
+
+```bash
+# Quick static hosting — no build needed
+cd docs && python -m http.server 8080
+```
+
+### 5. Run the API Server (Developers)
 ```bash
 npm install
 npm run build
@@ -96,8 +121,13 @@ npm run test:coverage  # Run tests with coverage
 ## Deployment
 
 - **GitHub Pages**: The static site in `docs/` is automatically deployed to GitHub Pages on push to main. Free forever.
-- **Docker**: `docker build -t good-friend . && docker run -p 3000:3000 good-friend`
+- **Docker**: `docker compose up -d` or `docker build -t good-friend . && docker run -p 3000:3000 good-friend`
 - **npm**: Available as a package via GitHub Packages.
+- **Static hosting**: Serve the `docs/` folder from any web server — nginx, Caddy, Apache, S3, Netlify, Cloudflare Pages, etc.
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for how to add translations, content, and features. Translations are the single highest-impact contribution — Good Friend is currently English-only.
 
 ## Mission
 

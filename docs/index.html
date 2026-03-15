@@ -12,7 +12,9 @@
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Good Friend — Wellness Companion">
   <meta name="twitter:description" content="Free, private wellness companion. Mindfulness, empathy, gratitude, and more. Works offline.">
+  <link rel="canonical" href="https://kevinrabun.github.io/good-friend/">
   <link rel="manifest" href="manifest.json">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Good Friend","url":"https://kevinrabun.github.io/good-friend/","description":"A free, offline wellness companion promoting positive mental health, empathy, and peace.","applicationCategory":"HealthApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"author":{"@type":"Person","name":"Kevin Rabun"}}</script>
   <title>Good Friend — Wellness Companion</title>
   <style>
     :root{--p:#5b8c6e;--pl:#e8f5e9;--a:#ff9800;--t:#333;--tl:#666;--bg:#fafafa;--c:#fff;--sh:0 2px 8px rgba(0,0,0,.08);--r:12px}
@@ -175,6 +177,7 @@
     <p>Good Friend — Promoting positive mental health, tolerance, and peace.</p>
     <p>If you're in crisis: <strong>988</strong> (US) · <strong>116 123</strong> (UK) · <strong>1300 22 4636</strong> (AU)</p>
     <p style="margin-top:.5rem;font-size:.8rem">100% free. No server. Works offline. Your data stays on your device.</p>
+    <div style="margin-top:.5rem"><select onchange="I18N.load(this.value);loadSection(curSection)" style="font-size:.8rem;padding:.2rem;border-radius:6px;border:1px solid #ccc;background:var(--c);color:var(--t)"><option value="en">English</option><option value="es">Espa\u00f1ol</option></select></div>
     <button onclick="shareApp()" style="margin-top:.5rem;background:var(--p);color:#fff;border:none;padding:.4rem .8rem;border-radius:8px;cursor:pointer;font-size:.85rem">Share Good Friend with someone &#x1F49A;</button>
   </footer>
 <script>
@@ -457,6 +460,23 @@ const S={
   set(k,v){try{localStorage.setItem(this._k(k),JSON.stringify(v))}catch(e){if(e.name==='QuotaExceededError')showToast('Storage full \u2014 export data to free space')}},
   push(k,item,max){const arr=this.get(k,[]);arr.push(item);if(max&&arr.length>max)arr.splice(0,arr.length-max);this.set(k,arr)},
 };
+
+// ============================================================
+// i18n — Lightweight translation system
+// ============================================================
+const I18N={
+  _lang:'en',
+  _strings:{},
+  lang(){return this._lang},
+  setLang(code){this._lang=code;S.set('lang',code);document.documentElement.lang=code;if(['ar','he','fa','ur'].includes(code))document.documentElement.dir='rtl';else document.documentElement.dir='ltr'},
+  t(key,fallback){return this._strings[key]||fallback||key},
+  async load(code){
+    if(code==='en'){this._strings={};this.setLang('en');return}
+    try{const r=await fetch('lang/'+code+'.json');if(r.ok){this._strings=await r.json();this.setLang(code)}}catch{}
+  },
+  init(){const saved=S.get('lang','');if(saved&&saved!=='en')this.load(saved)}
+};
+I18N.init();
 
 // ============================================================
 // HELPERS

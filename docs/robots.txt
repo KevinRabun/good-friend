@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://kevinrabun.github.io/good-friend/sitemap.xml

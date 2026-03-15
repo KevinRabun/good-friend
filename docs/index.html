@@ -150,7 +150,7 @@
         </div>
       </div>
     </nav>
-    <div id="content" role="main" aria-live="polite"><div class="loading">Loading...</div></div>
+    <div id="content" role="main" aria-live="polite" tabindex="-1"><div class="loading">Loading...</div></div>
   </div>
   <footer>
     <p>Good Friend — Promoting positive mental health, tolerance, and peace.</p>
@@ -501,6 +501,7 @@ function activateSection(s){
     if(group&&group.classList.contains('collapsed'))togNavGroup(group.id);
   }
   curSection=s;
+  if(s!=='daily')S.set('last_section',s);
   loadSection(s);
 }
 
@@ -518,7 +519,7 @@ function loadSection(s){
   window.scrollTo({top:el.offsetTop-8,behavior:'smooth'});
   // Fade in after rendering
   setTimeout(()=>{
-  try{
+  try{el.innerHTML='<div class="loading">Loading...</div>';
     switch(s){
       case'daily':renderDaily(el);break;
       case'affirmations':renderAffirmations(el);break;
@@ -545,7 +546,8 @@ function loadSection(s){
       case'resources':renderResources(el);break;
     }
   }catch(err){el.innerHTML='<div class="card"><p>Something went wrong. Please try again.</p></div>';}
-  requestAnimationFrame(()=>el.classList.remove('fading'));
+  el.setAttribute('aria-label',s==='daily'?'Daily view':s.replace(/([A-Z])/g,' $1').trim());
+  requestAnimationFrame(()=>{el.classList.remove('fading');el.focus()});
   },20);
 }
 
@@ -572,6 +574,10 @@ function renderDaily(el){
   if(lastVisitDate!==today){S.set('visit_count',visitCount+1);S.set('last_visit_date',today)}
   const daysSinceLastVisit=lastVisitDate?Math.floor((new Date(today)-new Date(lastVisitDate))/(864e5)):0;
   const greeting=userName?`Welcome back, ${esc(userName)}!`:'Welcome back!';
+  const lastSection=S.get('last_section','');
+  const sectionLabels={checkin:'Check-In',mindfulness:'Mindfulness',journal:'Journal',gratitude:'Gratitude',gratLetter:'Gratitude Letters',values:'Values',journeys:'Journeys',tolerance:'Understanding',kindness:'Kindness',kindWords:'Kind Words',empathy:'Empathy',cultures:'Cultures',stories:'Stories',pledges:'Pledges',deescalation:'De-escalation',conflict:'Conflict',forgiveness:'Forgiveness',peaceLog:'Peace Log',affirmations:'Affirmations',resources:'Resources',history:'My History',insights:'Insights'};
+  const totalEntries=(S.get('checkin_history',[]).length||0)+(S.get('journal',[]).length||0)+(S.get('gratitude',[]).length||0);
+  const needsBackup=totalEntries>=10&&!S.get('backup_dismissed');
   // Daily challenge: combines different activities
   const challenges=[
     {text:'Do a kindness act and log it in your Peace Log',section:'peaceLog'},
@@ -618,6 +624,8 @@ function renderDaily(el){
     <div class="card"><h2>Today's Kindness Challenge</h2><p><strong>${esc(knd.suggestion)}</strong> ${shareBtn(knd.suggestion,'kindness act')}</p><p class="label">${esc(knd.scope)} \u00b7 ${esc(knd.effortLevel)} effort</p><p>${esc(knd.impact)}</p></div>
     <div class="card" style="border-left:4px solid #9c27b0"><h2>World Culture: ${esc(cul.name)}</h2><p class="label">${esc(cul.origin)}</p><p>${esc(cul.desc)}</p><p style="margin-top:.4rem;color:var(--p);font-style:italic">${esc(cul.value)}</p></div>
     <div class="card" style="background:var(--pl)"><h2>\u{1F3AF} Today's Challenge</h2><p style="font-size:1.05rem">${esc(dailyChallenge.text)}</p><button class="btn" style="margin-top:.4rem" onclick="navigateTo('${dailyChallenge.section}')">Go \u2192</button></div>
+    ${lastSection&&sectionLabels[lastSection]?`<div class="card" style="border-left:4px solid var(--a);cursor:pointer" onclick="navigateTo('${lastSection}')"><p style="margin:0;font-size:.95rem">\u25B6 Continue where you left off: <strong>${esc(sectionLabels[lastSection])}</strong></p></div>`:''}
+    ${needsBackup?`<div class="card" style="border-left:4px solid #ff9800;position:relative"><p style="margin:0"><strong>\u{1F4E6} Back up your data</strong></p><p style="margin:.3rem 0;font-size:.9rem;color:var(--tl)">You have ${totalEntries} entries. Export them so you never lose your progress.</p><button class="btn" style="font-size:.85rem" onclick="navigateTo('insights')">Export Now</button><button style="position:absolute;top:.3rem;right:.5rem;background:none;border:none;cursor:pointer;color:var(--tl);font-size:1rem" onclick="S.set('backup_dismissed',true);this.closest('.card').remove()" title="Dismiss">\u2715</button></div>`:''}
     ${getBadges()}
     ${getWeeklyReflection()}
     <div class="card" style="text-align:center"><p style="font-style:italic;color:var(--p)">Here's your daily dose of positivity. You matter, and the world is better with you in it.</p>

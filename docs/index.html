@@ -106,6 +106,8 @@
     <button class="install-btn" id="installBtn" onclick="installPWA()" aria-label="Install app">Install App</button>
     <h1>Good Friend</h1>
     <p>Your free, offline companion for wellness, empathy, and peace. You matter.</p>
+    <div id="headerStreak" style="margin-top:.4rem;font-size:.9rem;opacity:.85;display:none"></div>
+    <div id="offlineTag" style="display:none;margin-top:.3rem;font-size:.75rem;opacity:.7;background:rgba(255,255,255,.15);display:inline-block;padding:.1rem .5rem;border-radius:6px">Offline \u2014 everything still works</div>
   </header>
   <div class="container">
     <nav id="mainNav" role="navigation" aria-label="Main sections" style="margin:.75rem 0">
@@ -116,7 +118,7 @@
         <button class="btn btn-o" data-s="history">My History</button>
       </div>
       <div class="nav-group collapsed" id="ng-wellness">
-        <div class="nav-group-label" onclick="togNavGroup('ng-wellness')">Wellness &amp; Mindfulness \u25B6</div>
+        <div class="nav-group-label" role="button" tabindex="0" onclick="togNavGroup('ng-wellness')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();togNavGroup('ng-wellness')}">Wellness &amp; Mindfulness \u25B6</div>
         <div class="nav-group-items">
           <button class="btn btn-o" data-s="affirmations">Affirmations</button>
           <button class="btn btn-o" data-s="mindfulness">Mindfulness</button>
@@ -128,7 +130,7 @@
         </div>
       </div>
       <div class="nav-group collapsed" id="ng-peace">
-        <div class="nav-group-label" onclick="togNavGroup('ng-peace')">Peace &amp; Empathy \u25B6</div>
+        <div class="nav-group-label" role="button" tabindex="0" onclick="togNavGroup('ng-peace')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();togNavGroup('ng-peace')}">Peace &amp; Empathy \u25B6</div>
         <div class="nav-group-items">
           <button class="btn btn-o" data-s="tolerance">Understanding</button>
           <button class="btn btn-o" data-s="kindness">Kindness</button>
@@ -140,7 +142,7 @@
         </div>
       </div>
       <div class="nav-group collapsed" id="ng-skills">
-        <div class="nav-group-label" onclick="togNavGroup('ng-skills')">Skills &amp; Growth \u25B6</div>
+        <div class="nav-group-label" role="button" tabindex="0" onclick="togNavGroup('ng-skills')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();togNavGroup('ng-skills')}">Skills &amp; Growth \u25B6</div>
         <div class="nav-group-items">
           <button class="btn btn-o" data-s="deescalation">De-escalation</button>
           <button class="btn btn-o" data-s="conflict">Conflict</button>
@@ -556,11 +558,12 @@ function loadSection(s){
 // ============================================================
 function renderDaily(el){
   const doy=dayOfYear();
-  const aff=AFFIRMATIONS[doy%AFFIRMATIONS.length];
-  const prm=PROMPTS[doy%PROMPTS.length];
-  const knd=KINDNESS_ACTS[doy%KINDNESS_ACTS.length];
-  const wis=WISDOM[doy%WISDOM.length];
-  const cul=WORLD_CULTURES[doy%WORLD_CULTURES.length];
+  const shuffle=window._dailyShuffle;window._dailyShuffle=false;
+  const aff=shuffle?pick(AFFIRMATIONS):AFFIRMATIONS[doy%AFFIRMATIONS.length];
+  const prm=shuffle?pick(PROMPTS):PROMPTS[doy%PROMPTS.length];
+  const knd=shuffle?pick(KINDNESS_ACTS):KINDNESS_ACTS[doy%KINDNESS_ACTS.length];
+  const wis=shuffle?WISDOM[Math.floor(Math.random()*WISDOM.length)]:WISDOM[doy%WISDOM.length];
+  const cul=shuffle?pick(WORLD_CULTURES):WORLD_CULTURES[doy%WORLD_CULTURES.length];
   const streak=getStreak();
   const todayChecked=S.get('checkin_history',[]).some(h=>h.date===todayStr());
   const milestones=[{d:7,msg:'One week! You\u2019re building a real habit.',icon:'\u{1F31F}'},{d:14,msg:'Two weeks strong! Consistency is changing your brain.',icon:'\u{1F4AA}'},{d:30,msg:'30 days! You\u2019re a wellness warrior.',icon:'\u{1F3C6}'},{d:60,msg:'60 days! Your dedication inspires.',icon:'\u{1F525}'},{d:90,msg:'90 days! You\u2019ve transformed this into a lifestyle.',icon:'\u{1F451}'},{d:180,msg:'Half a year of showing up for yourself!',icon:'\u{1F48E}'},{d:365,msg:'One entire year! You are extraordinary.',icon:'\u{1F30D}'}];
@@ -620,6 +623,7 @@ function renderDaily(el){
     :(!todayChecked&&isNew?'':'')}
     <div class="card"><h2>Today's Affirmation</h2><div class="quote">${esc(aff.text)}</div><p class="label">${esc(aff.theme)} ${shareBtn(aff.text,'affirmation')}</p></div>
     <div class="card" style="border-left:4px solid var(--a)"><p style="font-style:italic">${esc(wis)}</p></div>
+    <div style="text-align:center;margin:.2rem 0"><button onclick="window._dailyShuffle=true;loadSection('daily')" style="background:none;border:none;cursor:pointer;color:var(--tl);font-size:.8rem;padding:.2rem .5rem">\u{1F500} Show me something different</button></div>
     <div class="card"><h2>Today's Reflection</h2><p>${esc(prm.prompt)}</p><div class="refl"><h3>Reflect on:</h3><ul>${prm.reflectionQuestions.map(q=>`<li>${esc(q)}</li>`).join('')}</ul></div></div>
     <div class="card"><h2>Today's Kindness Challenge</h2><p><strong>${esc(knd.suggestion)}</strong> ${shareBtn(knd.suggestion,'kindness act')}</p><p class="label">${esc(knd.scope)} \u00b7 ${esc(knd.effortLevel)} effort</p><p>${esc(knd.impact)}</p></div>
     <div class="card" style="border-left:4px solid #9c27b0"><h2>World Culture: ${esc(cul.name)}</h2><p class="label">${esc(cul.origin)}</p><p>${esc(cul.desc)}</p><p style="margin-top:.4rem;color:var(--p);font-style:italic">${esc(cul.value)}</p></div>
@@ -1626,6 +1630,19 @@ window.saveName=function(){
       if(g&&g.classList.contains('collapsed')){g.classList.remove('collapsed');const l=g.querySelector('.nav-group-label');if(l)l.textContent=l.textContent.replace('\u25B6','\u25BC')}
     }
   }
+})();
+
+// ============================================================
+// HEADER STREAK + OFFLINE INDICATOR
+// ============================================================
+(function(){
+  const st=getStreak();
+  if(st>0){const el=document.getElementById('headerStreak');el.textContent='\u{1F525} '+st+'-day streak';el.style.display='block'}
+  const offTag=document.getElementById('offlineTag');
+  function updateOnline(){offTag.style.display=navigator.onLine?'none':'inline-block'}
+  updateOnline();
+  window.addEventListener('online',updateOnline);
+  window.addEventListener('offline',updateOnline);
 })();
 </script>
 </body>

@@ -96,11 +96,20 @@
     .explore-more{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.5rem}
     .explore-more button{font-size:.8rem;padding:.3rem .6rem;border-radius:8px;border:1px solid var(--p);background:var(--c);color:var(--p);cursor:pointer;transition:all .15s}
     .explore-more button:hover{background:var(--pl)}
+    .back-top{position:fixed;bottom:1.5rem;right:1.5rem;width:44px;height:44px;border-radius:50%;background:var(--p);color:#fff;border:none;cursor:pointer;font-size:1.2rem;box-shadow:0 2px 8px rgba(0,0,0,.2);opacity:0;pointer-events:none;transition:opacity .2s;z-index:100}
+    .back-top.vis{opacity:1;pointer-events:auto}
+    .back-top:hover{background:#4a7a5c}
+    .fab-checkin{position:fixed;bottom:1.5rem;left:1.5rem;width:44px;height:44px;border-radius:50%;background:var(--a);color:#fff;border:none;cursor:pointer;font-size:1.3rem;box-shadow:0 2px 8px rgba(0,0,0,.2);opacity:0;pointer-events:none;transition:opacity .2s;z-index:100}
+    .fab-checkin.vis{opacity:.85;pointer-events:auto}
+    .fab-checkin:hover{opacity:1}
+    @media(prefers-reduced-motion:reduce){#content{transition:none}.back-top,.fab-checkin,.explore-more button,.mood-scale button,.quick-actions button{transition:none}}
   </style>
 </head>
 <body>
   <a href="#content" class="skip">Skip to content</a>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <button class="back-top" id="backTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top" title="Back to top">&uarr;</button>
+  <button class="fab-checkin" id="fabCheckin" onclick="navigateTo('checkin')" aria-label="Quick check-in" title="Quick check-in">&#x1F4CA;</button>
   <header role="banner" style="position:relative">
     <button class="dm-toggle" onclick="toggleDark()" aria-label="Toggle dark mode" title="Toggle dark mode">&#x1F319;</button>
     <button class="install-btn" id="installBtn" onclick="installPWA()" aria-label="Install app">Install App</button>
@@ -1643,6 +1652,21 @@ window.saveName=function(){
   updateOnline();
   window.addEventListener('online',updateOnline);
   window.addEventListener('offline',updateOnline);
+})();
+
+// Back to top + FAB visibility on scroll
+(function(){
+  const backTop=document.getElementById('backTop');
+  const fab=document.getElementById('fabCheckin');
+  let ticking=false;
+  window.addEventListener('scroll',()=>{
+    if(!ticking){requestAnimationFrame(()=>{
+      const y=window.scrollY;
+      backTop.classList.toggle('vis',y>400);
+      fab.classList.toggle('vis',y>200&&curSection!=='checkin');
+      ticking=false;
+    });ticking=true}
+  },{passive:true});
 })();
 </script>
 </body>

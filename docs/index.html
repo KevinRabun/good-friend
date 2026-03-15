@@ -113,6 +113,9 @@
       <button class="btn btn-o" data-s="forgiveness">Forgiveness</button>
       <button class="btn btn-o" data-s="conflict">Conflict</button>
       <button class="btn btn-o" data-s="peaceLog">Peace Log</button>
+      <button class="btn btn-o" data-s="kindWords">Kind Words</button>
+      <button class="btn btn-o" data-s="values">Values</button>
+      <button class="btn btn-o" data-s="gratLetter">Letters</button>
       <button class="btn btn-o" data-s="resources">Resources</button>
     </nav>
     <div id="content" role="main" aria-live="polite"><div class="loading">Loading...</div></div>
@@ -379,6 +382,20 @@ const WEEKLY_PROMPTS=[
 'Who made a positive impact on me this week? Have I told them?',
 ];
 
+const KIND_WORDS=[
+{type:'Encouragement',templates:['I believe in you. Your effort matters and it shows.','You handled that with such grace. I admire your strength.','The way you show up for others doesn\u2019t go unnoticed. Thank you.']},
+{type:'Appreciation',templates:['Thank you for being exactly who you are. The world needs more of that.','Your kindness made a real difference today. I\u2019m grateful for you.','I appreciate you more than words can say. You matter.']},
+{type:'Support',templates:['I\u2019m here for you, no expectations. Just know you\u2019re not alone.','Whatever you\u2019re going through, I see your strength. You\u2019ve got this.','Take the time you need. I\u2019ll still be here.']},
+{type:'Connection',templates:['Knowing you has made me a better person. Thank you for that gift.','I love how your perspective helps me see the world differently.','Our conversations are a highlight of my week. Thank you for sharing your time.']},
+{type:'Celebration',templates:['I\u2019m so proud of what you\u2019ve accomplished. You earned this.','Watching you grow has been inspiring. Celebrate yourself today!','Your persistence paid off. This achievement reflects who you truly are.']},
+];
+
+const VALUES_LIST=[
+'Compassion','Integrity','Courage','Gratitude','Humility','Justice','Kindness','Patience',
+'Respect','Responsibility','Honesty','Forgiveness','Generosity','Empathy','Peace',
+'Wisdom','Creativity','Connection','Freedom','Service','Growth','Love','Hope','Resilience',
+];
+
 // ============================================================
 // STORAGE — localStorage wrapper for all user data
 // ============================================================
@@ -460,6 +477,9 @@ function loadSection(s){
       case'forgiveness':return renderForgiveness(el);
       case'conflict':return renderConflict(el);
       case'peaceLog':return renderPeaceLog(el);
+      case'kindWords':return renderKindWords(el);
+      case'values':return renderValues(el);
+      case'gratLetter':return renderGratLetter(el);
       case'resources':return renderResources(el);
     }
   }catch(err){el.innerHTML='<div class="card"><p>Something went wrong. Please try again.</p></div>';}
@@ -905,6 +925,92 @@ window.saveWeeklyRefl=function(){
   loadSection('peaceLog');
 };
 
+// ============================================================
+// KIND WORDS GENERATOR
+// ============================================================
+function renderKindWords(el){
+  const cat=pick(KIND_WORDS);
+  const msg=pick(cat.templates);
+  el.innerHTML=`
+    <div class="card"><h2>Kind Words Generator</h2>
+    <p>Words have the power to heal, encourage, and connect. Use these messages as inspiration to brighten someone\u2019s day.</p></div>
+    <div class="card"><h2>${esc(cat.type)}</h2>
+    <div class="quote">${esc(msg)} ${shareBtn(msg,'kind words')}</div>
+    <button class="btn" onclick="loadSection('kindWords')">Generate another</button></div>
+    <div class="card"><h2>Write Your Own</h2><p>Craft a personal message for someone who matters to you:</p>
+    <input type="text" id="kwRecipient" placeholder="Who is this for? (e.g., Mom, a coworker, a friend)">
+    <textarea placeholder="Write your kind words here..." id="kwMessage"></textarea>
+    <button class="btn btn-w" onclick="saveKindWord()">Save & Copy</button></div>
+    <div class="card"><h2>All Templates</h2>
+    ${KIND_WORDS.map(k=>`<div style="margin-bottom:.75rem"><h3 style="font-size:.95rem;color:var(--p)">${esc(k.type)}</h3>${k.templates.map(t=>`<div class="quote" style="margin:.3rem 0;font-size:.9rem">${esc(t)} ${shareBtn(t,'kind words')}</div>`).join('')}</div>`).join('')}</div>`;
+}
+window.saveKindWord=function(){
+  const recipient=document.getElementById('kwRecipient').value.trim();
+  const message=document.getElementById('kwMessage').value.trim();
+  if(!message)return;
+  S.push('kind_words_sent',{recipient,message,date:todayStr()},100);
+  if(navigator.clipboard)navigator.clipboard.writeText(message);
+  showToast(navigator.clipboard?'Saved & copied to clipboard!':'Kind words saved!');
+  document.getElementById('kwMessage').value='';
+};
+
+// ============================================================
+// VALUES DISCOVERY
+// ============================================================
+function renderValues(el){
+  const myValues=S.get('my_values',[]);
+  el.innerHTML=`
+    <div class="card"><h2>Values Discovery</h2>
+    <p>Your values are the compass that guides your life. When your actions align with your values, you experience greater peace and fulfillment.</p>
+    <p style="margin-top:.5rem"><strong>Select your top 5 values:</strong></p>
+    <div class="nav" style="margin:.5rem 0">${VALUES_LIST.map(v=>`<button class="btn ${myValues.includes(v)?'act':'btn-o'} vb" onclick="togValue(this,'${esc(v)}')">${esc(v)}</button>`).join('')}</div>
+    <p id="valCount" style="text-align:center;color:var(--tl)">${myValues.length} selected</p></div>
+    ${myValues.length?`<div class="card"><h2>Your Values</h2>
+    ${myValues.map(v=>`<div style="padding:.4rem 0"><strong>${esc(v)}</strong></div>`).join('')}
+    <div style="margin-top:.75rem"><h3 style="font-size:.95rem">Reflection</h3>
+    <textarea placeholder="How well are your daily actions reflecting these values? What's one thing you could change this week to better align with them?" id="valRefl"></textarea>
+    <button class="btn" onclick="saveValRefl()">Save Reflection</button></div></div>`:''}`;
+}
+window.togValue=function(btn,val){
+  let vals=S.get('my_values',[]);
+  if(vals.includes(val)){vals=vals.filter(v=>v!==val);btn.classList.remove('act');btn.classList.add('btn-o')}
+  else{if(vals.length>=5){showToast('Maximum 5 values. Remove one first.');return}vals.push(val);btn.classList.add('act');btn.classList.remove('btn-o')}
+  S.set('my_values',vals);
+  document.getElementById('valCount').textContent=vals.length+' selected';
+};
+window.saveValRefl=function(){
+  const note=document.getElementById('valRefl').value.trim();
+  if(!note)return;
+  S.push('values_reflections',{text:note,date:todayStr(),values:S.get('my_values',[])},50);
+  showToast('Values reflection saved');
+  document.getElementById('valRefl').value='';
+};
+
+// ============================================================
+// GRATITUDE LETTERS
+// ============================================================
+function renderGratLetter(el){
+  const letters=S.get('gratitude_letters',[]);
+  el.innerHTML=`
+    <div class="card"><h2>Gratitude Letters</h2>
+    <p>Research by Dr. Martin Seligman found that writing and delivering a letter of gratitude produced the single largest happiness boost of any positive psychology intervention \u2014 lasting up to a month.</p></div>
+    <div class="card"><h2>Write a Letter</h2>
+    <input type="text" id="glRecipient" placeholder="Who are you grateful for?">
+    <textarea style="min-height:120px" placeholder="Dear [name],\n\nI want you to know how much you mean to me..." id="glLetter"></textarea>
+    <button class="btn btn-w" onclick="saveGratLetter()">Save Letter</button>
+    <p style="font-size:.82rem;color:var(--tl);margin-top:.3rem">Consider reading this letter aloud to the person. The impact is profound for both of you.</p></div>
+    ${letters.length?`<div class="card"><h2>Your Letters (${letters.length})</h2>
+    ${letters.slice(-10).reverse().map(l=>`<div style="padding:.6rem 0;border-bottom:1px solid #eee"><strong>To: ${esc(l.recipient)}</strong> <span class="label">${esc(l.date)}</span><p style="white-space:pre-wrap;font-size:.9rem">${esc(l.text)}</p></div>`).join('')}</div>`:''}`;
+}
+window.saveGratLetter=function(){
+  const recipient=document.getElementById('glRecipient').value.trim();
+  const text=document.getElementById('glLetter').value.trim();
+  if(!recipient||!text)return;
+  S.push('gratitude_letters',{recipient,text,date:todayStr()},50);
+  showToast('Gratitude letter saved \u{1F49A}');
+  loadSection('gratLetter');
+};
+
 function renderResources(el){
   const crisis=RESOURCES.filter(r=>r.available==='24/7');
   const regions=[...new Set(RESOURCES.map(r=>r.region))];
@@ -1044,6 +1150,10 @@ window.exportData=function(){
     peace_actions:S.get('peace_actions',[]),
     conflict_notes:S.get('conflict_notes',[]),
     weekly_reflections:S.get('weekly_reflections',[]),
+    kind_words_sent:S.get('kind_words_sent',[]),
+    my_values:S.get('my_values',[]),
+    values_reflections:S.get('values_reflections',[]),
+    gratitude_letters:S.get('gratitude_letters',[]),
   };
   const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
   const url=URL.createObjectURL(blob);
@@ -1070,6 +1180,10 @@ window.importData=function(event){
       if(data.peace_actions)S.set('peace_actions',data.peace_actions);
       if(data.conflict_notes)S.set('conflict_notes',data.conflict_notes);
       if(data.weekly_reflections)S.set('weekly_reflections',data.weekly_reflections);
+      if(data.kind_words_sent)S.set('kind_words_sent',data.kind_words_sent);
+      if(data.my_values)S.set('my_values',data.my_values);
+      if(data.values_reflections)S.set('values_reflections',data.values_reflections);
+      if(data.gratitude_letters)S.set('gratitude_letters',data.gratitude_letters);
       showToast('Data imported successfully!');
       loadSection('insights');
     }catch{showToast('Could not read file.')}

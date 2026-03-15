@@ -82,6 +82,10 @@
     .cal-day.today{border:2px solid var(--a)}
     .cal-head{font-size:.7rem;text-align:center;color:var(--tl);font-weight:700}
     .dark .cal-day{background:#2a2a3e}
+    .nav-group{margin-bottom:.3rem}
+    .nav-group-label{font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--tl);font-weight:700;width:100%;text-align:left;padding:.2rem .3rem 0;cursor:pointer;user-select:none}
+    .nav-group-items{display:flex;flex-wrap:wrap;gap:.3rem}
+    .nav-group.collapsed .nav-group-items{display:none}
   </style>
 </head>
 <body>
@@ -93,30 +97,47 @@
     <p>Your free, offline companion for wellness, empathy, and peace. You matter.</p>
   </header>
   <div class="container">
-    <nav class="nav" id="mainNav" role="navigation" aria-label="Main sections">
-      <button class="btn act" data-s="daily">Today</button>
-      <button class="btn btn-o" data-s="affirmations">Affirmations</button>
-      <button class="btn btn-o" data-s="mindfulness">Mindfulness</button>
-      <button class="btn btn-o" data-s="tolerance">Understanding</button>
-      <button class="btn btn-o" data-s="kindness">Kindness</button>
-      <button class="btn btn-o" data-s="checkin">Check-In</button>
-      <button class="btn btn-o" data-s="journeys">Journeys</button>
-      <button class="btn btn-o" data-s="deescalation">De-escalation</button>
-      <button class="btn btn-o" data-s="stories">Stories</button>
-      <button class="btn btn-o" data-s="pledges">Pledges</button>
-      <button class="btn btn-o" data-s="journal">Journal</button>
-      <button class="btn btn-o" data-s="gratitude">Gratitude</button>
-      <button class="btn btn-o" data-s="history">My History</button>
-      <button class="btn btn-o" data-s="insights">Insights</button>
-      <button class="btn btn-o" data-s="cultures">Cultures</button>
-      <button class="btn btn-o" data-s="empathy">Empathy</button>
-      <button class="btn btn-o" data-s="forgiveness">Forgiveness</button>
-      <button class="btn btn-o" data-s="conflict">Conflict</button>
-      <button class="btn btn-o" data-s="peaceLog">Peace Log</button>
-      <button class="btn btn-o" data-s="kindWords">Kind Words</button>
-      <button class="btn btn-o" data-s="values">Values</button>
-      <button class="btn btn-o" data-s="gratLetter">Letters</button>
-      <button class="btn btn-o" data-s="resources">Resources</button>
+    <nav id="mainNav" role="navigation" aria-label="Main sections" style="margin:.75rem 0">
+      <div style="display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;margin-bottom:.3rem">
+        <button class="btn act" data-s="daily">Today</button>
+        <button class="btn btn-o" data-s="checkin">Check-In</button>
+        <button class="btn btn-o" data-s="insights">Insights</button>
+        <button class="btn btn-o" data-s="history">My History</button>
+      </div>
+      <div class="nav-group" id="ng-wellness">
+        <div class="nav-group-label" onclick="togNavGroup('ng-wellness')">Wellness &amp; Mindfulness \u25BC</div>
+        <div class="nav-group-items">
+          <button class="btn btn-o" data-s="affirmations">Affirmations</button>
+          <button class="btn btn-o" data-s="mindfulness">Mindfulness</button>
+          <button class="btn btn-o" data-s="journal">Journal</button>
+          <button class="btn btn-o" data-s="gratitude">Gratitude</button>
+          <button class="btn btn-o" data-s="gratLetter">Letters</button>
+          <button class="btn btn-o" data-s="values">Values</button>
+          <button class="btn btn-o" data-s="journeys">Journeys</button>
+        </div>
+      </div>
+      <div class="nav-group" id="ng-peace">
+        <div class="nav-group-label" onclick="togNavGroup('ng-peace')">Peace &amp; Empathy \u25BC</div>
+        <div class="nav-group-items">
+          <button class="btn btn-o" data-s="tolerance">Understanding</button>
+          <button class="btn btn-o" data-s="kindness">Kindness</button>
+          <button class="btn btn-o" data-s="kindWords">Kind Words</button>
+          <button class="btn btn-o" data-s="empathy">Empathy</button>
+          <button class="btn btn-o" data-s="cultures">Cultures</button>
+          <button class="btn btn-o" data-s="stories">Stories</button>
+          <button class="btn btn-o" data-s="pledges">Pledges</button>
+        </div>
+      </div>
+      <div class="nav-group" id="ng-skills">
+        <div class="nav-group-label" onclick="togNavGroup('ng-skills')">Skills &amp; Growth \u25BC</div>
+        <div class="nav-group-items">
+          <button class="btn btn-o" data-s="deescalation">De-escalation</button>
+          <button class="btn btn-o" data-s="conflict">Conflict</button>
+          <button class="btn btn-o" data-s="forgiveness">Forgiveness</button>
+          <button class="btn btn-o" data-s="peaceLog">Peace Log</button>
+          <button class="btn btn-o" data-s="resources">Resources</button>
+        </div>
+      </div>
     </nav>
     <div id="content" role="main" aria-live="polite"><div class="loading">Loading...</div></div>
   </div>
@@ -1066,6 +1087,23 @@ function renderInsights(el){
   const streak=getStreak();
   const insights=[];
 
+  // Progress dashboard stats
+  const peaceActionsAll=S.get('peace_actions',[]);
+  const empathyAll=S.get('empathy_reflections',[]);
+  const fgAll=S.get('forgiveness_notes',[]);
+  const lettersAll=S.get('gratitude_letters',[]);
+  const kwAll=S.get('kind_words_sent',[]);
+  const stats=[
+    {label:'Check-ins',val:hist.length,icon:'\u{1F4CA}'},
+    {label:'Journal',val:journal.length,icon:'\u{1F4DD}'},
+    {label:'Gratitude',val:gratitude.length,icon:'\u{1F49A}'},
+    {label:'Peace Acts',val:peaceActionsAll.length,icon:'\u{1F54A}\uFE0F'},
+    {label:'Pledges',val:pledges.length,icon:'\u{1F91D}'},
+    {label:'Empathy',val:empathyAll.length,icon:'\u{1F463}'},
+    {label:'Kind Words',val:kwAll.length,icon:'\u{1F4AC}'},
+    {label:'Letters',val:lettersAll.length,icon:'\u{1F48C}'},
+  ].filter(s=>s.val>0);
+
   if(hist.length>=5){
     // Mood trend
     const recent=hist.slice(-7);
@@ -1121,7 +1159,7 @@ function renderInsights(el){
 
   const typeColor={positive:'var(--pl)',care:'#fff3e0',neutral:'#f5f5f5'};
   el.innerHTML=`
-    <div class="card"><h2>Personal Insights</h2><p>Reflections based on your journey so far. The more you engage, the richer your insights become.</p></div>
+    ${stats.length?`<div class="card"><h2>Your Journey Dashboard</h2><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:.5rem;text-align:center">${stats.map(s=>`<div style="padding:.5rem;background:var(--pl);border-radius:8px"><div style="font-size:1.3rem">${s.icon}</div><div style="font-size:1.4rem;font-weight:700;color:var(--p)">${s.val}</div><div style="font-size:.75rem;color:var(--tl)">${esc(s.label)}</div></div>`).join('')}</div>${streak?`<p style="text-align:center;margin-top:.5rem">\u{1F525} <strong>${streak}-day streak</strong></p>`:''}</div>`:''}<div class="card"><h2>Personal Insights</h2><p>Reflections based on your journey so far. The more you engage, the richer your insights become.</p></div>
     ${insights.map(i=>`<div class="card" style="background:${typeColor[i.type]||'var(--c)'}"><span style="font-size:1.5rem">${i.icon}</span> <span>${esc(i.text)}</span></div>`).join('')}
     <div class="card"><h2>Data Portability</h2><p>Your data belongs to you. Export everything to a file, or import from another device.</p>
     <button class="btn" onclick="exportData()">Export My Data</button>
@@ -1346,6 +1384,11 @@ window.toggleDark=function(){
   document.querySelector('.dm-toggle').textContent=isDark?'\u2600\ufe0f':'\u{1F319}';
 };
 (function(){if(S.get('dark')){document.documentElement.classList.add('dark');document.querySelector('.dm-toggle').textContent='\u2600\ufe0f'}})();
+
+// Nav group toggle
+window.togNavGroup=function(id){
+  document.getElementById(id).classList.toggle('collapsed');
+};
 
 // ============================================================
 // PWA — Service Worker registration
